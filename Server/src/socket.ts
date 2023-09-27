@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { roomCodeGenerator } from './utils';
 import { rooms, Room } from './rooms';
+import { questions } from './questions';
 
 export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
@@ -41,6 +42,12 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           room.players.push(socket.id);
           socket.join(roomCode);
           socket.emit('joinedRoom', roomCode);
+          
+          // start game if there are 2 players
+          if (room.players.length == 2) {
+            const question = questions[Math.floor(Math.random() * questions.length)];
+            io.to(roomCode).emit('startGame', question);
+          }
         }
       }
 

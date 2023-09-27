@@ -96,6 +96,10 @@ export default {
         text: message,
       })
     })
+
+    this.$store.state.socket.on('startGame', (question) => {
+      console.log(question);
+    })
   },
   methods: {
     sendMessage() {

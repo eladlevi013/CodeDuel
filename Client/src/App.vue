@@ -10,7 +10,6 @@
 </template>
 
 <script>
-  import 'vue-m-message/dist/style.css'
 
   export default {
     name: 'App',
