@@ -39,6 +39,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
         if (room) {
           room.players.push(socket.id);
+          socket.join(roomCode);
           socket.emit('joinedRoom', roomCode);
         }
       }
@@ -46,5 +47,25 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       const publicRoomsArray = publicRooms();
       io.emit('getRooms', publicRoomsArray);
     })
+
+    socket.on('leaveRoom', (roomCode: string) => {
+      if (rooms.has(roomCode)) {
+        const room = rooms.get(roomCode);
+
+        if (room) {
+          room.players = room.players.filter(player => player !== socket.id);
+          socket.emit('leftRoom', roomCode);
+        }
+      }
+
+      const publicRoomsArray = publicRooms();
+      io.emit('getRooms', publicRoomsArray);
+    });
+
+    // chat events
+    socket.on('sendMessage', (message: string, roomCode: string) => {
+      console.log(message, roomCode);
+      socket.to(roomCode).emit('receiveMessage', message);
+    });
   })
 }

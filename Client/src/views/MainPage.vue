@@ -44,17 +44,20 @@
     },
     methods: {
       joinRoom(roomCode) {
-        this.socket.emit('joinRoom', roomCode);
+        this.$store.state.socket.emit('joinRoom', roomCode);
       },
       createRoom() {
-        this.socket.emit('createRoom');
+        this.$store.state.socket.emit('createRoom');
       }
     },
     mounted() {
       console.log('Connecting socket.io client to server...');
-      this.socket.emit('sendRooms');
+      this.$store.state.socket.emit('sendRooms');
 
-      this.socket.on('joinedRoom', (roomCode) => {
+      this.$store.state.socket.on('joinedRoom', (roomCode) => {
+        console.log(`Joined room ${roomCode}`);
+        this.$store.state.roomCode = roomCode;
+
         Message.info(() => ('Joined room ' + roomCode), {
           duration: 1500,
         });
@@ -62,7 +65,7 @@
         this.$router.push({ path: `game/room/${roomCode}` });
       });
 
-      this.socket.on('createdRoom', (roomCode) => {
+      this.$store.state.socket.on('createdRoom', (roomCode) => {
         this.$swal.fire({
           title: 'Room Created',
           text: 'Share this code with your friend: ' + roomCode,
@@ -76,7 +79,7 @@
         });
       });
 
-      this.socket.on('getRooms', (rooms) => {
+      this.$store.state.socket.on('getRooms', (rooms) => {
         console.log(JSON.stringify(rooms, null, 2));
         this.serversList = rooms;
       });

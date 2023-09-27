@@ -10,8 +10,6 @@
 </template>
 
 <script>
-  import io from 'socket.io-client'
-  import Message from 'vue-m-message'
   import 'vue-m-message/dist/style.css'
 
   export default {
@@ -22,41 +20,6 @@
         socket: null,
         serversList: [],
       };
-    },
-    methods: {
-      joinRoom(roomCode) {
-        this.socket.emit('joinRoom', roomCode);
-      },
-      createRoom() {
-        this.socket.emit('createRoom');
-      }
-    },
-    mounted() {
-      this.socket = io('http://localhost:3001');
-      this.socket.emit('sendRooms');
-      this.socket.on('joinedRoom', (roomCode) => {
-        Message.info(() => ('Joined room ' + roomCode), {
-          duration: 1500,
-        });
-      });
-
-      this.socket.on('createdRoom', (roomCode) => {
-        this.$swal.fire({
-          title: 'Room Created',
-          text: 'Share this code with your friend: ' + roomCode,
-          icon: 'success',
-          confirmButtonText: 'Copy Room Code',
-          confirmButtonColor: '#005ce6',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigator.clipboard.writeText(roomCode);
-          }
-        });
-      });
-
-      this.socket.on('getRooms', (rooms) => {
-        this.serversList = rooms;
-      });
     },
   };
 </script>

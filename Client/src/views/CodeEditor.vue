@@ -2,23 +2,42 @@
   <div class="mainPanel">
     <splitpanes class="default-theme" :sizes="[25, 75]" :push-other-panes="false">
       <pane size="30">
-  <div class="panel question-section">
-    <h2 class="questionTitle">Extended Example Question: Advanced Array Sum</h2>
-    <div class="content">
-      <p>
-        Given an array of integers, find two non-overlapping (contiguous) subarrays,
-        which have the largest sum. Return the indices of the two numbers such that
-        they add up to form the maximum possible sum. The number at each index is
-        considered to be part of the subarray.
-      </p>
-      <pre>
-        Given nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
-        The two subarrays are [1, 2, 3, 4, 5] and [6, 7, 8, 9, 10], 
-        The largest sum would be 55.
-      </pre>
-    </div>
+        <splitpanes horizontal>
+          <pane size="70">
+            <div class="panel question-section">
+              <h2 class="questionTitle">Extended Example Question: Advanced Array Sum</h2>
+              <div class="content">
+                <p>
+                  Given an array of integers, find two non-overlapping (contiguous) subarrays,
+                  which have the largest sum. Return the indices of the two numbers such that
+                  they add up to form the maximum possible sum. The number at each index is
+                  considered to be part of the subarray.
+                </p>
+                <pre>
+                  Given nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
+                  The two subarrays are [1, 2, 3, 4, 5] and [6, 7, 8, 9, 10], 
+                  The largest sum would be 55.
+                </pre>
+              </div>
+            </div>
+          </pane>
+         <!-- Chat -->
+        <pane>
+          <div class="chat-container">
+            <div v-for="message in messages" :key="message.id" class="chat-message" :class="{ 'chat-message-self': message.self, 'chat-message-other': !message.self }">
+  <div class="chat-message-bubble">
+    {{ message.text }}
+    <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
   </div>
-</pane>
+</div>
+          </div>
+          <div class="chat-input-container">
+            <input type="text" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Chat" class="chat-input" />
+            <button class="chat-send-button" @click="sendMessage">Send</button>
+          </div>
+        </pane>
+        </splitpanes>
+      </pane>
       <pane>
         <div class="panel code-section">
           <div class="toolbar">
@@ -59,13 +78,36 @@ import 'splitpanes/dist/splitpanes.css'
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { ref, computed } from 'vue'
-// import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-// import { eclipse } from '@uiw/codemirror-theme-eclipse'
 import { bespin } from '@uiw/codemirror-theme-bespin'
 import { solarizedLight } from 'thememirror';
 
 export default {
   components: { Splitpanes, Pane, Codemirror},
+  data() {
+    return {
+      messages: [],
+      newMessage: '',
+    }
+  },
+  mounted() {
+    this.$store.state.socket.on('receiveMessage', (message) => {
+      this.messages.push({
+        self: false,
+        text: message,
+      })
+    })
+  },
+  methods: {
+    sendMessage() {
+      this.messages.push({
+        self: true,
+        text: this.newMessage,
+      })
+
+      this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode)
+      this.newMessage = ''
+    }
+  },
   setup() {
     const isDarkMode = ref(false); // manage the theme state
     const selectedLanguage = ref('javascript')
@@ -277,17 +319,146 @@ h2 {
   background: linear-gradient(90deg, #DFD7BF, #DFD7BF);
 }
 
-.splitpanes--vertical > .splitpanes__splitter {
-  min-height: 6px;
-  cursor: row-resize;
-  background-color: #8D6E63;
-
+.splitpanes--vertical > .splitpanes__splitter:hover {
+  background: linear-gradient(90deg, #D0C8B0, #D0C8B0);
 }
+
+.splitpanes--vertical > .splitpanes__splitter:active {
+  background: linear-gradient(90deg, #C1B898, #C1B898);
+}
+
+.splitpanes--horizontal > .splitpanes__splitter {
+  min-height: 6px;
+  background: linear-gradient(0deg, #DFD7BF, #DFD7BF);
+}
+
+
 
 .questionTitle {
   margin-bottom: 10px;
   font-size: 1.5em;
   color: #3F2305;
+}
+
+.chat-container {
+  overflow-y: auto;
+  height: calc(100% - 100px); /* Adjusted height considering the input box height and padding */
+  border-top: 1px solid #A1887F;
+  border-bottom: 1px solid #A1887F;
+  padding: 10px;
+  background-color: #fffaed; /* to match the rest of the UI */
+}
+
+.chat-message-self {
+  text-align: left;
+}
+
+.chat-message-other {
+  text-align: right;
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #ddd; /* subtle border */
+  padding: 10px;
+  background-color: #fffaed;
+}
+
+.chat-input {
+  width: calc(100% - 80px); /* considering button width */
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #A1887F;
+  color: #3E2723;
+  font-size: 1em;
+  outline: none;
+}
+
+.chat-input::placeholder {
+  color: #6D4C41; /* subtle color for placeholder */
+}
+
+.chat-send-button {
+  background-color: #3F2305;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.chat-send-button:hover {
+  background-color: #3F2305;
+}
+
+.chat-message-self {
+  background-color: #D1C4E9; /* Lighter background for self messages */
+  padding: 5px;
+  border-radius: 8px;
+  margin-bottom: 7px;
+  display: inline-block;
+  max-width: 80%; /* Ensuring the message doesn't occupy full width */
+}
+
+.chat-message-other {
+  background-color: #BBDEFB; /* Lighter background for other messages */
+  padding: 5px;
+  border-radius: 8px;
+  margin-bottom: 7px;
+  display: inline-block;
+  max-width: 80%; /* Ensuring the message doesn't occupy full width */
+}
+
+.chat-container {
+  padding: 20px 10px; /* More padding at the top and bottom of the chat container */
+  background-color: #fffaf0; /* A light, pleasant background color */
+}
+
+/* Aligning the chat text to the respective side but the background (bubble) towards the center */
+.chat-message-self, .chat-message-other {
+  clear: both;
+}
+
+.chat-message-self {
+  float: left;
+  color: white;
+  background-color: #3F2305; /* A pleasant green background color */
+}
+
+.chat-message-other {
+  float: right;
+  background-color: #F2EAD3; /* A pleasant red background color */
+}
+
+/* Adding some box shadows for depth */
+.chat-message-self, .chat-message-other {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
+}
+
+/* Adjusting margin and padding */
+.chat-message-self, .chat-message-other {
+  margin: 3px 0;
+  padding: 5px 30px;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.timestamp-self, .timestamp-other {
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 3px;
+}
+
+.timestamp-self {
+  float: left;
+}
+
+.timestamp-other {
+  float: right;
 }
 
 </style>
