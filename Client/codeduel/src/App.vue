@@ -27,15 +27,15 @@
     </div>
 
     <div class="servers-container">
-      <h1 class="title" style="font-size: 40px; margin-top: 70px; margin-bottom: 20px;">Servers🗄️</h1>
+      <h1 class="title" style="font-size: 40px; margin-top: 70px; margin-bottom: 20px;">Rooms🗄️</h1>
       <div v-for="server in serversList" :key="server.roomCode" class="server-wrapper" v-auto-animate>
         <button @click="joinRoom(server.roomCode)" class="server-btn">
           Room Code: {{ server.roomCode }} <n/> Players: {{ server?.players?.length }}
         </button>
       </div>
 
-      <h3 v-if="this.serversList == 0">There are no servers...</h3>
     </div>
+    <h3 v-if="this.serversList == 0" class="no-servers-text">There are no servers...</h3>
   </div>
 </template>
 
@@ -97,6 +97,11 @@
 </script>
 
 <style>
+.no-servers-text {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
 .parContainer {
   font-size: 30px;
   font-family: 'Poppins', sans-serif;
@@ -137,6 +142,7 @@ body {
   text-shadow: 0px 0px 5px #0000001a;
   margin-bottom: 3rem;
   margin-top: -30px;
+  grid-area: header;
 }
 
 .action-container {
@@ -165,21 +171,30 @@ input {
 }
 
 .servers-container {
+  text-align: center;
   margin-top: 3rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 350px);
+  gap: 1rem;
+  justify-content: center;
   align-items: center;
+  grid-column-start: 2;
+  grid-template-areas: "header header header";
+  max-width: 70%;
+  margin: auto;
+  margin-bottom: 50px;
 }
 
 .server-wrapper {
-  margin-bottom: 1rem; /* Refine spacing as per your preference */
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .server-btn {
-  height: 70px;
-  width: 450px;
+  font-size: 15px;
+  justify-content: center;
   background: #351e11;
-  padding: 10px 100px; 
   color: #FAFAFA;
   border: none;
   border-radius: 5px;
@@ -199,13 +214,13 @@ button {
   border-radius: .5rem;
   box-sizing: border-box;
   color: #482307;
-  column-gap: 1rem;
+  column-gap: 0.5rem;
   cursor: pointer;
   display: flex;
   font-family: ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
   font-size: 100%;
   font-weight: 700;
-  line-height: 24px;
+  line-height: 18px;
   margin: 0;
   outline: 2px solid transparent;
   padding: 1rem 4.5rem;
