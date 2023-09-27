@@ -1,6 +1,6 @@
 <template>
   <div class="mainPanel">
-    <splitpanes class="default-theme" :sizes="[25, 75]" :push-other-panes="false">
+    <splitpanes class="default-theme">
       <pane size="30">
         <splitpanes horizontal>
           <pane size="70">
@@ -25,11 +25,11 @@
         <pane>
           <div class="chat-container">
             <div v-for="message in messages" :key="message.id" class="chat-message" :class="{ 'chat-message-self': message.self, 'chat-message-other': !message.self }">
-  <div class="chat-message-bubble">
-    {{ message.text }}
-    <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
-  </div>
-</div>
+            <div class="chat-message-bubble">
+              {{ message.text }}
+              <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
+            </div>
+          </div>
           </div>
           <div class="chat-input-container">
             <input type="text" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Chat" class="chat-input" />
@@ -62,7 +62,7 @@
               :indent-with-tab="true"
               :tab-size="2"
               :extensions="extensions"
-              :options="{ theme: 'vscode-dark' }"
+              :options="{ theme: 'vscode-dark'}"
               @ready="handleReady"
             />
           </div>
@@ -99,13 +99,15 @@ export default {
   },
   methods: {
     sendMessage() {
-      this.messages.push({
-        self: true,
-        text: this.newMessage,
-      })
+      if (this.newMessage.trim() !== '') {
+        this.messages.push({
+          self: true,
+          text: this.newMessage,
+        })
 
-      this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode)
-      this.newMessage = ''
+        this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode)
+        this.newMessage = ''
+      }
     }
   },
   setup() {
