@@ -1,4 +1,3 @@
-//main.js or main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
 import MainPage from './views/MainPage.vue'

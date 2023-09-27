@@ -1,15 +1,19 @@
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import { createServer } from 'http';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { rootRouter } from './routes';
 import { setupSocketIO } from './socket';
 
-// setup express and socketio
-const app: Express = express();
+dotenv.config();
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+app.use('/', rootRouter);
+
 const httpServer = createServer(app);
 setupSocketIO(httpServer);
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello From Server');
-});
-
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
