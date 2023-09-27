@@ -22,6 +22,11 @@
       <pane>
         <div class="panel code-section">
           <div class="toolbar">
+            <div class="theme-toggle">
+              <i v-if="!isDarkMode" @click="toggleTheme" class="fas fa-sun fa-2x"></i>
+              <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
+          </div>
+
             <select v-model="selectedLanguage" class="language-selector">
               <option value="java">Java</option>
               <option value="javascript">JavaScript</option>
@@ -56,17 +61,26 @@ import { javascript } from '@codemirror/lang-javascript'
 import { ref, computed } from 'vue'
 // import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 // import { eclipse } from '@uiw/codemirror-theme-eclipse'
-// import { bespin } from '@uiw/codemirror-theme-bespin'
-import {solarizedLight} from 'thememirror';
-
+import { bespin } from '@uiw/codemirror-theme-bespin'
+import { solarizedLight } from 'thememirror';
 
 export default {
-  components: { Splitpanes, Pane, Codemirror },
+  components: { Splitpanes, Pane, Codemirror},
   setup() {
+    const isDarkMode = ref(false); // manage the theme state
     const selectedLanguage = ref('javascript')
     const code = ref(`console.log('Hello, world!')`)
-    const extensions = [javascript(), solarizedLight]
+    const extensions = ref([javascript(), solarizedLight]); // this should now be a ref instead of const
     const view = ref(null)
+
+    const toggleTheme = () => {
+      isDarkMode.value = !isDarkMode.value;
+      if (isDarkMode.value) {
+        extensions.value = [javascript(), bespin]; // change to dark theme
+      } else {
+        extensions.value = [javascript(), solarizedLight]; // change to light theme
+      }
+    }
 
     const placeholder = computed(() => `Write your ${selectedLanguage.value} code here...`)
 
@@ -79,6 +93,8 @@ export default {
     }
 
     return {
+      isDarkMode,
+      toggleTheme,
       selectedLanguage,
       code,
       extensions,
@@ -91,6 +107,10 @@ export default {
 </script>
 
 <style>
+
+.theme-toggle i { 
+  margin-left: 10px; 
+}
 
 .mainPanel {
   height: 94vh;
