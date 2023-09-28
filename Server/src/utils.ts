@@ -14,11 +14,7 @@ import axios from 'axios';
 
 export async function pollForResult(token: string): Promise<any> {
     const resultOptions = {
-        url: `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
-        headers: {
-            'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '',
-            'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
-        }
+        url: `http://localhost:2358/submissions/${token}`,
     };
 
     let attempts = 0;

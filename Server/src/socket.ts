@@ -95,16 +95,14 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
     async function executeCode(languageId:number, code:string) {
       const submissionOptions = {
-          url: 'https://judge0-ce.p.rapidapi.com/submissions',
+          url: 'http://localhost:2358/submissions',
           method: 'POST',
           headers: {
-              'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '',
-              'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-              'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
           },
           data: JSON.stringify({
-              "language_id": languageId,
-              "source_code": code,
+            "language_id": languageId,
+            "source_code": code,
           })
       };
   

@@ -19,7 +19,7 @@
       <h1 class="roomsTitle">Rooms🗄️</h1>
       <div v-for="server in servers" :key="server.roomCode" class="server-wrapper" v-auto-animate>
         <button @click="joinRoom(server.roomCode)" class="server-btn">
-          Room Code: {{ server.roomCode }} <br/> Players: {{ server?.players?.length }}
+          Code: {{ server.roomCode }} <br/> Players: {{ server?.players?.length }}
         </button>
       </div>
     </div>
@@ -56,6 +56,7 @@
         this.$store.state.socket.emit('joinRoom', roomCode);
       },
       createRoom() {
+        this.$store.state.socket.emit('leaveRoom', this.joinedRoomCode);
         this.$store.state.socket.emit('createRoom');
       }
     },
@@ -110,15 +111,14 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background-color: #fff8e7;
+  background: rgb(245,245,245);
+background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
+background-repeat: no-repeat;
 }
 
 .main {
   text-align: center;
   padding: 8rem;
-  border-radius: 0 0 50px 50px;
-  box-shadow: 0px 0px 5px 1px #0000001a;
-  background: #f8eedb url('../../public/texture.png');
 }
 
 .title {
@@ -165,8 +165,6 @@ button {
   cursor: pointer;
   border: none;
   border-radius: .5rem;
-  display: flex;
-  justify-content: center;
   font-size: 1rem;
   padding: 1rem 4.5rem;
   transition: transform 0.2s ease-in-out, 
@@ -189,9 +187,15 @@ button {
 }
 
 .server-btn {
-  background-color: #482307;
-  color: #FAFAFA;
+  border: 3px solid #26160d;
+  padding: 0rem 3rem;
   height: 70px;
+  background: linear-gradient(to bottom, 
+    #765827, #65451F);
+    color: #FAFAFA;
+  box-shadow: -6px 8px 10px rgba(81,41,10,0.1),
+    0px 2px 2px rgba(81,41,10,0.2);
+  font-size: 14px;
 }
 
 button:hover {
@@ -207,14 +211,13 @@ button:hover {
 }
 
 .servers-container {
+  margin: 3rem auto 50px auto;
   display: grid;
-  grid-template-columns: repeat(3, 350px);
+  grid-template-columns: repeat(3, 200px);
   grid-template-areas:
     "title title title"
     "server server server";
   gap: 1rem;
-  margin: 3rem auto 50px auto;
-  max-width: 70%;
 }
 
 .server-wrapper {
