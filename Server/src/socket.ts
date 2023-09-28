@@ -1,8 +1,10 @@
+import axios from 'axios';
+import { pollForResult } from './utils';
+import { questions } from './questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { roomCodeGenerator } from './utils';
 import { rooms, Room } from './rooms';
-import { questions } from './questions';
 
 export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
@@ -19,6 +21,104 @@ export const setupSocketIO = (httpServer: HttpServer) => {
   }
 
   io.on('connection', (socket: Socket) => {
+    socket.on('codeSubmission', async (code: string, questionId: string, language: string) => {
+      let languageId;
+      let trimmedLanguage = language.trim().toLowerCase();
+
+      switch (trimmedLanguage) {
+        case 'python':
+          languageId = 71;
+          break;
+        case 'javascript':
+          languageId = 63;
+          break;
+        case "java":
+          languageId = 62;
+          break;
+        default:
+          return;
+      }
+
+      // checking test cases on given code
+      const question = questions[parseInt(questionId) - 1];
+      const testCases: Map<string, string> = question.testCases;
+
+      let checkStatement = "";
+      switch (trimmedLanguage) {
+        case 'python':
+          if (question.funcSignature.returnType === 'string') {
+            checkStatement = `print(${[...testCases].map(([input, output]) => `${question.funcSignature.name}('${input}') == '${output}'`).join(' and ')})`;
+          } else {
+            checkStatement = `print(${[...testCases].map(([input, output]) => `${question.funcSignature.name}(${input}) == ${output}`).join(' and ')})`;
+          }
+          break;
+          
+        case 'javascript':
+          if (question.funcSignature.returnType === 'string') {
+            checkStatement = `console.log(${[...testCases].map(([input, output]) => `${question.funcSignature.name}('${input}') === '${output}'`).join(' && ')})`;
+          } else {
+            checkStatement = `console.log(${[...testCases].map(([input, output]) => `${question.funcSignature.name}(${input}) === ${output}`).join(' && ')})`;
+          }
+          break;
+
+        case 'java':
+          const className = "Main";
+          const methodStatements = [...testCases].map(([input, output]) => {
+            if (question.funcSignature.returnType === 'string') {
+              return `System.out.println(${question.funcSignature.name}("${input}").equals("${output}"));`;
+            } else {
+              return `System.out.println(${question.funcSignature.name}(${input}) == ${output});`;
+            }
+          }).join('\n');
+          
+          checkStatement = `
+            public class ${className} {
+              ${code}
+
+              public static void main(String[] args) {
+                ${methodStatements}
+              }
+            }
+          `;
+        break;
+      }
+
+      const finalCode = trimmedLanguage === 'java' ? checkStatement : `${code}\n${checkStatement}`;
+
+      console.log(finalCode);
+
+      const result = await executeCode(languageId, finalCode);
+      
+      console.log(result);
+      socket.emit('codeResult', result.stdout);
+    });
+
+    async function executeCode(languageId:number, code:string) {
+      const submissionOptions = {
+          url: 'https://judge0-ce.p.rapidapi.com/submissions',
+          method: 'POST',
+          headers: {
+              'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '',
+              'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+              'Content-Type': 'application/json'
+          },
+          data: JSON.stringify({
+              "language_id": languageId,
+              "source_code": code,
+          })
+      };
+  
+      try {
+          const submissionResponse = await axios(submissionOptions);
+          const token = submissionResponse.data.token;
+          const resultResponse = await pollForResult(token);
+          return resultResponse.data;
+      } catch (error) {
+          console.error(error);
+          throw error;
+      }
+  }
+
     socket.on('sendRooms', (message: string) => {
       socket.emit('getRooms', publicRooms());
     });

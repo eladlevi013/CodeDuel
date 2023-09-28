@@ -109,7 +109,7 @@ export default {
       this.view = payload.view;
     },
     runCode() {
-      console.log('Running the code:', this.code);
+      this.$store.state.socket.emit('codeSubmission', this.code, this.question.id, this.selectedLanguage);
     },
     updateCode() {
       this.extensions = this.getExtensions();
@@ -152,6 +152,11 @@ export default {
         self: false,
         text: message,
       });
+    });
+
+    this.$store.state.socket.on('codeResult', (result) => {
+      Message.closeAll();
+      Message.info(() => (`Code result: ${result}`), {duration: 1500})
     });
 
     this.$store.state.socket.on('otherPlayerLeft', () => {
