@@ -1,66 +1,77 @@
 <template>
-  <div class="mainPanel">
-    <splitpanes class="default-theme">
-      <pane size="30">
-        <splitpanes horizontal>
-          <pane size="70">
-            <div class="panel question-section">
-              <h2 class="questionTitle">Question {{ question.id }}: {{ question.title }}</h2>
-              <div class="content">
-                <p>{{ question.description }}</p>
-                <pre>{{ question.example }}</pre>
+<div class="mainDiv">
+  <splitpanes class="default-theme">
+    <pane size="30">
+      <splitpanes horizontal>
+        <!-- Question section -->
+        <pane size="70">
+          <div class="panel question-section">
+            <h2 class="question-title">Question {{ question.id }}: {{ question.title }}</h2>
+            <div class="content">
+              <p>{{ question.description }}</p>
+              <pre>{{ question.example }}</pre>
+            </div>
+          </div>
+        </pane>
+        
+        <!-- Chat section -->
+        <pane>
+          <div class="chat-container">
+            <div v-for="message in messages" :key="message.id" class="chat-message" 
+              :class="{ 'self': message.self, 'other': !message.self }">
+              <div class="chat-message-bubble">
+                {{ message.text }}
+                <div :class="{ 'timestamp-self': message.self, 'timestamp-other': 
+                  !message.self }">{{ message.timestamp }}</div>
               </div>
             </div>
-          </pane>
-          <!-- Chat -->
-          <pane>
-            <div class="chat-container">
-              <div v-for="message in messages" :key="message.id" class="chat-message" :class="{ 'chat-message-self': message.self, 'chat-message-other': !message.self }">
-                <div class="chat-message-bubble">
-                  {{ message.text }}
-                  <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
-                </div>
-              </div>
-            </div>
-            <div class="chat-input-container">
-              <input type="text" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Chat" class="chat-input" />
-              <button class="chat-send-button" @click="sendMessage">Send</button>
-            </div>
-          </pane>
-        </splitpanes>
-      </pane>
-      <pane>
-        <div class="panel code-section">
-          <div class="toolbar">
-            <div class="theme-toggle">
-              <i v-if="!isDarkMode" @click="toggleTheme" class="fas fa-sun fa-2x"></i>
-              <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
-            </div>
-            <select v-model="selectedLanguage" class="language-selector">
-              <option value="java">Java</option>
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-            </select>
-            <button class="run-button" @click="runCode">Run</button>
           </div>
-          <div class="content">
-            <codemirror v-model="code" :placeholder="getPlaceholder()" :style="{ height: 'calc(100% - 0px)', fontSize: '2em' }" :autofocus="true"
-              :indent-with-tab="true" :tab-size="2" :extensions="extensions" :options="{ theme: 'vscode-dark' }" @ready="handleReady" />
+          <div class="chat-input-container">
+            <input type="text" v-model="newMessage" @keyup.enter="sendMessage" 
+              placeholder="Chat" class="chat-input" />
+            <button class="chat-send-button" @click="sendMessage">Send</button>
           </div>
+        </pane>
+      </splitpanes>
+    </pane>
+
+    <!-- Code editor section -->
+    <pane>
+      <div class="panel code-section">
+        <div class="toolbar">
+          <div class="theme-toggle">
+            <i v-if="!isDarkMode" @click="toggleTheme" class="fas fa-sun fa-2x"></i>
+            <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
+          </div>
+          <select v-model="selectedLanguage" class="language-selector">
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+          </select>
+          <button class="run-button" @click="runCode">Run</button>
         </div>
-      </pane>
-    </splitpanes>
-  </div>
+        <div class="content">
+          <codemirror v-model="code" :placeholder="getPlaceholder()" :style="{ height: 'calc(100% - 0px)',
+            fontSize: '2em' }" :autofocus="true" :indent-with-tab="true" :tab-size="2" :extensions="extensions"
+            :options="{ theme: 'vscode-dark' }" @ready="handleReady"/>
+        </div>
+      </div>
+    </pane>
+  </splitpanes>
+</div>
 </template>
 
 <script>
 import { getSignitureByLanguage } from '../utils/ideUtility';
+// import splitpanes and its css
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
+// codemirror language support
 import { Codemirror } from 'vue-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { java } from '@codemirror/lang-java';
+// codemirror themes
 import { bespin } from '@uiw/codemirror-theme-bespin';
 import { solarizedLight } from '@uiw/codemirror-theme-solarized';
 // message alert library
@@ -134,7 +145,7 @@ export default {
       handler() {
         this.updateCode();
       },
-      immediate: false, // to run the handler immediately after the component’s mounting
+      immediate: false,
     },
   },
   mounted() {
@@ -180,172 +191,108 @@ export default {
 </script>
 
 <style>
-
-/* Adjust the color to suit your needs */
-.theme-toggle i { 
-  margin-left: 10px; 
-}
-
-.mainPanel {
-  height: 94vh;
-  width: 100%;
+.mainDiv {
   color: #3E2723;
+  height: calc(100vh - 60px);
 }
-
 
 .panel {
   height: 100%;
-  padding: 10px;
   overflow-y: auto;
-  border: 1px solid #8D6E63;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  
-}
-
-.question-section {
-  background-color: #fff9ea;
 }
 
 .code-section {
   background-color: #fffaed;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
 }
 
 .toolbar {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-.content  {
-  flex-grow: 1;
+.content {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+}
+
+.content p {
+  color: #212529;
+  font-size: 1.2em;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.content pre {
+  background-color: #f0f1f2;
+  border: 1px solid #c4beae;
+  border-radius: 5px;
+  color: #212529;
+  font-size: 1.1em;
+  line-height: 1.5;
+  padding: 15px;
 }
 
 pre {
   background-color: #F5F5DC;
-  padding: 10px;
-  border-radius: 4px;
   border: 1px solid #A1887F;
-
-
+  border-radius: 4px;
+  padding: 10px;
 }
 
 .language-selector {
-  padding: 5px;
-  border-radius: 5px;
   background-color: #FFFAEB;
   border: 1px solid #6D4C41;
+  border-radius: 5px;
   color: #3E2723;
+  margin: 10px 0;
+  padding: 5px;
 }
 
 .run-button {
   background-color: #4CAF50;
-  color: white;
-  padding: 10px 50px;
   border: none;
   border-radius: 5px;
+  color: white;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin: 10px 10px 10px 0;
+  padding: 10px 40px;
 }
 
-.run-button:hover {
-  background-color: #45a049;
-}
+.run-button:hover { background-color: #45a049; }
 
-.code-section {
-  border-radius: 0;
-}
-
-
-
-h2 {
-  margin-bottom: 10px;
-  font-size: 1.5em;
-  color: #6D4C41;
-}
-
-p {
-  margin-bottom: 10px;
-}
+p { margin-bottom: 10px; }
 
 .question-section {
-  background-color: #fffaed; /* Lighter background color for better readability */
-  color: #495057; /* Darker text color for better readability */
-  border: 1px solid #E9ECEF; /* Subtle border color */
-  padding: 20px; /* Increased padding */
+  background-color: #fff9ea;
+  border: 1px solid #E9ECEF;
+  color: #495057;
+  padding: 20px;
 }
 
-h2 {
-  font-size: 2em; /* Increased font size */
-  color: #6C757D; /* More subtle color */
-  margin-bottom: 15px; /* Increased margin */
-  font-weight: 600; /* Bolder font weight */
-}
-
-.content p {
-  font-size: 1.2em; /* Increased font size */
-  line-height: 1.6; /* Improved line spacing */
-  margin-bottom: 20px; /* Increased margin */
-  color: #212529; /* Darker text color */
-}
-
-.content pre {
-  background-color: #f0f1f2; /* Lighter background color */
-  color: #212529; /* Darker text color */
-  padding: 15px; /* Increased padding */
-  border-radius: 5px; /* Rounded corners */
-  border: 1px solid #c4beae; /* Subtle border color */
-  font-size: 1.1em; /* Increased font size */
-  line-height: 1.5; /* Improved line spacing */
+.question-title {
+  color: #3F2305;
+  font-size: 1.5em;
+  margin-bottom: 10px;
 }
 
 .question-section pre {
+  background-color: #e5dfcc;
   text-align: left;
-  white-space: pre-line; /* This will allow the text to wrap */
-  background-color: #e5dfcc
-
-
-
+  white-space: pre-line;
 }
 
-.code-section, .code-section * {
-  margin: 0;
-  padding: 0;
-  border: none;
-  box-sizing: border-box;
-}
-
-.language-selector {
-  margin-bottom: 10px;
-  padding: 5px;
-  border-radius: 5px;
-  background-color: #FFFAEB;
-  border: 1px solid #6D4C41;
-  color: #3E2723;
-  margin-top: 10px;
+.theme-toggle i {
   margin-left: 10px;
 }
 
-.run-button {
-  background-color: #4CAF50; /* Green */
-  color: white;
-  padding: 10px 40px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  align-self: flex-start; /* Align to the start of flex container */
-  margin-bottom: 10px;
-  margin-right: 10px;
-}
-
-.run-button:hover {
-  background-color: #45a049; /* Darker green */
-}
-
+/* Overriding default splitpanes */
 .splitpanes--vertical > .splitpanes__splitter {
   min-width: 6px;
   background: linear-gradient(90deg, #DFD7BF, #DFD7BF);
@@ -364,120 +311,28 @@ h2 {
   background: linear-gradient(0deg, #DFD7BF, #DFD7BF);
 }
 
-
-
-.questionTitle {
-  margin-bottom: 10px;
-  font-size: 1.5em;
-  color: #3F2305;
-}
-
+/* Chat Styles */
 .chat-container {
   overflow-y: auto;
-  height: calc(100% - 100px); /* Adjusted height considering the input box height and padding */
+  height: calc(100% - 100px);
+  padding: 20px 10px;
   border-top: 1px solid #A1887F;
   border-bottom: 1px solid #A1887F;
-  padding: 10px;
-  background-color: #fffaed; /* to match the rest of the UI */
-}
-
-.chat-message-self {
-  text-align: left;
-}
-
-.chat-message-other {
-  text-align: right;
-}
-
-.chat-input-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid #ddd; /* subtle border */
-  padding: 10px;
   background-color: #fffaed;
 }
 
-.chat-input {
-  width: calc(100% - 80px); /* considering button width */
-  padding: 10px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  border: 1px solid #A1887F;
-  color: #3E2723;
-  font-size: 1em;
-  outline: none;
-}
-
-.chat-input::placeholder {
-  color: #6D4C41; /* subtle color for placeholder */
-}
-
-.chat-send-button {
-  background-color: #3F2305;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-}
-
-.chat-send-button:hover {
-  background-color: #3F2305;
-}
-
-.chat-message-self {
-  background-color: #D1C4E9; /* Lighter background for self messages */
-  padding: 5px;
-  border-radius: 8px;
-  margin-bottom: 7px;
-  display: inline-block;
-  max-width: 80%; /* Ensuring the message doesn't occupy full width */
-}
-
-.chat-message-other {
-  background-color: #BBDEFB; /* Lighter background for other messages */
-  padding: 5px;
-  border-radius: 8px;
-  margin-bottom: 7px;
-  display: inline-block;
-  max-width: 80%; /* Ensuring the message doesn't occupy full width */
-}
-
-.chat-container {
-  padding: 20px 10px; /* More padding at the top and bottom of the chat container */
-  background-color: #fffaf0; /* A light, pleasant background color */
-}
-
-/* Aligning the chat text to the respective side but the background (bubble) towards the center */
-.chat-message-self, .chat-message-other {
+.chat-message {
+  text-align: left;
   clear: both;
-}
-
-.chat-message-self {
-  float: left;
-  color: white;
-  background-color: #3F2305; /* A pleasant green background color */
-}
-
-.chat-message-other {
-  float: right;
-  background-color: #F2EAD3; /* A pleasant red background color */
-}
-
-/* Adding some box shadows for depth */
-.chat-message-self, .chat-message-other {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
-}
-
-/* Adjusting margin and padding */
-.chat-message-self, .chat-message-other {
   margin: 3px 0;
   padding: 5px 30px;
   border-radius: 5px;
-  text-align: left;
+  max-width: 80%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
 }
+
+.self { float: left; color: white; background-color: #3F2305; }
+.other { float: right; background-color: #F2EAD3; text-align: right; }
 
 .timestamp-self, .timestamp-other {
   font-size: 0.8em;
@@ -485,12 +340,38 @@ h2 {
   margin-top: 3px;
 }
 
-.timestamp-self {
-  float: left;
+.timestamp-self { float: left; }
+.timestamp-other { float: right; }
+
+.chat-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: #fffaed;
 }
 
-.timestamp-other {
-  float: right;
+.chat-input {
+  width: calc(100% - 80px);
+  padding: 10px;
+  border: 1px solid #A1887F;
+  border-radius: 4px;
+  color: #3E2723;
+  font-size: 1em;
+  outline: none;
 }
 
+.chat-input::placeholder { color: #6D4C41; }
+
+.chat-send-button {
+  padding: 10px 20px;
+  background-color: #3F2305;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  margin-left: 5px;
+}
 </style>
