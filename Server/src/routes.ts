@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { executeCode } from './controllers';
+import { runTestCases } from './controllers';
 
 export const rootRouter = Router();
 
-rootRouter.get('/', executeCode);
+rootRouter.post('/submission', runTestCases);

@@ -5,37 +5,28 @@
         <splitpanes horizontal>
           <pane size="70">
             <div class="panel question-section">
-              <h2 class="questionTitle">Extended Example Question: Advanced Array Sum</h2>
+              <h2 class="questionTitle">Question {{ question.id }}: {{ question.title }}</h2>
               <div class="content">
-                <p>
-                  Given an array of integers, find two non-overlapping (contiguous) subarrays,
-                  which have the largest sum. Return the indices of the two numbers such that
-                  they add up to form the maximum possible sum. The number at each index is
-                  considered to be part of the subarray.
-                </p>
-                <pre>
-                  Given nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 
-                  The two subarrays are [1, 2, 3, 4, 5] and [6, 7, 8, 9, 10], 
-                  The largest sum would be 55.
-                </pre>
+                <p>{{ question.description }}</p>
+                <pre>{{ question.example }}</pre>
               </div>
             </div>
           </pane>
-         <!-- Chat -->
-        <pane>
-          <div class="chat-container">
-            <div v-for="message in messages" :key="message.id" class="chat-message" :class="{ 'chat-message-self': message.self, 'chat-message-other': !message.self }">
-            <div class="chat-message-bubble">
-              {{ message.text }}
-              <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
+          <!-- Chat -->
+          <pane>
+            <div class="chat-container">
+              <div v-for="message in messages" :key="message.id" class="chat-message" :class="{ 'chat-message-self': message.self, 'chat-message-other': !message.self }">
+                <div class="chat-message-bubble">
+                  {{ message.text }}
+                  <div :class="{ 'timestamp-self': message.self, 'timestamp-other': !message.self }">{{ message.timestamp }}</div>
+                </div>
+              </div>
             </div>
-          </div>
-          </div>
-          <div class="chat-input-container">
-            <input type="text" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Chat" class="chat-input" />
-            <button class="chat-send-button" @click="sendMessage">Send</button>
-          </div>
-        </pane>
+            <div class="chat-input-container">
+              <input type="text" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Chat" class="chat-input" />
+              <button class="chat-send-button" @click="sendMessage">Send</button>
+            </div>
+          </pane>
         </splitpanes>
       </pane>
       <pane>
@@ -44,8 +35,7 @@
             <div class="theme-toggle">
               <i v-if="!isDarkMode" @click="toggleTheme" class="fas fa-sun fa-2x"></i>
               <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
-          </div>
-
+            </div>
             <select v-model="selectedLanguage" class="language-selector">
               <option value="java">Java</option>
               <option value="javascript">JavaScript</option>
@@ -54,17 +44,8 @@
             <button class="run-button" @click="runCode">Run</button>
           </div>
           <div class="content">
-            <codemirror
-              v-model="code"
-              :placeholder="placeholder"
-              :style="{ height: 'calc(100% - 0px)', fontSize: '2em'}"
-              :autofocus="true"
-              :indent-with-tab="true"
-              :tab-size="2"
-              :extensions="extensions"
-              :options="{ theme: 'vscode-dark'}"
-              @ready="handleReady"
-            />
+            <codemirror v-model="code" :placeholder="getPlaceholder()" :style="{ height: 'calc(100% - 0px)', fontSize: '2em' }" :autofocus="true"
+              :indent-with-tab="true" :tab-size="2" :extensions="extensions" :options="{ theme: 'vscode-dark' }" @ready="handleReady" />
           </div>
         </div>
       </pane>
@@ -73,89 +54,122 @@
 </template>
 
 <script>
-import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
-import { Codemirror } from 'vue-codemirror'
-import { javascript } from '@codemirror/lang-javascript'
-import { ref, computed } from 'vue'
-import { bespin } from '@uiw/codemirror-theme-bespin'
-import { solarizedLight } from 'thememirror';
+import { getSignitureByLanguage } from '../utils/ideUtility';
+import { Splitpanes, Pane } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
+import { Codemirror } from 'vue-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
+import { python } from '@codemirror/lang-python';
+import { java } from '@codemirror/lang-java';
+import { bespin } from '@uiw/codemirror-theme-bespin';
+import { solarizedLight } from '@uiw/codemirror-theme-solarized';
+// message alert library
+import Message from 'vue-m-message';
+import 'vue-m-message/dist/style.css'
 
 export default {
-  components: { Splitpanes, Pane, Codemirror},
+  components: { Splitpanes, Pane, Codemirror },
   data() {
     return {
+      isDarkMode: false,
+      selectedLanguage: 'java',
+      code: ``,
+      extensions: [javascript(), solarizedLight],
+      view: null,
       messages: [],
       newMessage: '',
-    }
+      question: {},
+    };
   },
-  mounted() {
-    this.$store.state.socket.on('receiveMessage', (message) => {
-      this.messages.push({
-        self: false,
-        text: message,
-      })
-    })
-
-    this.$store.state.socket.on('startGame', (question) => {
-      console.log(question);
-    })
+  beforeUnmount() {
+    this.$store.state.socket.off('receiveMessage');
+    this.$store.state.socket.off('otherPlayerLeft');
   },
   methods: {
+    getPlaceholder() {
+      return `Write your ${this.selectedLanguage} code here...`;
+    },
+    getExtensions() {
+    switch (this.selectedLanguage) {
+      case 'javascript':
+        return [javascript(), this.isDarkMode ? bespin : solarizedLight];
+      case 'python':
+        return [python(), this.isDarkMode ? bespin : solarizedLight];
+      case 'java':
+        return [java(), this.isDarkMode ? bespin : solarizedLight];
+      default:
+        return [this.isDarkMode ? bespin : solarizedLight];
+    }
+  },
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    this.extensions = this.getExtensions();
+  },
+    handleReady(payload) {
+      this.view = payload.view;
+    },
+    runCode() {
+      console.log('Running the code:', this.code);
+    },
+    updateCode() {
+      this.extensions = this.getExtensions();
+      console.log('after: ' + JSON.stringify(this.question));
+      this.code = getSignitureByLanguage(this.question.funcSignature, this.selectedLanguage);
+    },
     sendMessage() {
       if (this.newMessage.trim() !== '') {
         this.messages.push({
           self: true,
           text: this.newMessage,
-        })
-
-        this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode)
-        this.newMessage = ''
+        });
+        this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode);
+        this.newMessage = '';
       }
-    }
+    },
   },
-  setup() {
-    const isDarkMode = ref(false); // manage the theme state
-    const selectedLanguage = ref('javascript')
-    const code = ref(`console.log('Hello, world!')`)
-    const extensions = ref([javascript(), solarizedLight]); // this should now be a ref instead of const
-    const view = ref(null)
+  watch: {
+    selectedLanguage: {
+      handler() {
+        this.updateCode();
+      },
+      immediate: false, // to run the handler immediately after the component’s mounting
+    },
+  },
+  mounted() {
+    this.question = this.$store.state.question;
+    this.roomCode = this.$store.state.roomCode;
+    const socketConnected = this.$store.state.socket.connected;
 
-    const toggleTheme = () => {
-      isDarkMode.value = !isDarkMode.value;
-      if (isDarkMode.value) {
-        extensions.value = [javascript(), bespin]; // change to dark theme
-      } else {
-        extensions.value = [javascript(), solarizedLight]; // change to light theme
-      }
+    // If the socket is connected, update the code
+    if (socketConnected) {
+      this.updateCode();
+    } else {
+      this.$router.push('/');
     }
 
-    const placeholder = computed(() => `Write your ${selectedLanguage.value} code here...`)
+    this.$store.state.socket.on('receiveMessage', (message) => {
+      this.messages.push({
+        self: false,
+        text: message,
+      });
+    });
 
-    const handleReady = (payload) => {
-      view.value = payload.view
-    }
+    this.$store.state.socket.on('otherPlayerLeft', () => {
+      Message.warning('Other player left the room, redirecting to home page...', {
+        duration: 3000,
+      });
 
-    const runCode = () => {
-      console.log('Running the code:', code.value)
-    }
-
-    return {
-      isDarkMode,
-      toggleTheme,
-      selectedLanguage,
-      code,
-      extensions,
-      placeholder,
-      handleReady,
-      runCode,
-    }
-  }
-}
+      setTimeout(() => {
+        this.$router.push('/');
+      }, 3000)
+    });
+  },
+};
 </script>
 
 <style>
 
+/* Adjust the color to suit your needs */
 .theme-toggle i { 
   margin-left: 10px; 
 }

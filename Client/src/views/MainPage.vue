@@ -19,7 +19,7 @@
       <h1 class="roomsTitle">Rooms🗄️</h1>
       <div v-for="server in servers" :key="server.roomCode" class="server-wrapper" v-auto-animate>
         <button @click="joinRoom(server.roomCode)" class="server-btn">
-          Room Code: {{ server.roomCode }} <n/> Players: {{ server?.players?.length }}
+          Room Code: {{ server.roomCode }} <br/> Players: {{ server?.players?.length }}
         </button>
       </div>
     </div>
@@ -40,6 +40,8 @@
       return {
         roomCode: '',
         servers: [],
+        joinedRoomCode: '',
+        question: '',
       };
     },
     computed: {
@@ -47,6 +49,10 @@
     },
     methods: {
       joinRoom(roomCode) {
+        if (roomCode.trim() !== '') {
+          this.$store.state.socket.emit('leaveRoom', this.joinedRoomCode);
+        }
+
         this.$store.state.socket.emit('joinRoom', roomCode);
       },
       createRoom() {
@@ -54,12 +60,20 @@
       }
     },
     mounted() {
+      this.$store.state.socket.on('startGame', (question) => {
+        Message.closeAll();
+        Message.info(() => (`Joined room ${this.joinedRoomCode}`), {duration: 1500})
+        this.$router.push({ path: `game/room/${this.joinedRoomCode}` })
+        this.$store.state.question = question;
+      })
+
       this.$store.state.socket.emit('sendRooms');
 
       this.$store.state.socket.on('joinedRoom', (roomCode) => {
+        Message.closeAll();
         this.$store.state.roomCode = roomCode
-        Message.info(() => (`Joined room ${roomCode}`), {duration: 1500})
-        this.$router.push({ path: `game/room/${roomCode}` })
+        this.joinedRoomCode = roomCode;
+        Message.loading(() => (`Waiting to other player, with room code: ${this.joinedRoomCode}`), {duration: -1})
       })
       
       this.$store.state.socket.on('createdRoom', (roomCode) => {
@@ -74,12 +88,21 @@
             navigator.clipboard.writeText(roomCode);
           }
         })
+
+        // join the room after creating it
+        this.$store.state.socket.emit('joinRoom', roomCode);
       })
 
       this.$store.state.socket.on('getRooms', (rooms) => {
         this.servers = rooms;
       })
     },
+    beforeUnmount() {
+      this.$store.state.socket.off('startGame');
+      this.$store.state.socket.off('joinedRoom');
+      this.$store.state.socket.off('createdRoom');
+      this.$store.state.socket.off('getRooms');
+    }
   }
 </script>
   
