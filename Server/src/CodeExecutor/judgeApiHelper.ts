@@ -1,16 +1,28 @@
-export const roomCodeGenerator = (): string => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  
-  for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
-  }
-  
-  return result;
-}
-
 import axios from 'axios';
+
+export async function executeCodeOnJudgeApi(languageId:number, code:string) {
+    const submissionOptions = {
+        url: 'http://localhost:2358/submissions',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          "language_id": languageId,
+          "source_code": code,
+        })
+    };
+
+    try {
+        const submissionResponse = await axios(submissionOptions);
+        const token = submissionResponse.data.token;
+        const resultResponse = await pollForResult(token);
+        return resultResponse.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 export async function pollForResult(token: string): Promise<any> {
     const resultOptions = {

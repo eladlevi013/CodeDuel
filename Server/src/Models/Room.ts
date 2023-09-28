@@ -4,5 +4,3 @@ export interface Room {
   roomCode?: string;
   gameStarted?: boolean;
 }
-
-export const rooms = new Map<string, Room>();

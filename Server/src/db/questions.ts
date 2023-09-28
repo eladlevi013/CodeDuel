@@ -1,19 +1,4 @@
-export interface FunctionSignature {
-    name: string,
-    args: {name:string, type:string}[],
-    returnType: string
-}
-
-export interface Question {
-    id: string,
-    title: string,
-    description: string,
-    example: string,
-    funcSignature: FunctionSignature
-    difficulty: number,
-    category: string,
-    testCases: Map<string, string>
-}
+import { Question } from '../Models/Question';
 
 export const questions: Question[] = [
 {
@@ -105,5 +90,4 @@ export const questions: Question[] = [
         ['7', '[0,1,1,2,3,5,8,13]'],
         ['10', '[0,1,1,2,3,5,8,13,21,34,55]']
     ])
-}
-]
+}]

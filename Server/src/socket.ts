@@ -1,206 +1,114 @@
-import axios from 'axios';
-import { pollForResult } from './utils';
-import { questions } from './questions';
+import { executeCode } from './CodeExecutor/codeExecutorHelper';
+import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { roomCodeGenerator } from './utils';
-import { rooms, Room } from './rooms';
+import { Room } from './Models/Room';
+import { publicRooms, roomCodeGenerator } from './Utils/roomsHelper'
+
+// define constants
+const PLAYERS_PER_ROOM = 2;
+const CONNECTION_SOCKET_EVENT = 'connection';
+const CODE_SUBMISSION_SOCKET_EVENT = 'codeSubmission';
+const CODE_RESULT_SOCKET_EVENT = 'codeResult';
+const CODE_ERROR_SOCKET_EVENT = 'codeError';
+const SEND_ROOMS_SOCKET_EVENT = 'sendRooms';
+const GET_ROOMS_SOCKET_EVENT = 'getRooms';
+const DISCONNECT_SOCKET_EVENT = 'disconnect';
+const OTHER_PLAYER_LEFT_SOCKET_EVENT = 'otherPlayerLeft';
+const LEAVE_ROOM_SOCKET_EVENT = 'leaveRoom';
+const CREATE_ROOM_SOCKET_EVENT = 'createRoom';
+const CREATED_ROOM_SOCKET_EVENT = 'createdRoom';
+const JOIN_ROOM_SOCKET_EVENT = 'joinRoom';
+const JOINED_ROOM_SOCKET_EVENT = 'joinedRoom';
+const START_GAME_SOCKET_EVENT = 'startGame';
+const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
+const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
+
+const rooms = new Map<string, Room>();
 
 export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
-  
-  const publicRooms = () => {
-    const roomsArray: Room[] = [];
 
-    for (const [roomCode, room] of rooms.entries()) {
-      if (room.isPublic && room.players.length < 2)
-        roomsArray.push({ ...room, roomCode });
-    }
-    
-    return roomsArray;
-  }
+  io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
+    socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
+      questionId: string, language: string) => {
+      const result = await executeCode(code, questionId, language);
 
-  io.on('connection', (socket: Socket) => {
-    socket.on('codeSubmission', async (code: string, questionId: string, language: string) => {
-      let languageId;
-      let trimmedLanguage = language.trim().toLowerCase();
-
-      switch (trimmedLanguage) {
-        case 'python':
-          languageId = 71;
-          break;
-        case 'javascript':
-          languageId = 63;
-          break;
-        case "java":
-          languageId = 62;
-          break;
-        default:
-          return;
+      if (result.stderr != null) {
+        socket.emit(CODE_ERROR_SOCKET_EVENT, result.stderr.split('')
+          .splice(0,100).join('').concat('...'));
+      } else {
+        socket.emit(CODE_RESULT_SOCKET_EVENT, result.stdout);
       }
-
-      // checking test cases on given code
-      const question = questions[parseInt(questionId) - 1];
-      const testCases: Map<string, string> = question.testCases;
-
-      let checkStatement = "";
-      switch (trimmedLanguage) {
-        case 'python':
-          if (question.funcSignature.returnType === 'string') {
-            checkStatement = `print(${[...testCases].map(([input, output]) => `${question.funcSignature.name}('${input}') == '${output}'`).join(' and ')})`;
-          } else {
-            checkStatement = `print(${[...testCases].map(([input, output]) => `${question.funcSignature.name}(${input}) == ${output}`).join(' and ')})`;
-          }
-          break;
-          
-        case 'javascript':
-          if (question.funcSignature.returnType === 'string') {
-            checkStatement = `console.log(${[...testCases].map(([input, output]) => `${question.funcSignature.name}('${input}') === '${output}'`).join(' && ')})`;
-          } else {
-            checkStatement = `console.log(${[...testCases].map(([input, output]) => `${question.funcSignature.name}(${input}) === ${output}`).join(' && ')})`;
-          }
-          break;
-
-        case 'java':
-          const className = "Main";
-          const methodStatements = [...testCases].map(([input, output]) => {
-            if (question.funcSignature.returnType === 'string') {
-              return `System.out.println(${question.funcSignature.name}("${input}").equals("${output}"));`;
-            } else {
-              return `System.out.println(${question.funcSignature.name}(${input}) == ${output});`;
-            }
-          }).join('\n');
-          
-          checkStatement = `
-            public class ${className} {
-              ${code}
-
-              public static void main(String[] args) {
-                ${methodStatements}
-              }
-            }
-          `;
-        break;
-      }
-
-      const finalCode = trimmedLanguage === 'java' ? checkStatement : `${code}\n${checkStatement}`;
-
-      console.log(finalCode);
-
-      const result = await executeCode(languageId, finalCode);
-      
-      console.log(result);
-      socket.emit('codeResult', result.stdout);
     });
 
-    async function executeCode(languageId:number, code:string) {
-      const submissionOptions = {
-          url: 'http://localhost:2358/submissions',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          data: JSON.stringify({
-            "language_id": languageId,
-            "source_code": code,
-          })
-      };
-  
-      try {
-          const submissionResponse = await axios(submissionOptions);
-          const token = submissionResponse.data.token;
-          const resultResponse = await pollForResult(token);
-          return resultResponse.data;
-      } catch (error) {
-          console.error(error);
-          throw error;
-      }
-  }
-
-    socket.on('sendRooms', (message: string) => {
-      socket.emit('getRooms', publicRooms());
+    socket.on(SEND_ROOMS_SOCKET_EVENT, (message: string) => {
+      socket.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
 
-    socket.on('disconnect', () => {
+    socket.on(DISCONNECT_SOCKET_EVENT, () => {
       for (const [roomCode, room] of rooms) {
-          const playerIndex = room.players.indexOf(socket.id);
-          if (playerIndex > -1) {
-            socket.to(roomCode).emit('playerDisconnected', 'The other player has left the game');
-            
-            // Remove player from room
-            room.players.splice(playerIndex, 1);
-
-            // If the room is empty, delete it from the rooms map
-            if (room.players.length === 0) {
-                rooms.delete(roomCode);
-            }
-            
-            // If the game started and there's only one player left, you might want to delete the room or reset it
-            if (room.gameStarted && room.players.length === 1) {
-              socket.to(roomCode).emit('otherPlayerLeft');
-              rooms.delete(roomCode);
-            }
-            
-            break;
+        const playerIndex = room.players.indexOf(socket.id);
+        
+        if (playerIndex > -1) {
+          room.players.splice(playerIndex, 1);
+          
+          if (room.gameStarted && room.players.length === 1) {
+            socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
+            rooms.delete(roomCode);
           }
+          
+          break;
+        }
       }
   
-      const publicRoomsArray = publicRooms();
-      io.emit('getRooms', publicRoomsArray);
-  });
+      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
+    });
   
-
-    socket.on('leaveRoom', (roomCode) => {
+    socket.on(LEAVE_ROOM_SOCKET_EVENT, (roomCode) => {
       const room = rooms.get(roomCode);
 
       if (room) {
         const index = room.players.indexOf(socket.id);
+        
         if (index > -1) {
           room.players.splice(index, 1);
           socket.leave(roomCode);
         }
       }
 
-      const publicRoomsArray = publicRooms();
-      io.emit('getRooms', publicRoomsArray);
+      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
     
-    
-    socket.on('createRoom', () => {
+    socket.on(CREATE_ROOM_SOCKET_EVENT, () => {
       const roomCode = roomCodeGenerator().toString();
-      rooms.set(roomCode, { players: [], isPublic: true });
-      socket.emit('createdRoom', roomCode);
-
-      const publicRoomsArray = publicRooms();
-      io.emit('getRooms', publicRoomsArray);
-    });    
+      rooms.set(roomCode, { players: [], isPublic: true, gameStarted: false });
+      socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
+      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
+    });
     
-    socket.on('joinRoom', (roomCode: string) => {
+    socket.on(JOIN_ROOM_SOCKET_EVENT, (roomCode: string) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
 
         if (room) {
           room.players.push(socket.id);
           socket.join(roomCode);
-          socket.emit('joinedRoom', roomCode);
+          socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
           
-          // start game if there are 2 players
-          if (room.players.length == 2) {
+          if (room.players.length == PLAYERS_PER_ROOM) {
             const question = questions[Math.floor(Math.random() * questions.length)];
             room.gameStarted = true;
-            io.to(roomCode).emit('startGame', question);
+            io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
           }
         }
       }
 
-      const publicRoomsArray = publicRooms();
-      io.emit('getRooms', publicRoomsArray);
-    })
+      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
+    });
 
-    // chat events
-    socket.on('sendMessage', (message: string, roomCode: string) => {
-      console.log(message, roomCode);
-      socket.to(roomCode).emit('receiveMessage', message);
+    socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
+      socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message);
     });
   })
 }

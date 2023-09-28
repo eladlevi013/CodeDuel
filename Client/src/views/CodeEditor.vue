@@ -84,6 +84,8 @@ export default {
   beforeUnmount() {
     this.$store.state.socket.off('receiveMessage');
     this.$store.state.socket.off('otherPlayerLeft');
+    this.$store.state.socket.off('codeResult');
+    this.$store.state.socket.off('codeError');
   },
   methods: {
     getPlaceholder() {
@@ -156,7 +158,12 @@ export default {
 
     this.$store.state.socket.on('codeResult', (result) => {
       Message.closeAll();
-      Message.info(() => (`Code result: ${result}`), {duration: 1500})
+      Message.info(() => (`Code result: ${result}`), {duration: 2100})
+    });
+
+    this.$store.state.socket.on('codeError', (error) => {
+      Message.closeAll();
+      Message.error(() => (`Code error: ${error}`), {duration: 2100})
     });
 
     this.$store.state.socket.on('otherPlayerLeft', () => {
