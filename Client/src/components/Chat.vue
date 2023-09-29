@@ -1,49 +1,54 @@
 <template>
+<!-- Messages Container -->
 <div class="chat-container">
-<div v-for="message in messages" :key="message.id" class="chat-message" 
+  <div v-for="message in messages" :key="message.id" class="chat-message" 
     :class="{ 'self': message.self, 'other': !message.self }">
     <div class="chat-message-bubble">
-    {{ message.text }}
-    <div :class="{ 'timestamp-self': message.self, 'timestamp-other': 
+      {{ message.text }}
+      <div :class="{ 'timestamp-self': message.self, 'timestamp-other': 
         !message.self }">{{ message.timestamp }}</div>
     </div>
+  </div>
 </div>
-</div>
+
+<!-- Chat input container -->
 <div class="chat-input-container">
-<input type="text" v-model="newMessage" @keyup.enter="sendMessage" 
+  <input type="text" v-model="newMessage" @keyup.enter="sendMessage" 
     placeholder="Chat" class="chat-input" />
-<button class="chat-send-button" @click="sendMessage">Send</button>
+  <button class="chat-send-button" @click="sendMessage">Send</button>
 </div>
 </template>
 
 <script>
 export default {
-    data() {
-        return {
-            messages: [],
-            newMessage: '',
-        };
-    },
-    mounted() {
-        this.$store.state.socket.on('receiveMessage', (message) => {
-            this.messages.push({
-                self: false,
-                text: message,
-            });
+  data() {
+    return {
+      messages: [],
+      newMessage: '',
+    };
+  },
+  mounted() {
+    this.$store.state.socket.on('receiveMessage', (message) => {
+      this.messages.push({
+        self: false,
+        text: message,
+      });
+    });
+  },
+  methods: {
+    sendMessage() {
+      if (this.newMessage.trim() !== '') {
+        this.messages.push({
+          self: true,
+          text: this.newMessage,
         });
+
+        this.$store.state.socket.emit('sendMessage', 
+          this.newMessage, this.$store.state.roomCode);
+        this.newMessage = '';
+      }
     },
-    methods: {
-        sendMessage() {
-            if (this.newMessage.trim() !== '') {
-                this.messages.push({
-                self: true,
-                text: this.newMessage,
-                });
-                this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode);
-                this.newMessage = '';
-            }
-        },
-    }
+  }
 }
 </script>
 

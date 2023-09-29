@@ -51,7 +51,6 @@ export default {
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
 
-    // redirect to home page if socket is not connected
     if (!this.$store.state.socket.connected) {
       this.$router.push('/');
     }
