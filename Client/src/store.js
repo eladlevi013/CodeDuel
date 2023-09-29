@@ -3,7 +3,8 @@ import io from 'socket.io-client';
 
 export default new Vuex.Store({
   state: {
-    socket: io('http://localhost:3001'),
+    socket: io(process.env.VUE_APP_PROD == 'true' ? 'https://codeduel-production.up.railway.app/'
+      : 'http://localhost:3001'),
     roomCode: '',
     question: {},
   },

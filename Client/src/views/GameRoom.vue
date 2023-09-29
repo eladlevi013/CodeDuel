@@ -47,7 +47,7 @@ export default {
       question: {},
     };
   },
-  mounted() {
+  mounted() {    
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
 
