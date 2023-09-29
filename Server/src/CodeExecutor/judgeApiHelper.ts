@@ -1,15 +1,23 @@
 import axios from 'axios';
 
+const BASE_URL = process.env.PRODUCTION === 'true' ? 'https://judge0-ce.p.rapidapi.com' 
+    : 'http://localhost:2358';
+const HEADERS = process.env.PRODUCTION === 'true' ? {
+  'X-RapidAPI-Key': process.env.JUDGE0_API_KEY || '',
+  'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+  'Content-Type': 'application/json'
+} : {
+  'Content-Type': 'application/json'
+};
+
 export async function executeCodeOnJudgeApi(languageId:number, code:string) {
     const submissionOptions = {
-        url: 'http://localhost:2358/submissions',
+        url: `${BASE_URL}/submissions`,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: HEADERS,
         data: JSON.stringify({
-          "language_id": languageId,
-          "source_code": code,
+            "language_id": languageId,
+            "source_code": code,
         })
     };
 
@@ -26,19 +34,19 @@ export async function executeCodeOnJudgeApi(languageId:number, code:string) {
 
 export async function pollForResult(token: string): Promise<any> {
     const resultOptions = {
-        url: `http://localhost:2358/submissions/${token}`,
+        url: `${BASE_URL}/submissions/${token}`,
+        headers: HEADERS,
     };
 
-    let attempts = 0;
     const maxAttempts = Number(process.env.MAX_POLL_ATTEMPTS) || 10;
     const pollInterval = Number(process.env.POLL_INTERVAL_MS) || 2000; // 2 seconds
 
     return new Promise((resolve, reject) => {
+        let attempts = 0;
         const interval = setInterval(async () => {
             try {
                 const resultResponse = await axios(resultOptions);
                 const status = resultResponse.data.status.description;
-
                 if (status !== 'Processing' && status !== 'In Queue') {
                     clearInterval(interval);
                     resolve(resultResponse);
