@@ -95,7 +95,8 @@ export default {
   beforeUnmount() {
     this.$store.state.socket.off('receiveMessage');
     this.$store.state.socket.off('otherPlayerLeft');
-    this.$store.state.socket.off('codeResult');
+    this.$store.state.socket.off('codeSuccess');
+    this.$store.state.socket.off('codeWrong');
     this.$store.state.socket.off('codeError');
   },
   methods: {
@@ -122,6 +123,7 @@ export default {
       this.view = payload.view;
     },
     runCode() {
+      Message.loading('Testing your code...', {duration: -1,});
       this.$store.state.socket.emit('codeSubmission', this.code, this.question.id, this.selectedLanguage);
     },
     updateCode() {
@@ -167,9 +169,14 @@ export default {
       });
     });
 
-    this.$store.state.socket.on('codeResult', (result) => {
+    this.$store.state.socket.on('codeSuccess', () => {
       Message.closeAll();
-      Message.info(() => (`Code result: ${result}`), {duration: 2100})
+      Message.success(() => (`Problem Solved!`), {duration: 2000})
+    });
+
+    this.$store.state.socket.on('codeWrong', () => {
+      Message.closeAll();
+      Message.warning(() => (`Wrong Answer!`), {duration: 2000})
     });
 
     this.$store.state.socket.on('codeError', (error) => {

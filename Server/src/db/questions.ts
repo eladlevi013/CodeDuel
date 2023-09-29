@@ -58,8 +58,9 @@ export const questions: Question[] = [
 {
     id: '4',
     title: 'Find the largest number in an array',
-    description: 'Write a function to find the largest number in an array of numbers.',
-    example: 'findLargest([1,5,8,3]) === 8',
+    description: 'Write a function to find the largest number in an array of numbers. The array may contain duplicates. You need to consider that the array might have negative numbers as well, so pay attention to how you handle different types of inputs. Your implementation should go through the array and return the largest element found.',
+    example: `findLargest([1,5,8,3]) === 8
+findLargest([-12,0,-15,20]) === 20`,
     funcSignature: {
         name: 'findLargest',
         args: [{name: 'nums', type: 'int[]'}],
@@ -70,7 +71,9 @@ export const questions: Question[] = [
     testCases: new Map<string, string>([
         ['[1,5,8,3]', '8'],
         ['[12,4,5,9]', '12'],
-        ['[-1,-5,-8,-3]', '-1']
+        ['[-1,-5,-8,-3]', '-1'],
+        ['[-12,0,-15,20]', '20'],
+        ['[100,200,300,400]', '400']
     ])
 },
 {

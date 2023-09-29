@@ -1,7 +1,7 @@
 import { questions } from "../db/questions";
 import { executeCodeOnJudgeApi } from "./judgeApiHelper";
 
-export async function executeCode(code: string, questionId: string, language: string) {
+export async function runTestCases(code: string, questionId: string, language: string) {
     let languageId = -1;
     let trimmedLanguage = language.trim().toLowerCase();
 

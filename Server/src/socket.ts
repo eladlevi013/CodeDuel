@@ -1,4 +1,4 @@
-import { executeCode } from './CodeExecutor/codeExecutorHelper';
+import { runTestCases } from './CodeExecutor/codeExecutorHelper';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
@@ -9,7 +9,8 @@ import { publicRooms, roomCodeGenerator } from './Utils/roomsHelper'
 const PLAYERS_PER_ROOM = 2;
 const CONNECTION_SOCKET_EVENT = 'connection';
 const CODE_SUBMISSION_SOCKET_EVENT = 'codeSubmission';
-const CODE_RESULT_SOCKET_EVENT = 'codeResult';
+const CODE_SUCCESS_SOCKET_EVENT = 'codeSuccess';
+const CODE_WRONG_SOCKET_EVENT = 'codeWrong';
 const CODE_ERROR_SOCKET_EVENT = 'codeError';
 const SEND_ROOMS_SOCKET_EVENT = 'sendRooms';
 const GET_ROOMS_SOCKET_EVENT = 'getRooms';
@@ -32,13 +33,17 @@ export const setupSocketIO = (httpServer: HttpServer) => {
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
       questionId: string, language: string) => {
-      const result = await executeCode(code, questionId, language);
+      const result = await runTestCases(code, questionId, language);
 
       if (result.stderr != null) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.stderr.split('')
           .splice(0,100).join('').concat('...'));
       } else {
-        socket.emit(CODE_RESULT_SOCKET_EVENT, result.stdout);
+        if (result.stdout.includes('True') || result.stdout.includes('true')) {
+          socket.emit(CODE_SUCCESS_SOCKET_EVENT);
+        } else {
+          socket.emit(CODE_WRONG_SOCKET_EVENT);
+        }
       }
     });
 
@@ -97,7 +102,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
           
           if (room.players.length == PLAYERS_PER_ROOM) {
-            const question = questions[Math.floor(Math.random() * questions.length)];
+            // const question = questions[Math.floor(Math.random() * questions.length)];
+            const question = questions[3];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
           }
