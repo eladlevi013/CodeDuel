@@ -33,7 +33,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
       questionId: string, language: string) => {
+      console.log("hey!");
       const result = await runTestCases(code, questionId, language);
+      console.log(result);
 
       if (result.stderr != null) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.stderr.split('')
