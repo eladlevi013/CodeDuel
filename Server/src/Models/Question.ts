@@ -1,6 +1,11 @@
+export interface Variable {
+    value: string,
+    type: string
+}
+
 export interface FunctionSignature {
     name: string,
-    args: {name:string, type:string}[],
+    args: Variable[],
     returnType: string
 }
 
@@ -12,5 +17,5 @@ export interface Question {
     funcSignature: FunctionSignature
     difficulty: number,
     category: string,
-    testCases: Map<string, string>
+    testCases: Map<Variable, Variable>
 }

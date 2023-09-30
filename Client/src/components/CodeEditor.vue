@@ -8,7 +8,6 @@
     <!-- Programming language selector -->
     <select v-model="selectedLanguage" class="language-selector">
         <option value="java">Java</option>
-        <option value="javascript">JavaScript</option>
         <option value="python">Python</option>
     </select>
     <!-- Run button -->
@@ -34,7 +33,6 @@
 import { getSignitureByLanguage } from '../utils/codeEditorHelper';
 // codemirror language support
 import { Codemirror } from 'vue-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { java } from '@codemirror/lang-java';
 // codemirror themes
@@ -68,7 +66,7 @@ export default {
             isDarkMode: false,
             selectedLanguage: 'java',
             code: ``,
-            extensions: [javascript(), birdsOfParadise],
+            extensions: [python(), birdsOfParadise],
         }
     },
     methods: {
@@ -81,8 +79,6 @@ export default {
         },
         getExtensions() {
             switch (this.selectedLanguage) {
-                case 'javascript':
-                    return [javascript(), this.isDarkMode ? solarizedLight : birdsOfParadise];
                 case 'python':
                     return [python(), this.isDarkMode ? solarizedLight : birdsOfParadise];
                 case 'java':

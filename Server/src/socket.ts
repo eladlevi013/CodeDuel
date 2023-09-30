@@ -1,4 +1,4 @@
-import { runTestCases } from './CodeExecutor/codeExecutorHelper';
+import { runTestCases } from './CodeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
@@ -33,13 +33,15 @@ export const setupSocketIO = (httpServer: HttpServer) => {
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
       questionId: string, language: string) => {
-      console.log("hey!");
       const result = await runTestCases(code, questionId, language);
+
       console.log(result);
 
       if (result.stderr != null) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.stderr.split('')
           .splice(0,100).join('').concat('...'));
+      } else if(result.message != null) {
+        socket.emit(CODE_ERROR_SOCKET_EVENT, result.message);
       } else {
         if (result.stdout.includes('True') || result.stdout.includes('true')) {
           socket.emit(CODE_SUCCESS_SOCKET_EVENT);
@@ -104,8 +106,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
           
           if (room.players.length == PLAYERS_PER_ROOM) {
-            // const question = questions[Math.floor(Math.random() * questions.length)];
-            const question = questions[3];
+            const question = questions[Math.floor(Math.random() * questions.length)];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
           }
