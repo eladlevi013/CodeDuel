@@ -2,7 +2,7 @@ import { runTestCases } from './CodeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Room } from './Models/Room';
+import { Room, SubmissionStats } from './Models/Room';
 import { publicRooms, roomCodeGenerator } from './Utils/roomsHelper'
 
 // define constants
@@ -26,48 +26,82 @@ const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
 const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
 const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
 const END_GAME_SOCKET_EVENT = 'endGame';
+const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 
 const rooms = new Map<string, Room>();
+
+const getRoomCodeFromSocketId = (socketId: string): string => {
+  for (const [roomCode, room] of rooms) {
+    if (room.players.includes(socketId)) {
+      return roomCode;
+    }
+  }
+  return '';
+}
 
 export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
 
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
+    
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
       questionId: string, language: string) => {
+
       const result = await runTestCases(code, questionId, language);
+      const errorMessage = result.stderr || result.compile_output;
 
-      if (result.stderr != null || result.compile_output != null) {
-        const errorMessage = result.stderr || result.compile_output;
-        socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage.split('')
-          .splice(0, 200).join('').concat('...'));
-      } else if(result.message != null) {
+      if (errorMessage) {
+        socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage.slice(0, 200).concat('...'));
+        return;
+      } 
+      
+      if (result.message) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.message);
-      } else {
-        if (result.stdout.toLowerCase().includes('true')) {
-          const roomCodePlayer = (socketId: string): string => {
-            for (const [roomCode, room] of rooms) {
-              if (room.players.includes(socketId)) {
-                return roomCode;
-              }
-            }
-            return '';
+        return;
+      } 
+
+      if (!result.stdout.toLowerCase().includes('true')) {
+        socket.emit(CODE_WRONG_SOCKET_EVENT);
+        return;
+      }
+
+      const roomCode = getRoomCodeFromSocketId(socket.id);
+      const room = rooms.get(roomCode);
+
+      if(!roomCode || !room) {
+        console.error(`RoomCode: ${roomCode}, or Room does not exist.`);
+        return;
+      }
+
+      room.successfulSubmissions?.set(socket.id, {
+        time: result.time,
+        memory: result.memory
+      });
+
+      if (room.successfulSubmissions?.size === room.players.length) {
+        io.in(roomCode).emit(END_GAME_SOCKET_EVENT);
+        room.countdown = false;
+        rooms.delete(roomCode);
+      }
+
+      if (room.successfulSubmissions?.size === 1) {
+        socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
+        socket.emit(CODE_SUCCESS_SOCKET_EVENT);
+        room.countdown = true;
+
+        setTimeout(() => {
+          const currentRoom = rooms.get(roomCode);
+
+          if (currentRoom && currentRoom.countdown) {
+            io.in(roomCode).emit(END_GAME_SOCKET_EVENT);
+            currentRoom.countdown = false;
+            rooms.delete(roomCode);
           }
-
-          socket.to(roomCodePlayer(socket.id)).emit(START_GAME_TIMER_SOCKET_EVENT);
-          socket.emit(CODE_SUCCESS_SOCKET_EVENT);
-
-          // send game end after 15 seconds
-          setTimeout(() => {
-            io.in(roomCodePlayer(socket.id)).emit(END_GAME_SOCKET_EVENT);
-          }, 15000);
-        } else {
-          socket.emit(CODE_WRONG_SOCKET_EVENT);
-        }
+        }, SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION * 1000);
       }
     });
 
-    socket.on(SEND_ROOMS_SOCKET_EVENT, (message: string) => {
+    socket.on(SEND_ROOMS_SOCKET_EVENT, () => {
       socket.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
 
@@ -107,7 +141,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     
     socket.on(CREATE_ROOM_SOCKET_EVENT, () => {
       const roomCode = roomCodeGenerator().toString();
-      rooms.set(roomCode, { players: [], isPublic: true, gameStarted: false });
+      rooms.set(roomCode, { players: [], isPublic: true, gameStarted: false, 
+        countdown: false, successfulSubmissions: new Map<string, SubmissionStats>() });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });

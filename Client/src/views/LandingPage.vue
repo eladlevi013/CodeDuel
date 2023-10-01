@@ -108,12 +108,16 @@
 </script>
   
 <style>
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  min-height: 100vh; /* Set minimum height to viewport height */
   font-family: 'Poppins', sans-serif;
   background: rgb(245,245,245);
-background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
-background-repeat: no-repeat;
+  background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* This makes the background fixed while scrolling */
+  background-size: cover; /* This makes sure your background fully covers the element */
 }
 
 .main {

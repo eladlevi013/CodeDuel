@@ -23,8 +23,8 @@ export async function runTestCases(code: string, questionId: string, language: s
   const finalCode = helper.getFullCode(code, question, testCases);
 
   // print final code to console
-  console.clear();
-  console.log(finalCode);
+  // console.clear();
+  // console.log(finalCode);
 
   return await executeCodeOnJudgeApi(languageId, finalCode);
 }
