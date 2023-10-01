@@ -9,9 +9,10 @@
       </p>
 
       <div class="action-container">
-        <input type="text" placeholder="Enter Room Code" v-model="roomCode"/>
+        <input type="text" placeholder="Enter Room Code" style="width: 150px;" v-model="roomCode"/>
         <button class="buttonDesign" @click="joinRoom(this.roomCode)">Join</button>
         <button @click="createRoom" class="buttonDesign">Create Room</button>
+        <button @click="createRoom" class="buttonDesign">Quick Match</button>
       </div>
 
       <!-- checkbox -->
@@ -131,6 +132,9 @@ body {
   font-family: 'Poppins', sans-serif;
   background: rgb(245,245,245);
   background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 .main {
@@ -142,7 +146,7 @@ body {
   font-family: 'Skranji';
   font-size: 5rem;
   color: #26160d;
-  margin: -30px 0 3rem 0;
+  margin: 0px 0 3.5rem 0;
 }
 
 .parContainer {
@@ -160,11 +164,11 @@ body {
 .action-container {
   width: 700px; /* or any specific value you prefer */
   margin: auto;
-  gap: 1.7rem;
+  gap: 1.0rem;
   background-color: #e8e0c5;
   padding: 1rem 2rem;
   border-radius: 15px;
-  margin-top: 50px;
+  margin-top: 60px;
 }
 
 
@@ -180,11 +184,10 @@ body {
 }
 
 input {
-  font-size: 1.2rem;
-  padding: 0px 15px;
+  font-size: 1.0rem;
+  padding: 0px 10px;
   border: none;
   border-radius: 5px;
-  box-shadow: 0px 0px 5px 1px #0000001a;
 }
 
 button {
@@ -192,7 +195,7 @@ button {
   border: none;
   border-radius: .5rem;
   font-size: 1rem;
-  padding: 0.5rem 5rem;
+  padding: 0.5rem 4rem;
   transition: transform 0.2s ease-in-out, 
     background-color 0.2s ease-in-out;
 }

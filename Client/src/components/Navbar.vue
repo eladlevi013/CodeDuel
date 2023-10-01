@@ -1,15 +1,29 @@
 <template>
-<div className='navbar-container'>
-  <div>
-    <a class="navbar-title" href="/">Home</a>
-    <a class="navbar-title">Github</a>
-    <a class="navbar-title">About</a>
+  <div class='navbar-container'>
+    <div class="pages-container">
+      <router-link class="navbar-title" :to="{ path: '/' }">Home</router-link>
+      <router-link class="navbar-title" :to="{ path: '/' }">Rooms</router-link>
+      <router-link class="navbar-title" :to="{ path: '/' }">About</router-link>
+    </div>
+    <div class="auth-container">
+      <router-link class="navbar-title" :to="{ path: '/auth/login' }">Login</router-link>
+      <router-link class="navbar-title" :to="{ path: '/auth/register' }">Register</router-link>
+    </div>
   </div>
-</div>
 </template>
 
 <style>
+.auth-container {
+  justify-content: flex-end;
+  margin-right: 15px;
+}
+
+.pages-container {
+  justify-content: flex-start;
+}
+
 .navbar-container {
+  display: flex;
   background-color: #39261f;
   width: 100%;
   height: 55px;
