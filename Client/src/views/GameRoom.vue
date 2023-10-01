@@ -7,9 +7,15 @@
         <pane size="70">
           <div class="panel question-section">
             <h2 class="question-title">Question {{ question.id }}: {{ question.title }}</h2>
-            <div class="content">
-              <p>{{ question.description }}</p>
-              <pre>{{ question.example }}</pre>
+            <div style="display: flex; flex-direction: row; align-items: center;">
+              <div :class="getDifficultyClass(question.difficulty)">{{ getDifficultyText(question.difficulty) }}</div>
+                <div class="question-tags-container" v-for="(tag, index) in question.categories" :key="index">
+                  <div class="question-tag">{{ tag }}</div>
+                </div>
+              </div>
+              <div class="content">
+                <p>{{ question.description }}</p>
+                <pre>{{ question.example }}</pre>
             </div>
           </div>
         </pane>
@@ -46,6 +52,24 @@ export default {
     return {
       question: {},
     };
+  },
+  methods: {
+    getDifficultyClass(difficulty) {
+      switch (difficulty) {
+        case 1: return 'question-difficulty-easy';
+        case 2: return 'question-difficulty-medium';
+        case 3: return 'question-difficulty-hard';
+        default: return '';
+      }
+    },
+    getDifficultyText(difficulty) {
+      switch (difficulty) {
+        case 1: return 'Easy';
+        case 2: return 'Medium';
+        case 3: return 'Hard';
+        default: return '';
+      }
+    },
   },
   mounted() {    
     this.question = this.$store.state.question;
@@ -127,6 +151,37 @@ p { margin-bottom: 10px; }
   border: 1px solid #E9ECEF;
   color: #495057;
   padding: 20px;
+}
+
+.question-tag {
+  background-color: #e5dfcc;
+  border-radius: 50px;
+  font-size: 1.0em;
+  padding: 3px 30px;
+  margin-bottom: 10px;
+  margin-right: -10px;
+}
+
+.question-tags-container {
+  margin-left: 20px;
+}
+
+.question-difficulty-easy {
+  color: #20cc10;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.question-difficulty-medium {
+  color: #daa70d;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.question-difficulty-hard {
+  color: #ff0000;
+  font-size: 1.2em;
+  margin-bottom: 10px;
 }
 
 .question-title {

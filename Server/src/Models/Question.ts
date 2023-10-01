@@ -16,6 +16,6 @@ export interface Question {
     example: string,
     funcSignature: FunctionSignature
     difficulty: number,
-    category: string,
+    categories: string[],
     testCases: Map<Variable, Variable>
 }

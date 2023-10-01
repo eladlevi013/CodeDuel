@@ -35,15 +35,14 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       questionId: string, language: string) => {
       const result = await runTestCases(code, questionId, language);
 
-      console.log(result);
-
-      if (result.stderr != null) {
-        socket.emit(CODE_ERROR_SOCKET_EVENT, result.stderr.split('')
-          .splice(0,100).join('').concat('...'));
+      if (result.stderr != null || result.compile_output != null) {
+        const errorMessage = result.stderr || result.compile_output;
+        socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage.split('')
+          .splice(0, 200).join('').concat('...'));
       } else if(result.message != null) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.message);
       } else {
-        if (result.stdout.includes('True') || result.stdout.includes('true')) {
+        if (result.stdout.toLowerCase().includes('true')) {
           socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         } else {
           socket.emit(CODE_WRONG_SOCKET_EVENT);

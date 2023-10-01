@@ -12,7 +12,7 @@ export const questions: Question[] = [
             returnType: 'string'
         },
         difficulty: 1,
-        category: 'string',
+        categories: ['string', 'algorithm'],
         testCases: new Map<Variable, Variable>([
             [{ value: 'hello', type: 'string' }, { value: 'olleh', type: 'string' }],
             [{ value: 'Howdy', type: 'string' }, { value: 'ydwoH', type: 'string' }],
@@ -30,7 +30,7 @@ export const questions: Question[] = [
             returnType: 'int'
         },
         difficulty: 2,
-        category: 'math',
+        categories: ['math', 'recursion'],
         testCases: new Map<Variable, Variable>([
             [{ value: '0', type: 'int' }, { value: '1', type: 'int' }],
             [{ value: '5', type: 'int' }, { value: '120', type: 'int' }],
@@ -48,7 +48,7 @@ export const questions: Question[] = [
             returnType: 'boolean'
         },
         difficulty: 2,
-        category: 'string',
+        categories: ['string', 'algorithm'],
         testCases: new Map<Variable, Variable>([
             [{ value: 'Racecar', type: 'string' }, { value: 'true', type: 'boolean' }],
             [{ value: 'hello', type: 'string' }, { value: 'false', type: 'boolean' }],
@@ -66,13 +66,13 @@ export const questions: Question[] = [
             returnType: 'int'
         },
         difficulty: 1,
-        category: 'array',
+        categories: ['array', 'algorithm'],
         testCases: new Map<Variable, Variable>([
-            [{ value: '1,5,8,3', type: 'int[]' }, { value: '8', type: 'int' }],
-            [{ value: '12,4,5,9', type: 'int[]' }, { value: '12', type: 'int' }],
-            [{ value: '-1,-5,-8,-3', type: 'int[]' }, { value: '-1', type: 'int' }],
-            [{ value: '-12,0,-15,20', type: 'int[]' }, { value: '20', type: 'int' }],
-            [{ value: '100,200,300,400', type: 'int[]' }, { value: '400', type: 'int' }]
+            [{ value: '[1,5,8,3]', type: 'int[]' }, { value: '8', type: 'int' }],
+            [{ value: '[12,4,5,9]', type: 'int[]' }, { value: '12', type: 'int' }],
+            [{ value: '[-1,-5,-8,-3]', type: 'int[]' }, { value: '-1', type: 'int' }],
+            [{ value: '[-12,0,-15,20]', type: 'int[]' }, { value: '20', type: 'int' }],
+            [{ value: '[100,200,300,400]', type: 'int[]' }, { value: '400', type: 'int' }]
         ])
     },
     {
@@ -86,11 +86,11 @@ export const questions: Question[] = [
             returnType: 'int[]'
         },
         difficulty: 3,
-        category: 'math',
+        categories: ['math', 'recursion'],
         testCases: new Map<Variable, Variable>([
-            [{ value: '5', type: 'int' }, { value: '0,1,1,2,3,5', type: 'int[]' }],
-            [{ value: '7', type: 'int' }, { value: '0,1,1,2,3,5,8,13', type: 'int[]' }],
-            [{ value: '10', type: 'int' }, { value: '0,1,1,2,3,5,8,13,21,34,55', type: 'int[]' }]
+            [{ value: '5', type: 'int' }, { value: '[0,1,1,2,3,5]', type: 'int[]' }],
+            [{ value: '7', type: 'int' }, { value: '[0,1,1,2,3,5,8,13]', type: 'int[]' }],
+            [{ value: '10', type: 'int' }, { value: '[0,1,1,2,3,5,8,13,21,34,55]', type: 'int[]' }]
         ])
     },
     {
@@ -104,7 +104,7 @@ export const questions: Question[] = [
             returnType: 'boolean'
         },
         difficulty: 2,
-        category: 'math',
+        categories: ['math', 'number theory'],
         testCases: new Map<Variable, Variable>([
             [{ value: '11', type: 'int' }, { value: 'true', type: 'boolean' }],
             [{ value: '4', type: 'int' }, { value: 'false', type: 'boolean' }],
@@ -122,7 +122,7 @@ export const questions: Question[] = [
             returnType: 'int'
         },
         difficulty: 3,
-        category: 'string',
+        categories: ['string', 'algorithm'],
         testCases: new Map<Variable, Variable>([
             [{ value: 'abcabcbb', type: 'string' }, { value: '3', type: 'int' }],
             [{ value: 'bbbbb', type: 'string' }, { value: '1', type: 'int' }],
@@ -140,7 +140,7 @@ export const questions: Question[] = [
             returnType: 'int[][]'
         },
         difficulty: 3,
-        category: 'array',
+        categories: ['array', 'interval'],
         testCases: new Map<Variable, Variable>([
             [
                 { value: '[[1,3],[2,6],[8,10],[15,18]]', type: 'int[][]' }, 
@@ -163,28 +163,11 @@ export const questions: Question[] = [
             returnType: 'boolean'
         },
         difficulty: 2,
-        category: 'string',
+        categories: ['string', 'stack'],
         testCases: new Map<Variable, Variable>([
             [{ value: '()[]{}', type: 'string' }, { value: 'true', type: 'boolean' }],
             [{ value: '(]', type: 'string' }, { value: 'false', type: 'boolean' }],
             [{ value: '{[]}', type: 'string' }, { value: 'true', type: 'boolean' }]
-        ])
-    },
-    {
-        id: '10',
-        title: 'Detect Cycle in Linked List',
-        description: 'Given a linked list, return true if the linked list has a cycle in it. A cycle in a linked list occurs when there is some node in the list that can be reached again by continuously following the next pointer. Your implementation should use only constant extra space.',
-        example: 'hasCycle(linkedList) === true',
-        funcSignature: {
-            name: 'hasCycle',
-            args: [{ value: 'head', type: 'ListNode' }],
-            returnType: 'boolean'
-        },
-        difficulty: 3,
-        category: 'linked list',
-        testCases: new Map<Variable, Variable>([
-            [{ value: '1->2->3->4->5->2', type: 'ListNode' }, { value: 'true', type: 'boolean' }],
-            [{ value: '1->2->3->4->5', type: 'ListNode' }, { value: 'false', type: 'boolean' }]
         ])
     },
     {
@@ -198,7 +181,7 @@ export const questions: Question[] = [
             returnType: 'string'
         },
         difficulty: 4,
-        category: 'string',
+        categories: ['string', 'two pointers'],
         testCases: new Map<Variable, Variable>([
             [{ value: 's:ADOBECODEBANC,t:ABC', type: 'string' }, { value: 'BANC', type: 'string' }],
             [{ value: 's:AA,t:AA', type: 'string' }, { value: 'AA', type: 'string' }]
@@ -215,7 +198,7 @@ export const questions: Question[] = [
             returnType: 'string'
         },
         difficulty: 4,
-        category: 'tree',
+        categories: ['tree', 'design'],
         testCases: new Map<Variable, Variable>([
             [{ value: '1,2,3,null,null,4,5', type: 'TreeNode' }, { value: '1,2,3,null,null,4,5', type: 'string' }],
         ])
@@ -231,10 +214,10 @@ export const questions: Question[] = [
             returnType: 'int'
         },
         difficulty: 4,
-        category: 'array',
+        categories: ['array', 'sorting'],
         testCases: new Map<Variable, Variable>([
-            [{ value: '100,4,200,1,3,2', type: 'int[]' }, { value: '4', type: 'int' }],
-            [{ value: '0,3,7,2,5,8,4,6,0,1', type: 'int[]' }, { value: '9', type: 'int' }]
+            [{ value: '[100,4,200,1,3,2]', type: 'int[]' }, { value: '4', type: 'int' }],
+            [{ value: '[0,3,7,2,5,8,4,6,0,1]', type: 'int[]' }, { value: '9', type: 'int' }]
         ])
     },
     {
@@ -248,10 +231,10 @@ export const questions: Question[] = [
             returnType: 'int'
         },
         difficulty: 3,
-        category: 'array',
+        categories: ['array'],
         testCases: new Map<Variable, Variable>([
-            [{ value: '2,3,-2,4', type: 'int[]' }, { value: '6', type: 'int' }],
-            [{ value: '-2,0,-1', type: 'int[]' }, { value: '0', type: 'int' }]
+            [{ value: '[2,3,-2,4]', type: 'int[]' }, { value: '6', type: 'int' }],
+            [{ value: '[-2,0,-1]', type: 'int[]' }, { value: '0', type: 'int' }]
         ])
     }
 ];

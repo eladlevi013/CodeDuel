@@ -32,8 +32,7 @@ export async function executeCodeOnJudgeApi(languageId:number, code:string) {
         const resultResponse = await pollForResult(token);
         return resultResponse.data;
     } catch (error) {
-        console.error(error);
-        throw error;
+        console.error("Error executing code on Judge0 API");
     }
 }
 

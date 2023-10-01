@@ -46,6 +46,7 @@ export const pythonHelper: LanguageHelper = {
 
 export const javaHelper: LanguageHelper = {
     getCheckStatement(question, testCases) {
+
         function getJavaPrimitiveRepresentation(variable: Variable): string {
             switch (variable.type) {
                 case 'string':
@@ -74,7 +75,7 @@ export const javaHelper: LanguageHelper = {
         const testCasesList = [...testCases].map(([input, output]) => {
             const inputRepresentation = getJavaRepresentation(input);
             const outputRepresentation = getJavaRepresentation(output);
-            const equalityCheck = input.type.endsWith("[]") ?
+            const equalityCheck = output.type.endsWith("[]") ?
                 `Arrays.equals(${question.funcSignature.name}(${inputRepresentation}), ${outputRepresentation})` :
                 `Objects.equals(${question.funcSignature.name}(${inputRepresentation}), ${outputRepresentation})`;
             return equalityCheck;
@@ -85,6 +86,7 @@ export const javaHelper: LanguageHelper = {
         System.out.println(${testCasesList});
     }`;
     },
+    
     getFullCode(code: string, question: Question, testCases: Map<Variable, Variable>) {
         const checkStatement = this.getCheckStatement(question, testCases);
         return `
