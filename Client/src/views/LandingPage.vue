@@ -13,15 +13,30 @@
         <button class="buttonDesign" @click="joinRoom(this.roomCode)">Join</button>
         <button @click="createRoom" class="buttonDesign">Create Room</button>
       </div>
+
+      <!-- checkbox -->
+      <label class="private-room-label">
+        <input type="checkbox" v-model="isPrivate" />
+        <span>Make Room Private</span>
+      </label>
     </div>
 
+    <h1 class="roomsTitle">Rooms🗄️</h1>
     <div class="servers-container">
-      <h1 class="roomsTitle">Rooms🗄️</h1>
-      <div v-for="server in servers" :key="server.roomCode" class="server-wrapper" v-auto-animate>
-        <button @click="joinRoom(server.roomCode)" class="server-btn">
-          Code: {{ server.roomCode }} <br/> Players: {{ server?.players?.length }}
-        </button>
-      </div>
+      <table v-if="servers.length > 0" class="servers-table">
+      <thead>
+        <tr>
+          <th>Room Code</th>
+          <th>Players</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="server in servers" :key="server.roomCode" @click="joinRoom(server.roomCode)" class="server-row">
+          <td>{{ server.roomCode }}</td>
+          <td>{{ server?.players?.length }}</td>
+        </tr>
+      </tbody>
+    </table>
     </div>
 
     <h3 v-if="this.servers == 0" class="no-servers-text">There are no servers...</h3>
@@ -57,7 +72,8 @@
       },
       createRoom() {
         this.$store.state.socket.emit('leaveRoom', this.joinedRoomCode);
-        this.$store.state.socket.emit('createRoom');
+        this.$store.state.socket.emit('createRoom', !this.isPrivate);
+
       }
     },
     mounted() {
@@ -108,16 +124,13 @@
 </script>
   
 <style>
-html, body {
+body {
   margin: 0;
   padding: 0;
   min-height: 100vh; /* Set minimum height to viewport height */
   font-family: 'Poppins', sans-serif;
   background: rgb(245,245,245);
   background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
-  background-repeat: no-repeat;
-  background-attachment: fixed; /* This makes the background fixed while scrolling */
-  background-size: cover; /* This makes sure your background fully covers the element */
 }
 
 .main {
@@ -145,10 +158,19 @@ html, body {
 }
 
 .action-container {
-  gap: 1.5rem;
+  width: 700px; /* or any specific value you prefer */
+  margin: auto;
+  gap: 1.7rem;
+  background-color: #e8e0c5;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  margin-top: 50px;
 }
 
+
 .roomsTitle {
+  text-align: center;
+  align-items: center;
   font-size: 40px;
   margin-top: 70px;
   margin-bottom: 20px;
@@ -170,7 +192,7 @@ button {
   border: none;
   border-radius: .5rem;
   font-size: 1rem;
-  padding: 1rem 4.5rem;
+  padding: 0.5rem 5rem;
   transition: transform 0.2s ease-in-out, 
     background-color 0.2s ease-in-out;
 }
@@ -191,12 +213,12 @@ button {
 }
 
 .server-btn {
+  color: #26160d;
   border: 3px solid #26160d;
-  padding: 0rem 3rem;
+  padding: 0rem 4rem;
   height: 70px;
   background: linear-gradient(to bottom, 
-    #765827, #65451F);
-    color: #FAFAFA;
+    #dccaae, #d2ba93);
   box-shadow: -6px 8px 10px rgba(81,41,10,0.1),
     0px 2px 2px rgba(81,41,10,0.2);
   font-size: 14px;
@@ -215,16 +237,76 @@ button:hover {
 }
 
 .servers-container {
+  width: 100%;
+  max-width: 1200px; /* Max-width for better responsiveness */
   margin: 3rem auto 50px auto;
-  display: grid;
-  grid-template-columns: repeat(3, 200px);
-  grid-template-areas:
-    "title title title"
-    "server server server";
-  gap: 1rem;
 }
 
-.server-wrapper {
-  width: 100%;
+.servers-table {
+  width: 100%; /* Full width for smaller screens */
+  max-width: 800px; /* Max-width for better responsiveness */
+  margin: auto;
+  border-collapse: collapse;
+  font-size: 1.2rem;
 }
+
+.servers-table th, .servers-table td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  text-align: left;
+}
+
+.servers-table tr:nth-child(even) {
+  background-color: #f2eedf; /* A lighter, bluish color for better aesthetics */
+}
+
+.servers-table tr:nth-child(odd) {
+  background-color: #f4ecd4; /* A lighter, bluish color for better aesthetics */
+}
+
+.server-row:hover {
+  background-color: #d4e7ff; /* A lighter, bluish color for hover effect */
+  cursor: pointer;
+}
+
+.no-servers-text {
+  margin-bottom: 50px;
+  color: #777; /* Darker color for better readability */
+}
+
+.confirm-button-class {
+  background-color: #39261F !important; /* or any cool brown color you prefer */
+  color: #ffffff !important; 
+}
+
+.cancel-button-class {
+  background-color: #ffffff !important; 
+  color: #000000 !important; 
+  border: 1px solid #39261F !important; /* to maintain consistency */
+}
+
+.custom-popup-class {
+  background-color: #eee6cd !important; /* Use any color you prefer */
+}
+
+.create-room-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Adjust gap as needed */
+}
+
+.private-room-label {
+  align-items: center;
+  cursor: pointer;
+}
+
+.private-room-label input {
+  margin-top: 15px;
+}
+
+
+.private-room-label span {
+  margin-left: 0.5rem; /* Adjust margin as needed */
+}
+
 </style>

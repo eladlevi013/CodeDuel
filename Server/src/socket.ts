@@ -43,7 +43,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
 
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
-    
+
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
       questionId: string, language: string) => {
 
@@ -139,9 +139,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
     
-    socket.on(CREATE_ROOM_SOCKET_EVENT, () => {
+    socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic) => {
       const roomCode = roomCodeGenerator().toString();
-      rooms.set(roomCode, { players: [], isPublic: true, gameStarted: false, 
+      rooms.set(roomCode, { players: [], isPublic: isPublic, gameStarted: false, 
         countdown: false, successfulSubmissions: new Map<string, SubmissionStats>() });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
