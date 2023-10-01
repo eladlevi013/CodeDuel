@@ -79,30 +79,13 @@ export default {
     if (!this.$store.state.socket.connected) {
       this.$router.push('/');
     }
-
+    
     this.$store.state.socket.on('otherPlayerLeft', () => {
       Message.warning('Other player left the room, redirecting to home page...', {
         duration: 3000});
       setTimeout(() => {this.$router.push('/')}, 3000)
     });
 
-
-    this.$store.state.socket.on('gameEnd', () => {
-      this.$swal.fire({
-        title: 'Do you want to save the changes?',
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'Save',
-        denyButtonText: `Don't save`,
-      }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
-          this.$swal.fire('Saved!', '', 'success')
-        } else if (result.isDenied) {
-          this.$swal.fire('Changes are not saved', '', 'info')
-        }
-      })
-    });
   },
   beforeUnmount() {
     this.$store.state.socket.off('otherPlayerLeft');

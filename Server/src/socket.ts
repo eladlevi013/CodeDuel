@@ -39,6 +39,24 @@ const getRoomCodeFromSocketId = (socketId: string): string => {
   return '';
 }
 
+const getRoomWinner = (roomCode: string): string => {
+  const room = rooms.get(roomCode);
+  let winner = '';
+  let minTime = Number.MAX_SAFE_INTEGER;
+
+  if (room) {
+    for (const [socketId, submissionStats] of room.successfulSubmissions!) {
+      const time = parseInt(submissionStats.time);
+      if (time < minTime) {
+        minTime = time;
+        winner = socketId;
+      }
+    }
+  }
+
+  return winner;
+}
+
 export const setupSocketIO = (httpServer: HttpServer) => {
   const io = new Server(httpServer, { cors: { origin: '*' } });
 
@@ -79,7 +97,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       });
 
       if (room.successfulSubmissions?.size === room.players.length) {
-        io.in(roomCode).emit(END_GAME_SOCKET_EVENT);
+        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
         room.countdown = false;
         rooms.delete(roomCode);
       }
@@ -93,7 +111,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           const currentRoom = rooms.get(roomCode);
 
           if (currentRoom && currentRoom.countdown) {
-            io.in(roomCode).emit(END_GAME_SOCKET_EVENT);
+            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
             currentRoom.countdown = false;
             rooms.delete(roomCode);
           }

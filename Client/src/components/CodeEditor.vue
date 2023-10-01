@@ -48,21 +48,34 @@ export default {
     props: ['question'],
     components: { Codemirror },
     mounted() {
-        this.$store.state.socket.on('endGame', () => {
-            this.showTimer = false;
-            Message.closeAll();
-            this.$swal({
-                title: 'Game Over!',
-                text: 'Redirecting to home page...',
-                icon: 'success',
-                timer: 5000,
-                buttons: false,
-                closeOnClickOutside: false,
-                closeOnEsc: false,
-            }).then(() => {
-                this.$router.push('/');
-            });
+        this.$store.state.socket.on('endGame', (winner) => {
+        this.showTimer = false;
+        Message.closeAll();
+        
+        const currentUserId = this.$store.state.socket.id;
+        let title, text, icon;
+        if (winner === currentUserId) {
+            title = 'Congratulations!';
+            text = 'You won!';
+            icon = 'success';
+        } else {
+            title = 'Game Over!';
+            text = `${winner} won the game!`;
+            icon = 'info';
+        }
+        
+        this.$swal({
+            title: title,
+            text: text,
+            icon: icon,
+            timer: 10000,
+            buttons: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+        }).then(() => {
+            this.$router.push('/');
         });
+    });
 
         this.$store.state.socket.on('startGameTimer', () => {
             this.showTimer = true;
