@@ -26,7 +26,9 @@
     :extensions="extensions"
     :options="{ theme: 'vscode-dark', line: true, highlightActiveLine: true }"
 />
+<div class="footer-text" v-if="showTimer">{{ formattedTime }} seconds left...</div>
 </div>
+
 </template>
 
 <script>
@@ -46,9 +48,32 @@ export default {
     props: ['question'],
     components: { Codemirror },
     mounted() {
+        this.$store.state.socket.on('endGame', () => {
+            this.showTimer = false;
+            Message.closeAll();
+            this.$swal({
+                title: 'Game Over!',
+                text: 'Redirecting to home page...',
+                icon: 'success',
+                timer: 5000,
+                buttons: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+            }).then(() => {
+                this.$router.push('/');
+            });
+        });
+
+        this.$store.state.socket.on('startGameTimer', () => {
+            this.showTimer = true;
+            this.startTimer();
+            Message.closeAll();
+            Message.warning(() => (`your opponent finished the question, you have 60 seconds to solve the problem...`), {duration: 5000})
+        })
+
         this.$store.state.socket.on('codeSuccess', () => {
             Message.closeAll();
-            Message.success(() => (`Problem Solved!`), {duration: 2000})
+            Message.success(() => (`Problem solved, your opponent has 60 seconds\n to finish their solution...`), {duration: 5000})
         });
 
         this.$store.state.socket.on('codeWrong', () => {
@@ -67,7 +92,13 @@ export default {
             selectedLanguage: 'java',
             code: ``,
             extensions: [python(), birdsOfParadise],
+            showTimer: false,
+            timer: null,
+            secondsLeft: 60,
         }
+    },
+    beforeUnmount() {
+        if(this.timer) clearInterval(this.timer);
     },
     methods: {
         runCode() {
@@ -95,6 +126,15 @@ export default {
             this.extensions = this.getExtensions();
             this.code = getSignitureByLanguage(this.question.funcSignature, this.selectedLanguage);
         },
+        startTimer() {
+    this.secondsLeft = 15;
+    this.timer = setInterval(() => {
+        this.secondsLeft--;
+        if (this.secondsLeft < 0) {
+            clearInterval(this.timer);
+        }
+    }, 1000);
+}
     },
     watch: {
         selectedLanguage: {
@@ -106,6 +146,13 @@ export default {
             immediate: false,
         },
     },
+    computed: {
+    formattedTime() {
+        const minutes = Math.floor(this.secondsLeft / 60);
+        const seconds = this.secondsLeft % 60;
+        return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+}
 }
 </script>
 
@@ -143,4 +190,15 @@ outline: none; }
 }
 
 .run-button:hover { background-color: #45a049; }
+
+.footer-text {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: x-large;
+  margin-bottom: 20px;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
 </style>

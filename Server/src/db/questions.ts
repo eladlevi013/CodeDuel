@@ -62,7 +62,7 @@ export const questions: Question[] = [
         example: 'findLargest([1,5,8,3]) === 8\nfindLargest([-12,0,-15,20]) === 20',
         funcSignature: {
             name: 'findLargest',
-            args: [{ value: 'nums', type: 'int[]' }, { value: 'str', type: 'string' }, { value: 'strArray', type: 'string[]'}],
+            args: [{ value: 'nums', type: 'int[]' }],
             returnType: 'int'
         },
         difficulty: 1,

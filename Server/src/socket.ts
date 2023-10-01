@@ -24,6 +24,8 @@ const JOINED_ROOM_SOCKET_EVENT = 'joinedRoom';
 const START_GAME_SOCKET_EVENT = 'startGame';
 const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
 const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
+const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
+const END_GAME_SOCKET_EVENT = 'endGame';
 
 const rooms = new Map<string, Room>();
 
@@ -43,7 +45,22 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         socket.emit(CODE_ERROR_SOCKET_EVENT, result.message);
       } else {
         if (result.stdout.toLowerCase().includes('true')) {
+          const roomCodePlayer = (socketId: string): string => {
+            for (const [roomCode, room] of rooms) {
+              if (room.players.includes(socketId)) {
+                return roomCode;
+              }
+            }
+            return '';
+          }
+
+          socket.to(roomCodePlayer(socket.id)).emit(START_GAME_TIMER_SOCKET_EVENT);
           socket.emit(CODE_SUCCESS_SOCKET_EVENT);
+
+          // send game end after 15 seconds
+          setTimeout(() => {
+            io.in(roomCodePlayer(socket.id)).emit(END_GAME_SOCKET_EVENT);
+          }, 15000);
         } else {
           socket.emit(CODE_WRONG_SOCKET_EVENT);
         }
@@ -105,7 +122,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
           
           if (room.players.length == PLAYERS_PER_ROOM) {
-            const question = questions[Math.floor(Math.random() * questions.length)];
+            // const question = questions[Math.floor(Math.random() * questions.length)];
+            const question = questions[3];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
           }

@@ -33,6 +33,7 @@
     </pane>
   </splitpanes>
 </div>
+
 </template>
 
 <script>
@@ -84,6 +85,24 @@ export default {
         duration: 3000});
       setTimeout(() => {this.$router.push('/')}, 3000)
     });
+
+
+    this.$store.state.socket.on('gameEnd', () => {
+      this.$swal.fire({
+        title: 'Do you want to save the changes?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        denyButtonText: `Don't save`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          this.$swal.fire('Saved!', '', 'success')
+        } else if (result.isDenied) {
+          this.$swal.fire('Changes are not saved', '', 'info')
+        }
+      })
+    });
   },
   beforeUnmount() {
     this.$store.state.socket.off('otherPlayerLeft');
@@ -96,7 +115,9 @@ export default {
 
 <style>
 .mainDiv {
-  color: #3E2723;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Align children vertically such that the last child is pushed to the bottom */
   height: calc(100vh - 55px);
 }
 
@@ -118,6 +139,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  position: relative;
 }
 
 .content p {
