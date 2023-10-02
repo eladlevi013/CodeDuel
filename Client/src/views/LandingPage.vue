@@ -62,7 +62,7 @@
     },
     computed: {
       ...mapGetters(['socket']),
-    },
+      },
     methods: {
       joinRoom(roomCode) {
         if (roomCode.trim() !== '') {
@@ -78,6 +78,9 @@
       }
     },
     mounted() {
+      console.log(this.$store);
+      console.log(this.$store.state.user)
+
       this.$store.state.socket.on('startGame', (question) => {
         Message.closeAll();
         Message.info(() => (`Joined room ${this.joinedRoomCode}`), {duration: 1500})

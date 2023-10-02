@@ -6,11 +6,36 @@
       <router-link class="navbar-title" :to="{ path: '/' }">About</router-link>
     </div>
     <div class="auth-container">
-      <router-link class="navbar-title" :to="{ path: '/auth/login' }">Login</router-link>
-      <router-link class="navbar-title" :to="{ path: '/auth/register' }">Register</router-link>
+      <template v-if="user">
+        <span class="navbar-title">{{ user.username }}</span>
+        <span class="navbar-title" @click="logout">Logout</span>
+      </template>
+      <template v-else>
+        <router-link class="navbar-title" :to="{ path: '/auth/login' }">Login</router-link>
+        <router-link class="navbar-title" :to="{ path: '/auth/register' }">Register</router-link>
+      </template>
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    user() {
+      return this.$store.state.user;
+    }
+  },
+  mounted() {
+  },
+  methods: {
+    logout() {
+      this.$store.commit('setUser', null);
+      this.$store.commit('setSessionId', null);
+      this.$router.push('/');
+    }
+  }
+}
+</script>
 
 <style>
 .auth-container {

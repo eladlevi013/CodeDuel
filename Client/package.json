@@ -33,7 +33,8 @@
     "vue-m-message": "^4.0.2",
     "vue-router": "^4.2.5",
     "vue-sweetalert2": "^5.0.5",
-    "vuex": "^4.1.0"
+    "vuex": "^4.1.0",
+    "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

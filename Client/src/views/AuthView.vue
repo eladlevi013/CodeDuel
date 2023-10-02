@@ -2,49 +2,113 @@
     <div class="auth-container">
         <h1 class="title-auth">CodeDuel⚔️</h1>
         <h2 class="subtitle-auth">{{isLogin ? 'Login Panel' : 'Register Panel'}}</h2>
-        <form class="auth-form">
-            <input class="class-input" type="text" :placeholder="isLogin ? 'Enter your username' : 'Enter your username'" v-model="username"/>
+        <form class="auth-form" @submit.prevent>
+          <input v-if="!isLogin" class="class-input" type="text" placeholder='Enter your username' v-model="username"/>
+            <input class="class-input" type="email" placeholder="Enter your email" v-model="email"/>
             <input type="password" :placeholder="isLogin ? 'Enter your password' : 'Enter your password'" class="class-input" v-model="password"/>
-            <input v-if="!isLogin" class="class-input" type="email" placeholder="Enter your email" v-model="email"/>
             <div class="button-container">
-                <button class="auth-button" @click.prevent="isLogin ? login() : register">{{isLogin ? 'Login' : 'Register'}}</button>
+              <button :disabled="isLoading" class="auth-button" @click.prevent="isLogin ? login() : register()">{{isLogin ? 'Login' : 'Register'}}</button>
             </div>
 
-            <p class="switch-auth">{{isLogin ? 'New to CodeDuel? ' : 'Already have an account? '}}<a @click.prevent="switchForm" href="#">{{isLogin ? 'Register Here' : 'Login Here'}}</a></p>
-        </form>
+<p class="switch-auth">
+  <transition name="fade" mode="out-in">
+    <span v-if="isLogin" key="register">New to CodeDuel? <a @click.prevent="switchForm" href="#">Register Here</a></span>
+    <span v-else key="login">Already have an account? <a @click.prevent="switchForm" href="#">Login Here</a></span>
+  </transition>
+</p>        </form>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+// message alert library
+import Message from 'vue-m-message';
+import 'vue-m-message/dist/style.css'
+
 export default {
-    data() {
-        return {
-            isLogin: true, // Default form is login
-            username: '',
-            password: '',
-            email: ''
-        }
-    },
-    created() {
-        this.checkRoute()
-    },
-    watch: {
-        $route: 'checkRoute'
-    },
-    methods: {
-        checkRoute() {
-            this.isLogin = this.$route.path === '/auth/login';
-        },
-        login() {
-            // Your login logic here
-        },
-        register() {
-            // Your register logic here
-        },
-        switchForm() {
-            this.$router.push(this.isLogin ? '/auth/register' : '/auth/login');
-        }
+  data() {
+    return {
+        isLogin: true, // Set default to Login
+        username: '',
+        password: '',
+        email: '',
+        isLoading: false // Added isLoading data property, set to false as default
     }
+  },
+  created() {
+      this.checkRoute()
+  },
+  watch: {
+    $route: 'checkRoute'
+  },
+  methods: {    
+    switchForm() {
+        this.$router.push(this.isLogin ? '/auth/register' : '/auth/login');
+    },
+
+    async login() {
+  this.isLoading = true;
+  Message({ message: 'Logging in...', type: 'loading' });
+  try {
+    const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/login`, {
+      email: this.email,
+      password: this.password,
+    });
+
+    this.$store.commit('setSessionId', response.data.sessionId);
+    this.$store.commit('setUser', response.data.account);
+    
+    if (response.data && response.status === 200) {
+      Message.closeAll();
+      Message.success('Logged in successfully');
+      this.$router.push('/');
+    }
+  } catch (error) {
+    Message.closeAll();
+    if (error.response && error.response.data) {
+      Message.error(`Login Error: ${error.response.data.message}`);
+    } else {
+      Message.error('An error occurred during login');
+    }
+  } finally {
+    this.isLoading = false;
+  }
+}
+,
+    
+    async register() {
+      this.isLoading = true; // Start Loading
+      Message({ message: 'Registering...', type: 'loading' }); // Loading Message
+      try {
+        const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/register`, {
+          username: this.username,
+          password: this.password,
+          email: this.email,
+        });
+
+        this.$store.commit('setSessionId', response.data.sessionId);
+        this.$store.commit('setUser', response.data.account);
+
+        if (response.data && response.status === 200) {
+          Message.closeAll(); // Close loading message
+          Message.success('Account created successfully');
+          this.$router.push('/');
+        }
+      } catch (error) {
+        Message.closeAll(); // Close loading message
+        if (error.response && error.response.data) {
+          Message.error(`Registration Error: ${error.response.data.message}`);
+        } else {
+          Message.error('An error occurred during registration');
+        }
+      } finally {
+        this.isLoading = false; // End Loading
+      }
+    },
+    checkRoute() {
+      this.isLogin = this.$route.path === '/auth/login';
+    },
+  }
 }
 </script>
 
@@ -59,7 +123,7 @@ body {
 
 .auth-container {
   text-align: center;
-  padding: 8rem;
+  padding: 5rem;
 }
 
 .title-auth {
@@ -164,14 +228,5 @@ input:focus::placeholder {
     margin-top: -7px !important;
     border-radius: 7px !important;
     box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1) !important;
-}
-
-/* Transition effect for form appearance */
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
-}
-
-.fade-enter, .fade-leave-to {
-    opacity: 0;
 }
 </style>

@@ -1,9 +1,9 @@
-import { runTestCases } from './CodeExecutor/runTestCases';
+import { runTestCases } from './codeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Room, SubmissionStats } from './Models/Room';
-import { publicRooms, roomCodeGenerator } from './Utils/roomsHelper'
+import { Room, SubmissionStats } from './models/Room';
+import { publicRooms, roomCodeGenerator } from './utils/roomsHelper'
 
 // define constants
 const PLAYERS_PER_ROOM = 2;

@@ -1,4 +1,4 @@
-import { Question, Variable } from '../Models/Question';
+import { Question, Variable } from '../models/Question';
 
 export const questions: Question[] = [
     {
