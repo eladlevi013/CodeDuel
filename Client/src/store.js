@@ -9,7 +9,7 @@ export default new Vuex.Store({
     roomCode: '',
     question: {},
     sessionId: '',
-    user: {},
+    user: null,
   },
   mutations: {
     setRoomCode(state, code) {

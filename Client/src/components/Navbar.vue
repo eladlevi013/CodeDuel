@@ -26,12 +26,11 @@ export default {
     }
   },
   mounted() {
+    console.log('User on Mounted: ', this.user);
   },
-  methods: {
-    logout() {
-      this.$store.commit('setUser', null);
-      this.$store.commit('setSessionId', null);
-      this.$router.push('/');
+  watch: {
+    user(newVal, oldVal) {
+      console.log('User changed from: ', oldVal, ' to: ', newVal);
     }
   }
 }
