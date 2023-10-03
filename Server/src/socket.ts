@@ -169,7 +169,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
 
-        if (room) {
+        if (room && room.players[0] !== socket.id) {
           room.players.push(socket.id);
           socket.join(roomCode);
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);

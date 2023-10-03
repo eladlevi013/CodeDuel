@@ -150,22 +150,35 @@ export default {
 }
     },
     watch: {
-        selectedLanguage: {
-            handler() {this.updateProgrammingLanguage()},
-            immediate: false,
+    selectedLanguage: {
+        handler() {
+            try {
+                this.updateProgrammingLanguage();
+            } catch (error) {
+                console.error('Error in watcher: selectedLanguage:', error);
+            }
         },
-        question: {
-            handler() {this.updateProgrammingLanguage()},
-            immediate: false,
-        },
+        immediate: false,
     },
+    question: {
+        handler() {
+            try {
+                this.updateProgrammingLanguage();
+            } catch (error) {
+                console.error('Error in watcher: question:', error);
+            }
+        },
+        immediate: false,
+    },
+},
+
     computed: {
-    formattedTime() {
-        const minutes = Math.floor(this.secondsLeft / 60);
-        const seconds = this.secondsLeft % 60;
-        return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        formattedTime() {
+            const minutes = Math.floor(this.secondsLeft / 60);
+            const seconds = this.secondsLeft % 60;
+            return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
     }
-}
 }
 </script>
 

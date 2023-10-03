@@ -1,6 +1,7 @@
 import { Room } from "../models/Room";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
+  console.log(rooms);
   const roomsArray: Room[] = [];
 
   for (const [roomCode, room] of rooms.entries()) {

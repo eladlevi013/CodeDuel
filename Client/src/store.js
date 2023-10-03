@@ -4,10 +4,10 @@ import createPersistedState from "vuex-persistedstate";
 
 export default new Vuex.Store({
   state: {
-    socket: io(process.env.VUE_APP_PROD === 'true' ? 'https://codeduel-production.up.railway.app/'
-      : 'http://localhost:3001'),
+    socket: io(process.env.VUE_APP_PROD === 'true' ? 
+      'https://codeduel-production.up.railway.app/': 'http://localhost:3001'),
     roomCode: '',
-    question: {},
+    question: null,
     sessionId: '',
     user: null,
   },
@@ -25,7 +25,8 @@ export default new Vuex.Store({
       state.user = user;
     },
   },
-  actions: {},
+  actions: {
+  },
   getters: {
     socket: (state) => state.socket,
     roomCode: (state) => state.roomCode,

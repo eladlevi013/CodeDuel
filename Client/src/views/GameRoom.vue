@@ -1,30 +1,33 @@
 <template>
-<div class="mainDiv">
+<div class="main-div">
   <splitpanes class="default-theme">
     <pane size="30">
       <splitpanes horizontal>
+
         <!-- Question section -->
         <pane size="70">
           <div class="panel question-section">
-            <h2 class="question-title">Question {{ question.id }}: {{ question.title }}</h2>
+            <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
             <div style="display: flex; flex-direction: row; align-items: center;">
-              <div :class="getDifficultyClass(question.difficulty)">{{ getDifficultyText(question.difficulty) }}</div>
-                <div class="question-tags-container" v-for="(tag, index) in question.categories" :key="index">
+              <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
+                <div class="question-tags-container" v-for="(tag, index) in question?.categories" :key="index">
                   <div class="question-tag">{{ tag }}</div>
                 </div>
               </div>
               <div class="content">
-                <p>{{ question.description }}</p>
-                <pre>{{ question.example }}</pre>
+                <p>{{ question?.description }}</p>
+                <pre>{{ question?.example }}</pre>
             </div>
           </div>
         </pane>
+
         <!-- Chat section -->
         <pane>
           <Chat/>
         </pane>
       </splitpanes>
     </pane>
+
     <!-- Code editor section -->
     <pane>
       <div class="panel code-section">
@@ -37,13 +40,10 @@
 </template>
 
 <script>
-// import vue components
 import Chat from '../components/Chat.vue';
 import CodeEditor from '../components/CodeEditor.vue';
-// import splitpanes and its css
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
-// message alert library
 import Message from 'vue-m-message';
 import 'vue-m-message/dist/style.css'
 
@@ -52,6 +52,7 @@ export default {
   data() {
     return {
       question: {},
+      roomCode: '',
     };
   },
   methods: {
@@ -72,11 +73,12 @@ export default {
       }
     },
   },
-  mounted() {    
+  mounted() {
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
 
-    if (!this.$store.state.socket.connected) {
+    // on socket problem, redirect to home page
+    if (this.$store.state.socket == null || this.$store.state.socket.disconnected) {
       this.$router.push('/');
     }
     
@@ -89,18 +91,16 @@ export default {
   },
   beforeUnmount() {
     this.$store.state.socket.off('otherPlayerLeft');
-    this.$store.state.socket.off('codeSuccess');
-    this.$store.state.socket.off('codeWrong');
-    this.$store.state.socket.off('codeError');
+    this.$store.state.socket.disconnect();
   },
 };
 </script>
 
 <style>
-.mainDiv {
+.main-div {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Align children vertically such that the last child is pushed to the bottom */
+  justify-content: space-between;
   height: calc(100vh - 55px);
 }
 

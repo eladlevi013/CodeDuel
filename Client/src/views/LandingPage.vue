@@ -22,9 +22,10 @@
       </label>
     </div>
 
+    <!-- rooms -->
     <h1 class="roomsTitle">Rooms🗄️</h1>
-    <div class="servers-container">
-      <table v-if="servers.length > 0" class="servers-table">
+    <div class="rooms-container">
+      <table v-if="availableRooms.length > 0" class="rooms-table">
       <thead>
         <tr>
           <th>Room Code</th>
@@ -32,63 +33,75 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="server in servers" :key="server.roomCode" @click="joinRoom(server.roomCode)" class="server-row">
+        <tr v-for="server in availableRooms" :key="server.roomCode"
+          @click="joinRoom(server.roomCode)" class="server-row">
           <td>{{ server.roomCode }}</td>
-          <td>{{ server?.players?.length }}</td>
+          <td>{{ server?.players?.length ?? 0 }}</td>
         </tr>
       </tbody>
     </table>
     </div>
 
-    <h3 v-if="this.servers == 0" class="no-servers-text">There are no servers...</h3>
+    <h3 v-if="this.availableRooms.length === 0" class="no-rooms-text">
+      There are no available rooms...
+    </h3>
   </div>
 </template>
 
 <script>
-  import { mapGetters } from 'vuex';
   // message alert library
   import Message from 'vue-m-message';
   import 'vue-m-message/dist/style.css'
+
+  const MESSAGE_DURATION = 1500;
 
   export default {
     name: 'App',
     data() {
       return {
-        roomCode: '',
-        servers: [],
         joinedRoomCode: '',
-        question: '',
+        roomCode: '',
+        availableRooms: [],
+        isPrivate: false,
+        gameStarted: false,
       };
     },
     computed: {
-      ...mapGetters(['socket']),
-      },
+      socket() {
+        return this.$store.state.socket;
+      }
+    },
     methods: {
-      joinRoom(roomCode) {
-        if (roomCode.trim() !== '') {
-          this.$store.state.socket.emit('leaveRoom', this.joinedRoomCode);
+      async joinRoom(roomCode) {
+        if (this.joinedRoomCode.trim()) {
+          await this.leaveRoom(this.joinedRoomCode);
         }
-
-        this.$store.state.socket.emit('joinRoom', roomCode);
+        this.socket.emit('joinRoom', roomCode);
       },
       createRoom() {
-        this.$store.state.socket.emit('leaveRoom', this.joinedRoomCode);
-        this.$store.state.socket.emit('createRoom', !this.isPrivate);
-
+        if (this.joinedRoomCode) {
+          this.socket.emit('leaveRoom', this.joinedRoomCode);
+        }
+        this.socket.emit('createRoom', !this.isPrivate);
+      },
+      leaveRoom(roomCode) {
+        this.socket.emit('leaveRoom', roomCode);
       }
     },
     mounted() {
-      console.log(this.$store);
-      console.log(this.$store.state.user)
+      if (!this.socket.connected) {
+        this.socket.connect();
+      }
 
-      this.$store.state.socket.on('startGame', (question) => {
+      this.socket.emit('sendRooms');
+      
+      this.socket.on('startGame', question => {
+        this.gameStarted = true;
+        this.$store.commit('setQuestion', question);
         Message.closeAll();
-        Message.info(() => (`Joined room ${this.joinedRoomCode}`), {duration: 1500})
-        this.$router.push({ path: `game/room/${this.joinedRoomCode}` })
-        this.$store.state.question = question;
-      })
-
-      this.$store.state.socket.emit('sendRooms');
+        Message.info(`Joined room ${this.joinedRoomCode}`, { duration: MESSAGE_DURATION });
+        this.$router.push({ path: `game/room/${this.joinedRoomCode}` });
+      });
 
       this.$store.state.socket.on('joinedRoom', (roomCode) => {
         Message.closeAll();
@@ -110,19 +123,21 @@
           }
         })
 
-        // join the room after creating it
         this.$store.state.socket.emit('joinRoom', roomCode);
       })
 
       this.$store.state.socket.on('getRooms', (rooms) => {
-        this.servers = rooms;
+        this.availableRooms = rooms;
       })
     },
     beforeUnmount() {
-      this.$store.state.socket.off('startGame');
-      this.$store.state.socket.off('joinedRoom');
-      this.$store.state.socket.off('createdRoom');
-      this.$store.state.socket.off('getRooms');
+      if (this.joinedRoomCode && !this.gameStarted) {
+        this.socket.emit('leaveRoom', this.joinedRoomCode);
+      }
+      
+      ['startGame', 'joinedRoom', 'createdRoom', 'getRooms'].forEach(event => {
+        this.socket.off(event);
+      });
     }
   }
 </script>
@@ -131,10 +146,11 @@
 body {
   margin: 0;
   padding: 0;
-  min-height: 100vh; /* Set minimum height to viewport height */
+  min-height: 100vh;
   font-family: 'Poppins', sans-serif;
   background: rgb(245,245,245);
-  background: linear-gradient(0deg, rgba(245,245,245,1) 0%, rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
+  background: linear-gradient(0deg, rgba(245,245,245,1) 0%,
+   rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -142,30 +158,35 @@ body {
 
 .main {
   text-align: center;
-  padding: 8rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .title {
   font-family: 'Skranji';
   font-size: 5rem;
   color: #26160d;
-  margin: 0px 0 3.5rem 0;
+  margin: 100px 0 50px 0;
 }
 
 .parContainer {
   font-size: 30px;
-  width: 800px;
+  max-width: 800px;
   margin: -40px auto 0 auto;
+  text-align: center;
 }
 
-.action-container, .servers-container {
+
+.action-container, .rooms-container {
   display: flex;
   justify-content: center;
   margin-top: 3rem;
+  max-width: 700px;
+  width: 100%;
 }
 
 .action-container {
-  width: 700px; /* or any specific value you prefer */
+  width: 700px;
   margin: auto;
   gap: 1.0rem;
   background-color: #e8e0c5;
@@ -179,7 +200,7 @@ body {
   text-align: center;
   align-items: center;
   font-size: 40px;
-  margin-top: 70px;
+  margin-top: 200px;
   margin-bottom: 20px;
   font-family: 'Skranji';
   color: #26160d;
@@ -234,71 +255,56 @@ button:hover {
   transform: scale(1.02);
 }
 
-.no-servers-text, .servers-container {
+.no-rooms-text, .rooms-container {
   text-align: center;
 }
 
-.no-servers-text {
+.no-rooms-text {
   margin-bottom: 50px;
 }
 
-.servers-container {
+.rooms-container {
   width: 100%;
-  max-width: 1200px; /* Max-width for better responsiveness */
+  max-width: 1200px;
   margin: 3rem auto 50px auto;
 }
 
-.servers-table {
-  width: 100%; /* Full width for smaller screens */
-  max-width: 800px; /* Max-width for better responsiveness */
+.rooms-table {
+  width: 100%;
+  max-width: 800px;
   margin: auto;
   border-collapse: collapse;
   font-size: 1.2rem;
 }
 
-.servers-table th, .servers-table td {
+.rooms-table th, .rooms-table td {
   border: 1px solid #ccc;
   padding: 12px;
   text-align: left;
 }
 
-.servers-table tr:nth-child(even) {
-  background-color: #f2eedf; /* A lighter, bluish color for better aesthetics */
+.rooms-table tr:nth-child(even) {
+  background-color: #f2eedf;
 }
 
-.servers-table tr:nth-child(odd) {
-  background-color: #f4ecd4; /* A lighter, bluish color for better aesthetics */
+.rooms-table tr:nth-child(odd) {
+  background-color: #f4ecd4;
 }
 
 .server-row:hover {
-  background-color: #d4e7ff; /* A lighter, bluish color for hover effect */
+  background-color: #d4e7ff;
   cursor: pointer;
 }
 
-.no-servers-text {
+.no-rooms-text {
   margin-bottom: 50px;
-  color: #777; /* Darker color for better readability */
-}
-
-.confirm-button-class {
-  background-color: #39261F !important; /* or any cool brown color you prefer */
-  color: #ffffff !important; 
-}
-
-.cancel-button-class {
-  background-color: #ffffff !important; 
-  color: #000000 !important; 
-  border: 1px solid #39261F !important; /* to maintain consistency */
-}
-
-.custom-popup-class {
-  background-color: #eee6cd !important; /* Use any color you prefer */
+  color: #777;
 }
 
 .create-room-container {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Adjust gap as needed */
+  gap: 1rem;
 }
 
 .private-room-label {
@@ -312,7 +318,6 @@ button:hover {
 
 
 .private-room-label span {
-  margin-left: 0.5rem; /* Adjust margin as needed */
+  margin-left: 0.5rem;
 }
-
 </style>
