@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import bcryptjs from 'bcryptjs';
 import mongoose from 'mongoose';
-import Account from '../Models/account';
+import Account from '../models/account';
 import { Session } from 'express-session';
 
 interface AccountSession extends Session {
