@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-      "target": "ES6",
-      "module": "Node16",
+      "target": "ES2015",
+      "module": "NodeNext",
       "noEmit": true,
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "outDir": "./dist",
-      "moduleResolution": "Node16",
+      "moduleResolution": "NodeNext",
       "allowImportingTsExtensions": true,
   },
   "include": [
