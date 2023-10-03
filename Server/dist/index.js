@@ -30,9 +30,9 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const cors_1 = __importDefault(require("cors"));
 const dotenv = __importStar(require("dotenv"));
-const socket_1 = require("./socket");
+const socket_js_1 = require("./socket.js");
 const users_1 = __importDefault(require("./routes/users"));
-const connectDb_1 = __importDefault(require("./config/connectDb"));
+const connectDb_js_1 = __importDefault(require("./config/connectDb.js"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_mongo_1 = __importDefault(require("connect-mongo"));
 dotenv.config();
@@ -49,10 +49,10 @@ app.use((0, express_session_1.default)({
 }));
 app.use('/users/', users_1.default);
 // Database setup
-(0, connectDb_1.default)();
+(0, connectDb_js_1.default)();
 // Socketio setup
 const httpServer = (0, http_1.createServer)(app);
-(0, socket_1.setupSocketIO)(httpServer);
+(0, socket_js_1.setupSocketIO)(httpServer);
 // Server setup
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {

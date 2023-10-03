@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -27,59 +18,55 @@ const HEADERS = process.env.PRODUCTION === 'true' ? {
 } : {
     'Content-Type': 'application/json'
 };
-function executeCodeOnJudgeApi(languageId, code) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const submissionOptions = {
-            url: `${BASE_URL}/submissions`,
-            method: 'POST',
-            headers: HEADERS,
-            data: JSON.stringify({
-                "language_id": languageId,
-                "source_code": code,
-            })
-        };
-        try {
-            const submissionResponse = yield (0, axios_1.default)(submissionOptions);
-            const token = submissionResponse.data.token;
-            const resultResponse = yield pollForResult(token);
-            return resultResponse.data;
-        }
-        catch (error) {
-            console.error("Error executing code on Judge0 API");
-        }
-    });
+async function executeCodeOnJudgeApi(languageId, code) {
+    const submissionOptions = {
+        url: `${BASE_URL}/submissions`,
+        method: 'POST',
+        headers: HEADERS,
+        data: JSON.stringify({
+            "language_id": languageId,
+            "source_code": code,
+        })
+    };
+    try {
+        const submissionResponse = await (0, axios_1.default)(submissionOptions);
+        const token = submissionResponse.data.token;
+        const resultResponse = await pollForResult(token);
+        return resultResponse.data;
+    }
+    catch (error) {
+        console.error("Error executing code on Judge0 API");
+    }
 }
 exports.executeCodeOnJudgeApi = executeCodeOnJudgeApi;
-function pollForResult(token) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const resultOptions = {
-            url: `${BASE_URL}/submissions/${token}`,
-            headers: HEADERS,
-        };
-        const maxAttempts = Number(process.env.MAX_POLL_ATTEMPTS) || 10;
-        const pollInterval = Number(process.env.POLL_INTERVAL_MS) || 2000;
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const interval = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    const resultResponse = yield (0, axios_1.default)(resultOptions);
-                    const status = resultResponse.data.status.description;
-                    if (status !== 'Processing' && status !== 'In Queue') {
-                        clearInterval(interval);
-                        resolve(resultResponse);
-                    }
-                    else if (attempts >= maxAttempts) {
-                        clearInterval(interval);
-                        reject(new Error('Maximum poll attempts reached.'));
-                    }
-                }
-                catch (error) {
+async function pollForResult(token) {
+    const resultOptions = {
+        url: `${BASE_URL}/submissions/${token}`,
+        headers: HEADERS,
+    };
+    const maxAttempts = Number(process.env.MAX_POLL_ATTEMPTS) || 10;
+    const pollInterval = Number(process.env.POLL_INTERVAL_MS) || 2000;
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const interval = setInterval(async () => {
+            try {
+                const resultResponse = await (0, axios_1.default)(resultOptions);
+                const status = resultResponse.data.status.description;
+                if (status !== 'Processing' && status !== 'In Queue') {
                     clearInterval(interval);
-                    reject(error);
+                    resolve(resultResponse);
                 }
-                attempts++;
-            }), pollInterval);
-        });
+                else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    reject(new Error('Maximum poll attempts reached.'));
+                }
+            }
+            catch (error) {
+                clearInterval(interval);
+                reject(error);
+            }
+            attempts++;
+        }, pollInterval);
     });
 }
 exports.pollForResult = pollForResult;

@@ -5,7 +5,7 @@ const publicRooms = (rooms) => {
     const roomsArray = [];
     for (const [roomCode, room] of rooms.entries()) {
         if (room.isPublic && room.players.length < 2)
-            roomsArray.push(Object.assign(Object.assign({}, room), { roomCode }));
+            roomsArray.push({ ...room, roomCode });
     }
     return roomsArray;
 };
