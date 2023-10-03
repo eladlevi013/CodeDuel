@@ -1,19 +1,23 @@
 {
-  "compilerOptions": {
-      "target": "ES2015",
-      "module": "NodeNext",
-      "noEmit": true,
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "outDir": "./dist",
-      "moduleResolution": "NodeNext",
-      "allowImportingTsExtensions": true,
-  },
-  "include": [
-      "src/**/*.ts"
-  ],
-  "exclude": [
-      "node_modules"
-  ]
-}
+    "compilerOptions": {
+      "target": "ES2020",                  // Target modern ES version for Node.js 14+ compatibility
+      "module": "CommonJS",               // Node.js uses CommonJS modules
+      "outDir": "./dist",                 // Output directory for compiled JavaScript files
+      "rootDir": "./src",                 // Root directory for TypeScript files
+      "strict": true,                     // Enables strict type-checking options
+      "esModuleInterop": true,            // Allows default imports from modules with no default export
+      "skipLibCheck": true,               // Skip type-checking of declaration files
+      "forceConsistentCasingInFileNames": true, // Avoid issues with filename casing on case-sensitive systems
+      "resolveJsonModule": true,          // Allow importing .json files as modules
+      "moduleResolution": "node",         // Mimic Node.js' module resolution mechanism
+      "types": ["node"],                  // Include Node.js type definitions
+      "isolatedModules": true             // Each file is a separate module (required for transpile-only)
+    },
+    "include": [
+      "src/**/*.ts"                        // Include all TypeScript files in src directory
+    ],
+    "exclude": [
+      "node_modules"                      // Exclude the node_modules directory
+    ]
+  }
+  
