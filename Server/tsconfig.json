@@ -5,7 +5,8 @@
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "outDir": "./dist"
+      "outDir": "./dist",
+      "moduleResolution": "node",
   },
   "include": [
       "src/**/*.ts"
