@@ -2,7 +2,7 @@ import { runTestCases } from './codeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Room, SubmissionStats } from './models/room';
+import { Room, SubmissionStats } from './Models/room';
 import { publicRooms, roomCodeGenerator } from './utils/roomsHelper'
 
 // define constants

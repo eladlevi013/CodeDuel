@@ -1,4 +1,4 @@
-import { Question, Variable } from '../models/question';
+import { Question, Variable } from '../Models/question';
 
 export interface LanguageHelper {
     getCheckStatement: (question: Question, testCases: Map<Variable, Variable>) => string;

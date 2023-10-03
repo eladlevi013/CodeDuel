@@ -1,4 +1,4 @@
-import { Room } from "../models/room";
+import { Room } from "../Models/room";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
   const roomsArray: Room[] = [];
