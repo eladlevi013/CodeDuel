@@ -5,7 +5,7 @@ import createPersistedState from "vuex-persistedstate";
 export default new Vuex.Store({
   state: {
     socket: io(process.env.VUE_APP_PROD === 'true' ? 
-      'https://playground-ts-production.up.railway.app/': 'http://localhost:3001'),
+      'https://codeduel-production.up.railway.app/': 'http://localhost:3001'),
     roomCode: '',
     question: null,
     sessionId: '',
