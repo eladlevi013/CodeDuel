@@ -1,12 +1,18 @@
 {
-  "compilerOptions": {                        
+  "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
