@@ -10,7 +10,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 // SweetAlert2
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css'
-import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
 // Vuex
 import store from './store'; 
 
@@ -30,7 +29,6 @@ const router = createRouter({
 // Middlewares
 const app = createApp(App);
 app.use(VueSweetalert2);
-app.use(autoAnimatePlugin);
 app.use(router);
 app.use(store);
 app.mount('#app')
