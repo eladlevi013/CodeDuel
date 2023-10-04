@@ -21,6 +21,7 @@ const CREATE_ROOM_SOCKET_EVENT = 'createRoom';
 const CREATED_ROOM_SOCKET_EVENT = 'createdRoom';
 const JOIN_ROOM_SOCKET_EVENT = 'joinRoom';
 const JOINED_ROOM_SOCKET_EVENT = 'joinedRoom';
+const ROOM_NOT_FOUND_SOCKET_EVENT = 'roomNotFound';
 const START_GAME_SOCKET_EVENT = 'startGame';
 const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
 const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
@@ -181,6 +182,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
           }
         }
+      } else {
+        socket.emit(ROOM_NOT_FOUND_SOCKET_EVENT);
       }
 
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));

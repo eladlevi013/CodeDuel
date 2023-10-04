@@ -74,6 +74,7 @@ export default {
     },
   },
   mounted() {
+    this.$swal.close();
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
 
@@ -81,6 +82,8 @@ export default {
     if (this.$store.state.socket == null || this.$store.state.socket.disconnected) {
       this.$router.push('/');
     }
+
+    Message.info(`Joined room ${this.roomCode}`, { duration: 1500 });
     
     this.$store.state.socket.on('otherPlayerLeft', () => {
       Message.warning('Other player left the room, redirecting to home page...', {
