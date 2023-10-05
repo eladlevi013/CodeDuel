@@ -17,6 +17,8 @@ export const sharedRoomMethods = {
   },
   methods: {
     joinRoom(roomCode) {
+      Message.closeAll();
+
       if (this.joinedRoomCode.trim()) {
         this.leaveRoom(this.joinedRoomCode);
       }
