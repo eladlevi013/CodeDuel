@@ -58,6 +58,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .navbar-title {
@@ -69,5 +70,12 @@ export default {
   padding-top: 100px;
   margin-top: 100px;
   cursor: pointer;
+}
+
+@media only screen and (max-width: 768px) { 
+  .navbar-title {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
 }
 </style>

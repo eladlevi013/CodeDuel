@@ -161,11 +161,9 @@ img {
   }
 
   img {
-    width: 90%;
+    width: 80%;
     margin-top: 50px;
     margin-bottom: 50px;
-    margin-left: 50px;
-    margin-right: 50px;
   }
 
   .parContainer {
