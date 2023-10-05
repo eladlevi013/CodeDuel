@@ -18,7 +18,7 @@
       <button @click="createRoom" class="buttonDesign">Quick Match</button>
     </div>
 
-    <img src="/game_demo.png" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
+    <img src="/game_demo.webp" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
   </div>
 </template>
 
