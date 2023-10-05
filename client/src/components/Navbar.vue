@@ -7,6 +7,7 @@
     </div>
     <div class="auth-container">
       <template v-if="user">
+        <span class="navbar-title">⚔️ {{ user.score }} winnings</span>
         <span class="navbar-title">{{ user.username }}</span>
         <span class="navbar-title" @click="logout">Logout</span>
       </template>

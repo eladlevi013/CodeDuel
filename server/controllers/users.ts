@@ -89,7 +89,7 @@ export const register = async (req: Request, res: Response) => {
             password: hash,
             role: 'User',
             levelsData: {},
-            currentLevel: 1
+            score: 0
         });
 
         const sessionId = (req.session as AccountSession).id;
