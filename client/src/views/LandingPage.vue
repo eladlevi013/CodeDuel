@@ -45,9 +45,6 @@ body {
   background: rgb(245,245,245);
   background: linear-gradient(0deg, rgba(245,245,245,1) 0%,
    rgb(244, 239, 223) 50%, rgb(234, 221, 179) 100%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
 }
 
 .main {
@@ -64,7 +61,7 @@ body {
 }
 
 .parContainer {
-  font-size: 30px;
+  font-size: 29px;
   max-width: 800px;
   margin: -40px auto 0 auto;
   text-align: center;
@@ -85,7 +82,7 @@ body {
   background-color: #e8e0c5;
   padding: 0.8rem 1.9rem;
   border-radius: 15px;
-  margin-top: 60px;
+  margin-top: 35px;
   box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;}
 
 .room-code-input {
