@@ -18,7 +18,7 @@
       <button @click="createRoom" class="buttonDesign">Quick Match</button>
     </div>
 
-    <img src="/game_demo.png" width="1000" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
+    <img src="/game_demo.png" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
   </div>
 </template>
 
@@ -125,5 +125,58 @@ button:hover {
 
 img {
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  width: 1000px;
+}
+
+@media screen and (max-width: 1050px) {
+  img {
+    width: 800px;
+  }
+}
+
+@media only screen and (max-width: 840px) {
+  .title {
+    font-size: 3rem;
+    margin: 50px 0 30px 0;
+  }
+
+  .parContainer {
+    font-size: 20px;
+  }
+
+  .action-container {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.7rem;
+    margin-top: 30px;
+    padding: 1rem 1rem;
+  }
+
+  .room-code-input {
+    width: 96%;
+    margin-bottom: 0rem;
+    text-align: center;
+  }
+
+  img {
+    width: 90%;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    margin-right: 50px;
+  }
+
+  .parContainer {
+    font-size: 18px;
+    margin-top: -20px;
+    width: 80%;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .title {
+    font-size: 2.5rem;
+    margin: 40px 0 20px 0;
+  }
 }
 </style>
