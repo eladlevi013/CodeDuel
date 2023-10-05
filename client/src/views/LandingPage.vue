@@ -161,7 +161,7 @@ img {
   }
 
   img {
-    width: 80%;
+    width: 90%;
     margin-top: 50px;
     margin-bottom: 50px;
   }

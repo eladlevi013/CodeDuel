@@ -90,10 +90,8 @@ export default {
   gap: 1.0rem;
   padding: 1rem 2rem;
   border-radius: 15px;
-  margin-top: 60px;
   display: flex;
   justify-content: center;
-  margin-top: 0rem;
   max-width: 500px;
   width: 100%;
   background-color: #dccfaa;
@@ -139,8 +137,63 @@ export default {
 }
 
 .rooms-container {
-  width: 100%;
   max-width: 1200px;
   margin: 0rem auto 50px auto;
+}
+
+@media only screen and (max-width: 840px) {
+  .roomsTitle {
+    font-size: 32px;
+    margin-top: 50px;
+    margin-bottom: 15px;
+  }
+
+  .quick-menu-container {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.7rem;
+    padding: 1rem 1.rem;
+    max-width: 400px;
+    margin: auto;
+    margin-top: 30px;
+  }
+
+  .rooms-btn-container {
+    grid-template-columns: 1fr;
+    width: 100%;
+    margin: auto;
+  }
+
+  .server-btn {
+    padding: 15px 25px;
+    font-size: 16px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .roomsTitle {
+    font-size: 25px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+  }
+
+  .quick-menu-container {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.7rem;
+    padding: 1rem 1rem;
+    max-width: 70%;
+    margin: auto;
+    margin-top: 30px;
+  }
+
+  .rooms-btn-container {
+    width: 95%;
+  }
+
+  .server-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+  }
 }
 </style>
