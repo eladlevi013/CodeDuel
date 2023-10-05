@@ -17,7 +17,9 @@
       <button @click="joinRoom(this.roomCode)" class="buttonDesign">Join</button>
       <button @click="createRoom" class="buttonDesign">Quick Match</button>
     </div>
-  </div>    
+
+    <img src="/game_demo.png" width="1000" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
+  </div>
 </template>
 
 <script>
@@ -42,7 +44,7 @@ body {
   font-family: 'Poppins', sans-serif;
   background: rgb(245,245,245);
   background: linear-gradient(0deg, rgba(245,245,245,1) 0%,
-   rgba(242,234,211,1) 50%, rgba(226,208,156,1) 100%);
+   rgb(244, 239, 223) 50%, rgb(234, 221, 179) 100%);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -81,10 +83,10 @@ body {
   margin: auto;
   gap: 1.0rem;
   background-color: #e8e0c5;
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.9rem;
   border-radius: 15px;
   margin-top: 60px;
-}
+  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;}
 
 .room-code-input {
   font-size: 1.2rem;
@@ -122,5 +124,9 @@ button {
 
 button:hover {
   transform: scale(1.02);
+} 
+
+img {
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 </style>
