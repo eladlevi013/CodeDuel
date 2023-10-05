@@ -148,8 +148,10 @@ img {
     flex-direction: column;
     width: 100%;
     gap: 0.7rem;
-    margin-top: 30px;
     padding: 1rem 1rem;
+    max-width: 400px;
+    margin: auto;
+    margin-top: 30px;
   }
 
   .room-code-input {
@@ -167,9 +169,9 @@ img {
   }
 
   .parContainer {
-    font-size: 18px;
+    font-size: 21px;
     margin-top: -20px;
-    width: 80%;
+    width: 60%;
   }
 }
 
@@ -177,6 +179,28 @@ img {
   .title {
     font-size: 2.5rem;
     margin: 40px 0 20px 0;
+  }
+
+  .action-container {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.7rem;
+    padding: 1rem 1rem;
+    max-width: 70%;
+    margin: auto;
+    margin-top: 30px;
+  }
+
+  .room-code-input {
+    width: 92%;
+    margin-bottom: 0rem;
+    text-align: center;
+  }
+
+  .parContainer {
+    font-size: 18px;
+    margin-top: -20px;
+    width: 80%;
   }
 }
 </style>
