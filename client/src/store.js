@@ -46,6 +46,18 @@ export default new Vuex.Store({
       } catch (error) {
         console.error('Error fetching the user score:', error);
       }
+    },
+    async logout({ commit }) {
+      try {
+        await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/logout`, {}, {
+          withCredentials: true  // Ensures cookies are sent with the request
+        });
+    
+        // Assuming the returned data contains the updated user score.
+        commit('setUser', null);
+      } catch (error) {
+        console.error('Error logging out:', error);
+      }
     }
   },
   getters: {

@@ -1,31 +1,18 @@
 import express from 'express';
 import { createServer } from 'http';
-import cors from 'cors';
-import * as dotenv from 'dotenv';
 import { setupSocketIO } from './socket';
 import userRoutes from './routes/users';
 import connectDB from './config/connectDb';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
+import corsMiddleware from './middlewares/corsMiddleware';
+import sessionMiddleware from './middlewares/sessionMiddleware';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 // Middlewares
 const app = express();
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:8080', // your Vue app's origin
-  credentials: true
-}));
-app.use(
-    session({
-      secret: 'your_secret_key',
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false, httpOnly: true, maxAge: 2592000000 },
-      store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
-      
-    })
-);
+app.use(corsMiddleware);
+app.use(sessionMiddleware);
 app.use('/users/', userRoutes)
 
 // Database setup
@@ -38,5 +25,5 @@ setupSocketIO(httpServer);
 // Server setup
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

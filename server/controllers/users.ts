@@ -3,11 +3,7 @@ import { body, validationResult } from 'express-validator';
 import bcryptjs from 'bcryptjs';
 import mongoose from 'mongoose';
 import Account from '../models/Account';
-import { Session, SessionData } from 'express-session';
-
-interface AccountSession extends Session {
-    account?: any;
-}
+import SessionModel from '../models/SessionModel';
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -27,32 +23,42 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({ message: errors.array()[0].msg });
         }
 
-        // credentials validation
+        // Credentials validation
         const { email, password } = req.body;
         const account = await Account.findOne({ email });
+
         if (!account) {
             return res.status(404).json({ message: 'Account not found' });
         }
-        const isMatch = await bcryptjs.compare(password, account.password);
-        if (!isMatch) {
+        
+        if (!await bcryptjs.compare(password, account.password)) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Set session variable
-        const sessionId = (req.session as AccountSession).id;
-        (req.session as AccountSession).account = account._id;
+        // Set session data
+        (req.session as SessionModel).account = account._id;
         req.session.save();
-
-        console.log(req.session);
 
         return res.status(200).json({
             message: 'Logged in successfully',
-            sessionId: sessionId,
             account: account
         });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred' });
     }
+}
+
+export const logout = async (req: Request, res: Response) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Failed to logout. Try again.' });
+        }
+        
+        // Clear the session cookie from the client's browser
+        res.clearCookie('connect.sid');
+        
+        return res.status(200).json({ message: 'Logged out successfully' });
+    });
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -74,12 +80,14 @@ export const register = async (req: Request, res: Response) => {
             .run(req);
 
         const errors = validationResult(req);
+
         if (!errors.isEmpty()) {
             return res.status(400).json({ message: errors.array()[0].msg });
         }
 
         const { email, password, username } = req.body;
         const existingAccount = await Account.findOne({ email });
+
         if (existingAccount) {
             return res.status(400).json({ message: 'Account already exists' });
         }
@@ -96,17 +104,15 @@ export const register = async (req: Request, res: Response) => {
             score: 0
         });
 
-        const sessionId = (req.session as AccountSession).id;
         const account = await newAccount.save();
-        (req.session as AccountSession).account = account._id;
-        req.session.save();
-        // (req.session as AccountSession).sessionToken = sessionId;
 
-        
+        // Set session data
+        (req.session as SessionModel).account = account._id;
+        req.session.save();
+
         return res.status(200).json({
             message: 'Account created',
             account: account,
-            sessionId: sessionId,
         });
     } catch (error) {
         console.log(error);
@@ -115,17 +121,7 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const getScore = async (req: Request, res: Response) => {
-
-       // Check if session exists
-       if (!req.session) {
-        console.error('Session is not available');
-        return res.status(400).json({ message: 'Session is missing' });
-    } else 
-    {
-        console.log((req.session as AccountSession));
-    }
-
-    const accountId = (req.session as AccountSession).account;
+    const accountId = (req.session as SessionModel).account;
     const account = await Account.findById(accountId);
 
     if (!account) {
