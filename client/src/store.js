@@ -2,6 +2,7 @@ import Vuex from 'vuex';
 import io from 'socket.io-client';
 import createPersistedState from "vuex-persistedstate";
 import axios from 'axios';
+axios.defaults.withCredentials = true;
 
 export default new Vuex.Store({
   state: {
