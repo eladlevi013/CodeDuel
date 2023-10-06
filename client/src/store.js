@@ -32,20 +32,20 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    async fetchUserScore({ commit }) {
-      try {
-        axios.defaults.withCredentials = true;
-        const response = await axios.get(`${process.env.VUE_APP_SERVER_URL}/users/score`);
-    
-        const data = await response.data;
-        const score = data.score;
-        
-        // Assuming the returned data contains the updated user score.
-        commit('setUserScore', score);
-      } catch (error) {
-        console.error('Error fetching the user score:', error);
-      }
-    },
+      async fetchUserScore({ commit }) {
+        try {
+          axios.defaults.withCredentials = true;
+          const response = await axios.get(`${process.env.VUE_APP_SERVER_URL}/users/score`);
+      
+          const data = await response.data;
+          const score = data.score;
+          
+          // Assuming the returned data contains the updated user score.
+          commit('setUserScore', score);
+        } catch (error) {
+          console.error('Error fetching the user score:', error);
+        }
+      },
     async logout({ commit }) {
       try {
         await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/logout`, {}, {
