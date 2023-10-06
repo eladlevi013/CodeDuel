@@ -27,6 +27,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('fetchUserScore');
   },
   methods: {
     logout() {

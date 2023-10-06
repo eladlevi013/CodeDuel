@@ -12,14 +12,18 @@ dotenv.config();
 // Middlewares
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8080', // your Vue app's origin
+  credentials: true
+}));
 app.use(
     session({
       secret: 'your_secret_key',
       resave: false,
       saveUninitialized: false,
-      cookie: { secure: 'auto', maxAge: 2592000000 },
-      store: MongoStore.create({ mongoUrl: process.env.MONGO_URL })
+      cookie: { secure: false, httpOnly: true, maxAge: 2592000000 },
+      store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
+      
     })
 );
 app.use('/users/', userRoutes)

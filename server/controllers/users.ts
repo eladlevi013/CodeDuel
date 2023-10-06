@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator';
 import bcryptjs from 'bcryptjs';
 import mongoose from 'mongoose';
 import Account from '../models/Account';
-import { Session } from 'express-session';
+import { Session, SessionData } from 'express-session';
 
 interface AccountSession extends Session {
     account?: any;
@@ -40,6 +40,10 @@ export const login = async (req: Request, res: Response) => {
 
         // Set session variable
         const sessionId = (req.session as AccountSession).id;
+        (req.session as AccountSession).account = account._id;
+        req.session.save();
+
+        console.log(req.session);
 
         return res.status(200).json({
             message: 'Logged in successfully',
@@ -94,6 +98,10 @@ export const register = async (req: Request, res: Response) => {
 
         const sessionId = (req.session as AccountSession).id;
         const account = await newAccount.save();
+        (req.session as AccountSession).account = account._id;
+        req.session.save();
+        // (req.session as AccountSession).sessionToken = sessionId;
+
         
         return res.status(200).json({
             message: 'Account created',
@@ -103,5 +111,29 @@ export const register = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'An error occurred' });
+    }
+};
+
+export const getScore = async (req: Request, res: Response) => {
+
+       // Check if session exists
+       if (!req.session) {
+        console.error('Session is not available');
+        return res.status(400).json({ message: 'Session is missing' });
+    } else 
+    {
+        console.log((req.session as AccountSession));
+    }
+
+    const accountId = (req.session as AccountSession).account;
+    const account = await Account.findById(accountId);
+
+    if (!account) {
+        return res.status(404).json({ message: 'Account not found' });
+    } else {
+        return res.status(200).json({
+            message: 'Score retrieved',
+            score: account.score,
+        });
     }
 };

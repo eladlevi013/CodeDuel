@@ -53,9 +53,8 @@ export default {
     const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/login`, {
       email: this.email,
       password: this.password,
-    });
+    }, { withCredentials: true });
 
-    this.$store.commit('setSessionId', response.data.sessionId);
     this.$store.commit('setUser', response.data.account);
     
     if (response.data && response.status === 200) {

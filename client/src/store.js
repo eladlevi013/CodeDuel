@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 import io from 'socket.io-client';
 import createPersistedState from "vuex-persistedstate";
+import axios from 'axios';
 
 export default new Vuex.Store({
   state: {
@@ -12,6 +13,11 @@ export default new Vuex.Store({
     user: null,
   },
   mutations: {
+    setUserScore(state, score) {
+      if (state.user) {
+        state.user.score = score;
+      }
+    },
     setRoomCode(state, code) {
       state.roomCode = code;
     },
@@ -26,6 +32,21 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    async fetchUserScore({ commit }) {
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_SERVER_URL}/users/score`, {
+          withCredentials: true  // Ensures cookies are sent with the request
+        });
+    
+        const data = await response.data;
+        const score = data.score;
+        
+        // Assuming the returned data contains the updated user score.
+        commit('setUserScore', score);
+      } catch (error) {
+        console.error('Error fetching the user score:', error);
+      }
+    }
   },
   getters: {
     socket: (state) => state.socket,
@@ -33,6 +54,7 @@ export default new Vuex.Store({
     question: (state) => state.question,
     sessionId: (state) => state.sessionId,
     user: (state) => state.user,
+    userScore: (state) => state.user ? state.user.score : 0,
   },
   plugins: [createPersistedState({
     paths: ['roomCode', 'question', 'sessionId', 'user']

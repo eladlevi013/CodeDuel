@@ -1,12 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import { login, register } from '../controllers/users';
+import { getScore, login, register } from '../controllers/users';
 
 router.post('/login', login);
 router.post('/register', register);
-router.get('/hey', (req, res) => {
-    res.send('hey');
-}
-);
+// router.post('/logout', logout);
+router.get('/score', getScore);
 
 export default router;
