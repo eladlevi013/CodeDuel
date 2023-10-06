@@ -1,6 +1,6 @@
 import cors from 'cors'
 
 export default cors({
-    origin: true,
+    origin: process.env.CLIENT_URL,
     credentials: true
-})
+  })
