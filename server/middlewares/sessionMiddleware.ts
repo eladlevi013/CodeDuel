@@ -7,10 +7,10 @@ export default session({
     saveUninitialized: false,
     name: 'sessionServer',
     cookie: {
-        secure: false,
+        secure: true,
         httpOnly: true,
         maxAge: 2592000000,
-        sameSite: 'lax',
+        sameSite: 'none',
         },
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
 })
