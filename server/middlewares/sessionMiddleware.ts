@@ -6,6 +6,7 @@ export default session({
     resave: false,
     saveUninitialized: false,
     proxy: true,
+    name: 'sessionServer',
     cookie: {
         secure: true,
         httpOnly: true,
