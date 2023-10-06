@@ -7,7 +7,7 @@ export default session({
     saveUninitialized: false,
     name: 'sessionServer',
     cookie: {
-        secure: true,
+        secure: false,
         httpOnly: true,
         maxAge: 2592000000,
         sameSite: 'none',

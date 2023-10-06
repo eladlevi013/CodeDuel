@@ -2,7 +2,6 @@ import Vuex from 'vuex';
 import io from 'socket.io-client';
 import createPersistedState from "vuex-persistedstate";
 import axios from 'axios';
-axios.defaults.withCredentials = true;
 
 export default new Vuex.Store({
   state: {
@@ -35,9 +34,8 @@ export default new Vuex.Store({
   actions: {
     async fetchUserScore({ commit }) {
       try {
-        const response = await axios.get(`${process.env.VUE_APP_SERVER_URL}/users/score`, {
-          withCredentials: true  // Ensures cookies are sent with the request
-        });
+        axios.defaults.withCredentials = true;
+        const response = await axios.get(`${process.env.VUE_APP_SERVER_URL}/users/score`);
     
         const data = await response.data;
         const score = data.score;
