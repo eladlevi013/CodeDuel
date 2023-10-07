@@ -1,6 +1,6 @@
 // import from judgeApiHelper.ts
 import { getLanguageId, INVALID_LANGUAGE_ID, JAVA_LANGUAGE_ID,
-  PYTHON_LANGUAGE_ID, executeCodeOnJudgeApi} from "./judgeApiHelper";
+  PYTHON_LANGUAGE_ID, executeCodeOnJudgeApi} from "./codeApiHelper";
 import { pythonHelper, javaHelper, LanguageHelper } from "./languageHelper";
 import { Variable } from "../models/Question";
 import { questions } from "../db/questions";

@@ -8,7 +8,7 @@ import sessionMiddleware from './middlewares/sessionMiddleware';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// Middlewares
+// Middlewares 
 const app = express();
 app.set('trust proxy', 1);
 app.use(express.json());
