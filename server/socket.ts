@@ -93,17 +93,16 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     
       if (room.successfulSubmissions.size === room.players.length) {        
         const winner = getRoomWinner(roomCode);
-
         try {
-          const account = await accountSchema.findById(winner.uid);
-          if (account) {
-            account.score -= 1;
-            await account.save();
-          }
+           const account = await accountSchema.findById(winner.uid);
+           if (account && typeof account.score === "number") {
+              account.score += 2;  // Increase score by 2
+              await account.save();
+           }
         } catch (err) {
-          console.log(err);
+           console.log(err);
         }
-
+        
         io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winner);
         room.countdown = false;
         rooms.delete(roomCode);
