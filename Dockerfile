@@ -7,14 +7,21 @@ WORKDIR /usr/src/app
 # Install Python and Java JDK
 RUN apt-get update && apt-get install -y python3 openjdk-11-jdk && apt-get clean
 
-# Copy package.json and package-lock.json before other files
+# Copy package.json, package-lock.json, and tsconfig.json before other files
 # Utilize Docker cache to save re-installing dependencies if unchanged
-COPY package*.json ./
+COPY package*.json tsconfig.json ./
 
+# Install Node dependencies
 RUN npm install
 
-# Copy all files
+# Install TypeScript globally in the container
+RUN npm install -g typescript
+
+# Copy all files from the current directory to the container
 COPY . .
 
-# Start the server
-CMD ["node", "index.js"]
+# Compile TypeScript to JavaScript
+RUN tsc
+
+# Start the server using the compiled JavaScript file from the dist directory
+CMD ["node", "dist/server/index.js"]
