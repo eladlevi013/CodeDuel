@@ -6,7 +6,7 @@ export const JAVA_LANGUAGE_ID = 62;
 export const INVALID_LANGUAGE_ID = -1;
 
 const BASE_URL = process.env.PRODUCTION === 'true' ? 'codeduel-production-3585.up.railway.app' 
-    : 'http://localhost:2358';
+    : 'http://localhost:3000';
 
 const HEADERS = { 'Content-Type': 'application/json' };
 
@@ -16,8 +16,8 @@ export async function executeCodeOnServer(languageId:number, code:string) {
         method: 'POST',
         headers: HEADERS,
         data: JSON.stringify({
-            "language_id": languageId,
-            "source_code": code,
+            "language": languageId,
+            "code": code,
         })
     };
 
@@ -25,7 +25,7 @@ export async function executeCodeOnServer(languageId:number, code:string) {
         const submissionResponse = await axios(submissionOptions);
         return submissionResponse.data;
     } catch (error) {
-        console.error("Error executing code on Judge0 API");
+        console.error("Error executing code on API");
     }
 }
 
