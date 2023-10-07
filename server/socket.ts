@@ -63,54 +63,56 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
 
-    socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code: string, 
-      questionId: string, language: string) => {
-
+    socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code, questionId, language) => {
       const result = await runTestCases(code, questionId, language);
-      const errorMessage = result.stderr || result.compile_output;
-
+    
+      if (!result) {
+        console.error(`Result is undefined.`);
+        return;
+      }
+    
+      const errorMessage = result.stderr;
+    
       if (errorMessage) {
-        socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage.slice(0, 200).concat('...'));
-        return;
-      } 
-      
-      if (result.message) {
-        socket.emit(CODE_ERROR_SOCKET_EVENT, result.message);
-        return;
-      } 
-
-      if (!result.stdout.toLowerCase().includes('true')) {
-        socket.emit(CODE_WRONG_SOCKET_EVENT);
+        socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage);
         return;
       }
 
+          
+      if (result.stdout && !result.stdout.includes('true')) {
+        socket.emit(CODE_WRONG_SOCKET_EVENT, `Test case failed.`);
+        return;
+      }
+    
       const roomCode = getRoomCodeFromSocketId(socket.id);
       const room = rooms.get(roomCode);
-
-      if(!roomCode || !room) {
+    
+      if (!roomCode || !room) {
         console.error(`RoomCode: ${roomCode}, or Room does not exist.`);
         return;
       }
-
-      room.successfulSubmissions?.set(socket.id, {
-        time: result.time,
-        memory: result.memory
-      });
-
-      if (room.successfulSubmissions?.size === room.players.length) {
+    
+      // Update the successfulSubmissions set.
+      if (!room.successfulSubmissions) {
+        room.successfulSubmissions = new Map<string, SubmissionStats>();
+      }
+      room.successfulSubmissions.set(socket.id, { time: 'none', memory: 0 });
+    
+      if (room.successfulSubmissions.size === room.players.length) {
         io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
         room.countdown = false;
         rooms.delete(roomCode);
+        return;
       }
-
-      if (room.successfulSubmissions?.size === 1) {
+    
+      if (room.successfulSubmissions.size === 1) {
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         room.countdown = true;
-
+    
         setTimeout(() => {
           const currentRoom = rooms.get(roomCode);
-
+    
           if (currentRoom && currentRoom.countdown) {
             io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
             currentRoom.countdown = false;
@@ -119,7 +121,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         }, SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION * 1000);
       }
     });
-
+    
     socket.on(SEND_ROOMS_SOCKET_EVENT, () => {
       socket.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });

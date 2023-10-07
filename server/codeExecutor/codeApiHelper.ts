@@ -1,49 +1,102 @@
-import axios from 'axios';
+import { exec as execCb } from 'child_process';
+import { writeFile } from 'fs/promises'; // Using promisified version of fs.
+import { promisify } from 'util';
 
-// language ids for the judge api
-export const PYTHON_LANGUAGE_ID = 71;
-export const JAVA_LANGUAGE_ID = 62;
-export const INVALID_LANGUAGE_ID = -1;
+const exec = promisify(execCb);
+const MAX_EXECUTION_TIME = 3000;
 
-const BASE_URL = process.env.PRODUCTION === 'true' ? 'codeduel-production-3585.up.railway.app' 
-    : 'http://localhost:3000';
-
-const HEADERS = { 'Content-Type': 'application/json' };
-
-export async function executeCodeOnServer(languageId:number, code:string) {
-    const submissionOptions = {
-        url: `${BASE_URL}/execute`,
-        method: 'POST',
-        headers: HEADERS,
-        data: JSON.stringify({
-            "language": languageId,
-            "code": code,
-        })
-    };
-
-    try {
-        const submissionResponse = await axios(submissionOptions);
-        return submissionResponse.data;
-    } catch (error) {
-        console.error("Error executing code on API");
-    }
+interface CustomError extends Error {
+  killed?: boolean;
+  message: string;
 }
 
-// get the language id from the language name
-export function getLanguageId(language: string): number {
-    let languageId = INVALID_LANGUAGE_ID;
-    let trimmedLanguage = language.trim().toLowerCase();
-  
-    switch (trimmedLanguage) {
-      case 'python':
-        languageId = PYTHON_LANGUAGE_ID;
-        break;
-      case "java":
-        languageId = JAVA_LANGUAGE_ID;
-        break;
-      default:
-        return languageId;
+export async function executeCodeOnServer(language: string, code: string) {
+    let command = '';
+
+    if (!language) {
+        throw new Error('Language not supported.');
     }
-  
-    return languageId;
+    
+    switch (language) {
+        case 'python':
+            command = `python -c "${code}"`;
+            break;
+        case 'java':
+            const javaFileName = "Main.java";
+            await writeFile(javaFileName, code);
+
+            // Compiling the Java code
+            try {
+                await exec(`javac ${javaFileName}`, { timeout: MAX_EXECUTION_TIME });
+            } catch (compileError) {
+                const error = compileError as CustomError;
+
+                if (error.killed) {
+                    return {
+                        stderr: 'Compilation timed out.',
+                    }
+                }
+
+                return {
+                    stderr: `Compilation error: ${error.message}`,
+                }
+            }
+
+            // If compilation succeeds, execute the Java program
+            try {
+                const { stdout, stderr } = await exec('java Main', { timeout: MAX_EXECUTION_TIME });
+
+                const memoryUsage = process.memoryUsage();
+                const result = {
+                    stdout,
+                    stderr,
+                    memoryUsage
+                };
+
+
+                return result;
+            } catch (execError) {
+                const error = execError as CustomError;
+
+                if (error.killed) {
+                    return {
+                        stdout: '',
+                        stderr: 'Execution timed out.',
+                    }
+                }
+
+                return {
+                    stdout: '',
+                    stderr: `Execution error: ${error.message}`,
+                }
+            }
+    }
+
+    if (language !== 'java') {
+        try {
+            const { stdout, stderr } = await exec(command, { timeout: MAX_EXECUTION_TIME });
+
+            const memoryUsage = process.memoryUsage();
+
+            return {
+                stdout,
+                stderr,
+                memoryUsage
+            };
+        } catch (errorRaw) {
+            const error = errorRaw as CustomError;
+
+            if (error.killed) {
+                return {
+                    stdout: '',
+                    stderr: 'Execution timed out.',
+                }
+            }
+
+            return {
+                stdout: '',
+                stderr: `Execution error: ${error.message}`,
+            }
+        }
+    }
 }
