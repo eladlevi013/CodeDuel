@@ -95,8 +95,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         const winner = getRoomWinner(roomCode);
         try {
            const account = await accountSchema.findById(winner.uid);
+           console.log(account);
            if (account && typeof account.score === "number") {
-              account.score += 2;  // Increase score by 2
+              account.score += 2;
               await account.save();
            }
         } catch (err) {
