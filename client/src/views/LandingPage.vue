@@ -32,7 +32,7 @@ export default {
     return {
       roomCode: '',
     };
-  }
+  },
 }
 </script>
   
