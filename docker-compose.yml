@@ -2,12 +2,8 @@ version: '3'
 
 services:
   server:
-    build: .
-    command: node dist/index.js
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
-    environment:
-      - NODE_ENV=development
