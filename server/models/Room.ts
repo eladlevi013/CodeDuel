@@ -3,7 +3,8 @@ export interface Player {
   uid: string;
 }
 
-export interface SubmissionStats {
+export interface Submission {
+  uid: string;
   time: string;
   memory: number;
 }
@@ -11,8 +12,8 @@ export interface SubmissionStats {
 export interface Room {
   players: Player[];
   isPublic: boolean;
-  roomCode?: string;
-  gameStarted?: boolean;
-  countdown?: boolean;
-  successfulSubmissions?: Map<string, SubmissionStats>;
+  roomCode: string;
+  gameStarted: boolean;
+  countdown: boolean;
+  successfulSubmissions: Submission[];
 }

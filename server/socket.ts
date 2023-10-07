@@ -2,9 +2,11 @@ import { runTestCases } from './codeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Player, Room, SubmissionStats } from './models/Room';
+import { Player, Room, Submission } from './models/Room';
 import { publicRooms, roomCodeGenerator } from './utils/roomsHelper'
 import accountSchema from './models/Account';
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId;
 
 // define constants
 const PLAYERS_PER_ROOM = 2;
@@ -38,17 +40,13 @@ const getRoomCodeFromSocketId = (socketId: string): string => {
       return roomCode;
     }
   }
+
   return '';
 }
 
-const getRoomWinner = (roomCode: string): Player => {
-  // just return the first player who submitted code for now
+const getRoomWinnerUid = (roomCode: string): string => {
   const room = rooms.get(roomCode);
-  if (room && room.successfulSubmissions && room.successfulSubmissions.size > 0) {
-    return room.successfulSubmissions.keys().next().value;
-  }
-
-  return { sid: '', uid: '' };
+  return room?.successfulSubmissions[0].uid ?? '';
 }
 
 export const setupSocketIO = (httpServer: HttpServer) => {
@@ -85,41 +83,44 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         return;
       }
     
-      // Update the successfulSubmissions set.
-      if (!room.successfulSubmissions) {
-        room.successfulSubmissions = new Map<string, SubmissionStats>();
-      }
-      room.successfulSubmissions.set(socket.id, { time: 'none', memory: 0 });
+      room.successfulSubmissions.push({ uid: socket.id, time: 'none', memory: 0 });
     
-      if (room.successfulSubmissions.size === room.players.length) {        
-        const winner = getRoomWinner(roomCode);
-        try {
-           const account = await accountSchema.findById(winner.uid);
-           console.log(account);
-           if (account && typeof account.score === "number") {
-              account.score += 2;
-              await account.save();
-           }
-        } catch (err) {
-           console.log(err);
-        }
-        
+      if (room.successfulSubmissions.length === room.players.length) {        
+        const winner = getRoomWinnerUid(roomCode);
         io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winner);
         room.countdown = false;
         rooms.delete(roomCode);
         return;
       }
     
-      if (room.successfulSubmissions.size === 1) {
+      if (room.successfulSubmissions.length === 1) {
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         room.countdown = true;
     
-        setTimeout(() => {
+        setTimeout(async () => {
           const currentRoom = rooms.get(roomCode);
     
           if (currentRoom && currentRoom.countdown) {
-            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
+            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinnerUid(roomCode));
+
+            try {
+              const winnerString = getRoomWinnerUid(roomCode).toString();
+              const WinnerUid = rooms.get(roomCode)?.players.find(player => player.sid === winnerString)?.uid;
+              console.log(WinnerUid);
+              
+              const winnerId = new ObjectId(WinnerUid).toString();
+              // getting uid from winnerId which is sid
+              console.log(WinnerUid);
+              console.log(rooms.get(roomCode)?.players);
+              const account = await accountSchema.findById(WinnerUid);
+              account.score += 2;
+              await account.save();
+              console.log(account);
+          } catch (error) {
+              console.error("Error:", error);
+          }          
+
             currentRoom.countdown = false;
             rooms.delete(roomCode);
           }
@@ -167,12 +168,11 @@ socket.on(LEAVE_ROOM_SOCKET_EVENT, (roomCode) => {
 
   io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
 });
-
     
     socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic) => {
       const roomCode = roomCodeGenerator().toString();
       rooms.set(roomCode, { players: [], isPublic: isPublic, gameStarted: false, 
-        countdown: false, successfulSubmissions: new Map<string, SubmissionStats>() });
+        countdown: false, successfulSubmissions: [], roomCode: roomCode });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
