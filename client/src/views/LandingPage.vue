@@ -33,6 +33,10 @@ export default {
       roomCode: '',
     };
   },
+  mounted() {
+    console.log("test");
+    this.$store.dispatch('fetchUserScore');
+  },
 }
 </script>
   

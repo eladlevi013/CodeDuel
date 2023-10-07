@@ -34,30 +34,9 @@ export default {
       this.$store.dispatch('logout');
     },
     fetchUserDetails() {
-      console.log("Fetching User Details"); // logging for troubleshooting
       this.$store.dispatch('fetchUserScore');
     }
   },
-  watch: {
-    '$store.state.user.score': {
-      handler: 'fetchUserDetails',
-      immediate: true
-    }
-  },
-  beforeMount() {
-    this.fetchUserDetails();
-  },
-  beforeRouteEnter(to, from, next) {
-    console.log("beforeRouteEnter triggered"); // logging for troubleshooting
-    next(vm => {
-      vm.fetchUserDetails();
-    });
-  },
-  beforeRouteUpdate(to, from, next) {
-    console.log("beforeRouteUpdate triggered"); // logging for troubleshooting
-    this.fetchUserDetails();
-    next();
-  }
 }
 </script>
 
