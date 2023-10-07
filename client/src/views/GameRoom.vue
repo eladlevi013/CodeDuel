@@ -74,6 +74,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch('fetchUserScore');
     this.$swal.close();
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;

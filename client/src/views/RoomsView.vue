@@ -42,6 +42,7 @@ export default {
     };
   },
   mounted() {
+    this.$store.dispatch('fetchUserScore');
     this.socket.emit('sendRooms');
 
     this.$store.state.socket.on('createdRoom', (roomCode) => {

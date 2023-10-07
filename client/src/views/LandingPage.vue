@@ -34,7 +34,6 @@ export default {
     };
   },
   mounted() {
-    console.log("test");
     this.$store.dispatch('fetchUserScore');
   },
 }
