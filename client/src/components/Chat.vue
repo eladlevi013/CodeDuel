@@ -44,7 +44,7 @@ export default {
         });
 
         this.$store.state.socket.emit('sendMessage', 
-          this.newMkessage, this.$store.state.roomCode);
+          this.newMessage, this.$store.state.roomCode);
         this.newMessage = '';
       }
     },

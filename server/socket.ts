@@ -192,6 +192,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
 
     socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
+      console.log(`Message: ${message}, RoomCode: ${roomCode}`);
       socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message);
     });
   })
