@@ -7,7 +7,7 @@ export default session({
     saveUninitialized: false,
     name: 'sessionServer',
     cookie: {
-        secure: true,
+        secure: process.env.PRODUCTION === 'true' ? true : false,
         httpOnly: true,
         maxAge: 2592000000,
         sameSite: 'none',

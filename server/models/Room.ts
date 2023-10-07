@@ -1,10 +1,15 @@
+export interface Player {
+  sid: string;
+  uid: string;
+}
+
 export interface SubmissionStats {
   time: string;
   memory: number;
 }
 
 export interface Room {
-  players: string[];
+  players: Player[];
   isPublic: boolean;
   roomCode?: string;
   gameStarted?: boolean;

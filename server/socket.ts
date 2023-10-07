@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { Room, SubmissionStats } from './models/Room';
 import { publicRooms, roomCodeGenerator } from './utils/roomsHelper'
+import accountSchema from './models/Account';
 
 // define constants
 const PLAYERS_PER_ROOM = 2;
@@ -32,8 +33,8 @@ const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 const rooms = new Map<string, Room>();
 
 const getRoomCodeFromSocketId = (socketId: string): string => {
-  for (const [roomCode, room] of rooms) {
-    if (room.players.includes(socketId)) {
+  for (const [roomCode, room] of rooms.entries()) {
+    if (room.players.some(player => player.sid === socketId)) {
       return roomCode;
     }
   }
@@ -41,21 +42,13 @@ const getRoomCodeFromSocketId = (socketId: string): string => {
 }
 
 const getRoomWinner = (roomCode: string): string => {
+  // just return the first player who submitted code for now
   const room = rooms.get(roomCode);
-  let winner = '';
-  let minTime = Number.MAX_SAFE_INTEGER;
-
-  if (room) {
-    for (const [socketId, submissionStats] of room.successfulSubmissions!) {
-      const time = parseInt(submissionStats.time);
-      if (time < minTime) {
-        minTime = time;
-        winner = socketId;
-      }
-    }
+  if (room && room.successfulSubmissions && room.successfulSubmissions.size > 0) {
+    return room.successfulSubmissions.keys().next().value;
   }
 
-  return winner;
+  return '';
 }
 
 export const setupSocketIO = (httpServer: HttpServer) => {
@@ -127,8 +120,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
 
     socket.on(DISCONNECT_SOCKET_EVENT, () => {
-      for (const [roomCode, room] of rooms) {
-        const playerIndex = room.players.indexOf(socket.id);
+      for (const [roomCode, room] of rooms.entries()) {  // Use entries() to get both keys and values
+        // Find the player based on the 'sid' property of the Player object
+        const playerIndex = room.players.findIndex(player => player.sid === socket.id);
         
         if (playerIndex > -1) {
           room.players.splice(playerIndex, 1);
@@ -138,27 +132,30 @@ export const setupSocketIO = (httpServer: HttpServer) => {
             rooms.delete(roomCode);
           }
           
-          break;
+          break;  // Exit the loop once the player has been found and handled
         }
       }
-  
+    
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
+    
   
-    socket.on(LEAVE_ROOM_SOCKET_EVENT, (roomCode) => {
-      const room = rooms.get(roomCode);
+socket.on(LEAVE_ROOM_SOCKET_EVENT, (roomCode) => {
+  const room = rooms.get(roomCode);
 
-      if (room) {
-        const index = room.players.indexOf(socket.id);
-        
-        if (index > -1) {
-          room.players.splice(index, 1);
-          socket.leave(roomCode);
-        }
-      }
+  if (room) {
+    // Find the index based on the 'sid' property of the Player object
+    const index = room.players.findIndex(player => player.sid === socket.id);
+    
+    if (index > -1) {
+      room.players.splice(index, 1);
+      socket.leave(roomCode);
+    }
+  }
 
-      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
-    });
+  io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
+});
+
     
     socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic) => {
       const roomCode = roomCodeGenerator().toString();
@@ -168,31 +165,45 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
     
-    socket.on(JOIN_ROOM_SOCKET_EVENT, (roomCode: string) => {
+    socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
 
-        if (room && room.players[0] !== socket.id) {
-          room.players.push(socket.id);
+        if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
+          room.players.push({ sid: socket.id, uid: uid });
           socket.join(roomCode);
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
-          
+
           if (room.players.length == PLAYERS_PER_ROOM) {
             // const question = questions[Math.floor(Math.random() * questions.length)];
             const question = questions[5];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
+    
+            // Loop through all players in the room and update their scores
+            for (let player of room.players) {
+              if (player.uid !== null) {
+                try {
+                  const account = await accountSchema.findById(player.uid);
+                  if (account) {
+                    account.score -= 1;
+                    await account.save();
+                  }
+                } catch (err) {
+                  console.log(err);
+                }
+              }
+            }
           }
         }
       } else {
         socket.emit(ROOM_NOT_FOUND_SOCKET_EVENT);
       }
-
+    
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
-    });
+    });    
 
     socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
-      console.log(`Message: ${message}, RoomCode: ${roomCode}`);
       socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message);
     });
   })

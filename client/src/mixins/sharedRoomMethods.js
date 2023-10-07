@@ -22,7 +22,9 @@ export const sharedRoomMethods = {
       if (this.joinedRoomCode.trim()) {
         this.leaveRoom(this.joinedRoomCode);
       }
-      this.socket.emit('joinRoom', roomCode);
+
+      const uid = this.$store.state.user?._id;
+      this.socket.emit('joinRoom', roomCode, uid? uid : null);
     },
     createRoom() {
       if (this.joinedRoomCode) {
