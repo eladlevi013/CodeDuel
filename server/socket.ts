@@ -2,7 +2,7 @@ import { runTestCases } from './codeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Room, SubmissionStats } from './models/Room';
+import { Player, Room, SubmissionStats } from './models/Room';
 import { publicRooms, roomCodeGenerator } from './utils/roomsHelper'
 import accountSchema from './models/Account';
 
@@ -41,14 +41,14 @@ const getRoomCodeFromSocketId = (socketId: string): string => {
   return '';
 }
 
-const getRoomWinner = (roomCode: string): string => {
+const getRoomWinner = (roomCode: string): Player => {
   // just return the first player who submitted code for now
   const room = rooms.get(roomCode);
   if (room && room.successfulSubmissions && room.successfulSubmissions.size > 0) {
     return room.successfulSubmissions.keys().next().value;
   }
 
-  return '';
+  return { sid: '', uid: '' };
 }
 
 export const setupSocketIO = (httpServer: HttpServer) => {
@@ -91,22 +91,20 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
       room.successfulSubmissions.set(socket.id, { time: 'none', memory: 0 });
     
-      if (room.successfulSubmissions.size === room.players.length) {
-        const winnerUid = getRoomWinner(roomCode);
+      if (room.successfulSubmissions.size === room.players.length) {        
+        const winner = getRoomWinner(roomCode);
 
-        accountSchema.findById(winnerUid, (err: any, account: { score: number; save: () => void; }) => {
-          if (err) {
-            console.log(err);
-          } else {
-            if (account) {
-              account.score += 2;
-              account.save();
-            }
+        try {
+          const account = await accountSchema.findById(winner.uid);
+          if (account) {
+            account.score -= 1;
+            await account.save();
           }
+        } catch (err) {
+          console.log(err);
         }
-        );
 
-        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winnerUid);
+        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winner);
         room.countdown = false;
         rooms.delete(roomCode);
         return;

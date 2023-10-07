@@ -58,7 +58,6 @@ export default {
             title = 'Congratulations!';
             text = 'You won!';
             icon = 'success';
-            this.$store.dispatch('fetchUserScore');
         } else {
             title = 'Game Over!';
             text = `${winner} won the game!`;
