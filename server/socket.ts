@@ -92,7 +92,21 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       room.successfulSubmissions.set(socket.id, { time: 'none', memory: 0 });
     
       if (room.successfulSubmissions.size === room.players.length) {
-        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinner(roomCode));
+        const winnerUid = getRoomWinner(roomCode);
+
+        accountSchema.findById(winnerUid, (err: any, account: { score: number; save: () => void; }) => {
+          if (err) {
+            console.log(err);
+          } else {
+            if (account) {
+              account.score += 2;
+              account.save();
+            }
+          }
+        }
+        );
+
+        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winnerUid);
         room.countdown = false;
         rooms.delete(roomCode);
         return;
