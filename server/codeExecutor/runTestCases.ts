@@ -1,5 +1,4 @@
-// import from judgeApiHelper.ts
-import { executeCodeOnServer} from "./codeApiHelper";
+import { executeCodeOnServer } from "./codeExecutor";
 import { pythonHelper, javaHelper, LanguageHelper } from "./languageHelper";
 import { Variable } from "../models/Question";
 import { questions } from "../db/questions";

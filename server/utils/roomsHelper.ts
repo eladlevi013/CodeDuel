@@ -22,3 +22,13 @@ export const roomCodeGenerator = (): string => {
   
   return result;
 }
+
+export const getRoomCodeFromSocketId = (socketId: string, rooms:Map<string, Room>): string => {
+  for (const [roomCode, room] of rooms.entries()) {
+    if (room.players.some(player => player.sid === socketId)) {
+      return roomCode;
+    }
+  }
+
+  return '';
+}
