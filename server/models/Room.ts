@@ -1,15 +1,13 @@
 export interface BasePlayer {
-  sid: string; // socket id for every player
+  sid: string; // socket id
 }
 
 export interface LoggedInPlayer extends BasePlayer {
-  uid: string;  // user id for logged-in players
+  uid: string;  // mongodb user id
   initialScoreZero: boolean;
 }
 
-export interface GuestPlayer extends BasePlayer {}
-
-export type Player = LoggedInPlayer | GuestPlayer;
+export type Player = LoggedInPlayer | BasePlayer;
 
 export interface Submission {
   player: Player; 
