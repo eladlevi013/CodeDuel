@@ -2,7 +2,7 @@ import { runTestCases } from './codeExecutor/runTestCases';
 import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { Room } from './models/Room';
+import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
 import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId } from './utils/roomsHelper'
 import accountSchema from './models/Account';
 
@@ -28,15 +28,104 @@ const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
 const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
 const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
 const END_GAME_SOCKET_EVENT = 'endGame';
+const END_GAME_TIE_SOCKET_EVENT = 'endGameTie';
 const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 
 // Global variables
 const rooms = new Map<string, Room>();
 
-// Currently returns the first player in the room
-const getRoomWinnerUid = (roomCode: string): string => {
-  const room = rooms.get(roomCode);
-  return room?.successfulSubmissions[0].uid ?? '';
+const isLoggedinPlayer = (player: Player): player is LoggedInPlayer => {
+  return (player as LoggedInPlayer).uid !== undefined;
+};
+
+const updateWinnerPlayerScore = async (player: Player) => {
+  if (!isLoggedinPlayer(player)) {
+      // The player is not logged in; nothing to update
+      return null;
+  }
+
+  let scoreToAdd = player.initialScoreZero ? 1 : 2;
+
+  try {
+    const account = await accountSchema.findById(player.uid);
+      
+    if (!account) {
+      console.error(`Account not found for uid: ${player.uid}`);
+      return null;
+    }
+
+    account.score += scoreToAdd;
+    await account.save();
+    return account.score;
+  } catch (error) {
+    console.error('Error updating player score:', error);
+    return null;
+  }
+}
+
+const updatePlayersScoreOnTie = async (players: Player[]) => {
+  for (let player of players) {
+    if (isLoggedinPlayer(player)) {
+      try {
+        const account = await accountSchema.findById(player.uid);
+          
+        if (!account) {
+          console.error(`Account not found for uid: ${player.uid}`);
+          return null;
+        }
+
+        account.score += 1;
+        await account.save();
+      } catch (error) {
+        console.error('Error updating player score:', error);
+        return null;
+      }
+    }
+  }
+}
+
+const updatePariticipantScore = async (player: Player) => {
+  const loggedInPlayer = player as LoggedInPlayer;
+
+  if (loggedInPlayer && loggedInPlayer.uid !== null) {
+    try {
+      const account = await accountSchema.findById(loggedInPlayer.uid);
+      if (account) {
+        if (account.score > 0) {
+          account.score -= 1;
+          await account.save();
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+}
+
+export function printRooms(rooms: Map<string, Room>): void {
+  rooms.forEach((room, roomKey) => {
+    console.log('Room Key:', roomKey);
+    console.log('isPublic:', room.isPublic);
+    console.log('roomCode:', room.roomCode);
+    console.log('gameStarted:', room.gameStarted);
+    console.log('countdownStarted:', room.countdownStarted);
+    
+    console.log('Players:');
+    room.players.forEach((player, index) => {
+      // Convert the player object to a JSON string for easy printing.
+      console.log(`Player ${index + 1}:`, JSON.stringify(player, null, 2));
+    });
+    
+    console.log('Successful Submissions:');
+    room.successfulSubmissions.forEach((submission, index) => {
+      console.log(`Submission ${index + 1}:`);
+      console.log('Player:', JSON.stringify(submission.player, null, 2));
+      console.log('Time:', submission.time);
+      console.log('Memory:', submission.memory);
+    });
+
+    console.log('-----------------------');
+  });
 }
 
 export const setupSocketIO = (httpServer: HttpServer) => {
@@ -75,25 +164,21 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
       
       // on successful submission, add submission to room
-      room.successfulSubmissions.push({ uid: socket.id, time: 'none', memory: 0 });
+      const player = room.players.find(player => player.sid === socket.id) as Player;
+      room.successfulSubmissions.push({ player: player, time: 'none', memory: 0 });
       
       // on first successful submission, start timer
       if (room.successfulSubmissions.length === 1) {
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
-        room.countdown = true;
+        room.countdownStarted = true;
         
         // start countdown to end game
-        setTimeout(async () => {    
-          if (room.countdown) {
-            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, getRoomWinnerUid(roomCode));
-            const winnerSid = getRoomWinnerUid(roomCode).toString();
-            const WinnerUid = rooms.get(roomCode)?.players.find
-              (player => player.sid === winnerSid)?.uid;
-            const account = await accountSchema.findById(WinnerUid);
-            account.score += 2;
-            await account.save();
-            room.countdown = false;
+        setTimeout(async () => {           
+          if (room.countdownStarted) {
+            const winnerPlayer = rooms.get(roomCode)?.successfulSubmissions[0].player as BasePlayer;
+            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winnerPlayer.sid);
+            updateWinnerPlayerScore(winnerPlayer);
             rooms.delete(roomCode);
           }
         }, SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION * 1000);
@@ -101,10 +186,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       // if all players solved problem, end game
       if (room.successfulSubmissions.length === room.players.length) {
-        const winner = getRoomWinnerUid(roomCode);
-        io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winner);
-        room.countdown = false;
-        rooms.delete(roomCode);
+        io.in(roomCode).emit(END_GAME_TIE_SOCKET_EVENT);
+        updatePlayersScoreOnTie(room.players);
+        room.countdownStarted = false;
         return;
       }
     });
@@ -123,6 +207,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           
           if (room.gameStarted && room.players.length === 1) {
             socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
+            const winner = room.players[0] as LoggedInPlayer;
+            updateWinnerPlayerScore(winner);
             rooms.delete(roomCode);
           }
           
@@ -151,41 +237,36 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic) => {
       const roomCode = roomCodeGenerator().toString();
       rooms.set(roomCode, { players: [], isPublic: isPublic, gameStarted: false, 
-        countdown: false, successfulSubmissions: [], roomCode: roomCode });
+        countdownStarted: false, successfulSubmissions: [], roomCode: roomCode });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
     
-    socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string) => {
+    socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string, initialScoreZero: number) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
 
         if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
-          room.players.push({ sid: socket.id, uid: uid });
+          // adding player to room object
+          if (initialScoreZero == -1) {
+            room.players.push({sid: socket.id});
+          } else {
+            room.players.push({ sid: socket.id, uid: uid, initialScoreZero:  initialScoreZero == 0});
+          }
+
+          // Join the room
           socket.join(roomCode);
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
 
           if (room.players.length == PLAYERS_PER_ROOM) {
             // const question = questions[Math.floor(Math.random() * questions.length)];
-            const question = questions[5];
+            const question = questions[3];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
-    
+
             // Loop through all players in the room and update their scores
             for (let player of room.players) {
-              if (player.uid !== null) {
-                try {
-                  const account = await accountSchema.findById(player.uid);
-                  if (account) {
-                    if (account.score > 0) {
-                      account.score -= 1;
-                      await account.save();
-                    }
-                  }
-                } catch (err) {
-                  console.log(err);
-                }
-              }
+              updatePariticipantScore(player);
             }
           }
         }

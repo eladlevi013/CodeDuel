@@ -77,6 +77,23 @@ export default {
         });
     });
 
+    this.$store.state.socket.on('endGameTie', () => {
+        this.showTimer = false;
+        Message.closeAll();
+
+        this.$swal({
+            title: 'Game Over!',
+            text: 'It\'s a tie!',
+            icon: 'info',
+            timer: 10000,
+            buttons: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+        }).then(() => {
+            this.$router.push('/');
+        });
+    });
+
         this.$store.state.socket.on('startGameTimer', () => {
             this.showTimer = true;
             this.startTimer();
