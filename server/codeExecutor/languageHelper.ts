@@ -35,7 +35,7 @@ export const pythonHelper: LanguageHelper = {
         
         const testCasesList = [...testCases].map(([input, output]) => 
             `${question.funcSignature.name}(${getValueOfType(input)}) == ${getValueOfType(output)}`
-        ).join(' and \n\t '); 
+        ).join(' and '); 
 
         return `print(${testCasesList})`;
     },

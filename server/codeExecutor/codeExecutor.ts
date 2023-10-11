@@ -1,6 +1,8 @@
 import { exec as execCb } from 'child_process';
 import { writeFile } from 'fs/promises';
 import { promisify } from 'util';
+import { tmpdir } from 'os';  // Import the required module
+import { join } from 'path';
 
 const exec = promisify(execCb);
 
@@ -19,6 +21,12 @@ interface ExecutionResult {
   stdout: string;
   stderr: string;
   memoryUsage?: NodeJS.MemoryUsage;
+}
+
+async function executePython(code: string): Promise<ExecutionResult> {
+    const tempFilePath = join(tmpdir(), 'temp_python_code.py');  // Get temp file path
+    await writeFile(tempFilePath, code);  // Write code to temp file
+    return executeCommand(`python "${tempFilePath}"`);  // Execute the temp file
 }
 
 async function executeJava(code: string): Promise<ExecutionResult> {
@@ -71,7 +79,7 @@ export async function executeCodeOnServer(language: string, code: string): Promi
 
   switch (language) {
     case 'python':
-      return executeCommand(`python -c "${code}"`);
+      return executePython(code);
     case 'java':
       return executeJava(code);
     default:

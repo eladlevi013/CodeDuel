@@ -148,7 +148,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
 
       // Emit failure to client
-      if (result.stdout && !result.stdout.includes('true')) {
+      if (result.stdout && !result.stdout.toLowerCase().includes('true')) {
         socket.emit(CODE_WRONG_SOCKET_EVENT, `Test case failed.`);
         return;
       }

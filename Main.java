@@ -3,25 +3,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Main {
-    public static int findLargest(int[] arr) {
-	        // Check for an empty array
-	        if (arr == null || arr.length == 0) {
-	            throw new IllegalArgumentException("Array should not be empty or null.");
-	        }
-	
-	        // Start with the first number in the array as the largest
-	        int largest = arr[0];
-	
-	        // Loop through the rest of the array
-	        for (int num : arr) {
-	            // If we find a number larger than our current largest, update the largest
-	            if (num > largest) {
-	                largest = num;
-	            }
-	        }
-	
-	        return largest;
-	    }
+    public static int findLargest(int[] nums) {
+	  // write your java code here...
+	}
     
 	    public static void main(String[] args) {
 	        System.out.println(Objects.equals(findLargest(new int[]{1,5,8,3}), 8) && 
