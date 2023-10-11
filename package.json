@@ -12,9 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/connect-redis": "^0.0.21",
+    "@types/redis": "^4.0.11",
     "axios": "^1.5.1",
     "bcryptjs": "^2.4.3",
     "connect-mongo": "^5.0.0",
+    "connect-redis": "^7.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -22,6 +25,7 @@
     "express-validator": "^7.0.1",
     "mongoose": "^7.5.3",
     "nodemon": "^3.0.1",
+    "redis": "^4.6.10",
     "socket.io": "^4.7.2",
     "ts-node": "^10.9.1"
   },
