@@ -1,6 +1,6 @@
 # CodeDuel⚔️
 
-Embark on real-time coding battles with **CodeDuel⚔️**! Our platform, designed with a robust **Microservices Architecture**, invites programmers of all levels. Challenge your peers and refine your coding skills in an environment like never before!
+Engage in real-time coding battles with **CodeDuel⚔️**! A dynamic platform for programmers of all skill levels to challenge peers and sharpen their coding prowess.
 
 ## 🌟 Features
 - 🚀 Engage in real-time coding duels
