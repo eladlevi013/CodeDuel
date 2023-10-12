@@ -260,7 +260,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
           if (room.players.length == PLAYERS_PER_ROOM) {
             // const question = questions[Math.floor(Math.random() * questions.length)];
-            const question = questions[3];
+            const question = questions[4];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
 

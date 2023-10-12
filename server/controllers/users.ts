@@ -133,3 +133,14 @@ export const getScore = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const getLeaderboard = async (req: Request, res: Response) => {
+    Account.find().sort({score: -1}).limit(10)
+    .then(results => {
+        return res.status(200).json({
+            message: 'Leaderboard retrieved',
+            leaderboard: results,
+        });
+    })
+    .catch(error => {console.log(error.message)})
+};

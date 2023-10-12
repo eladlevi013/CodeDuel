@@ -38,7 +38,8 @@ export default {
   data() {
     return {
       availableRooms: [],
-      isPrivate: false
+      isPrivate: false,
+      roomCode: '',
     };
   },
   mounted() {
@@ -86,16 +87,18 @@ export default {
 }
 
 .quick-menu-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  max-width: 500px;
+  width: 100%;
   width: 700px;
   margin: auto;
   gap: 1.0rem;
-  padding: 1rem 2rem;
+  background-color: #e8e0c5;
+  padding: 0.8rem 1.9rem;
   border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  max-width: 500px;
-  width: 100%;
-  background-color: #dccfaa;
+  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
 }
 
 .rooms-btn-container {

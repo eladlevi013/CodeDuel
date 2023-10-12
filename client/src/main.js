@@ -3,6 +3,7 @@ import App from './App.vue'
 import LandingPage from './views/LandingPage.vue'
 import GameRoom from './views/GameRoom.vue'
 import AuthView from './views/AuthView.vue'
+import LeaderboardView from './views/LeaderboardView.vue'
 import RoomsView from './views/RoomsView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import VueSweetalert2 from 'vue-sweetalert2';
@@ -16,6 +17,7 @@ const routes = [
     { path: '/auth/register', component: AuthView },
     { path: '/game/room/:roomCode', component: GameRoom },
     { path: '/rooms', component: RoomsView },
+    { path: '/leaderboard', component: LeaderboardView }
 ]
 
 // Router

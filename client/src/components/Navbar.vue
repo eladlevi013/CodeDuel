@@ -3,6 +3,7 @@
     <div class="pages-container">
       <router-link class="navbar-title" :to="{ path: '/' }">Home</router-link>
       <router-link class="navbar-title" :to="{ path: '/rooms' }">Rooms</router-link>
+      <router-link class="navbar-title" :to="{ path: '/leaderboard' }">Leaderboard</router-link>
       <a class="navbar-title" href="https://github.com/eladlevi013/CodeDuel">Github</a>
     </div>
     <div class="auth-container">
