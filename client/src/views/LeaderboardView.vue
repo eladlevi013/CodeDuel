@@ -73,7 +73,7 @@ body {
     width: 60%; 
     max-width: 100%;
     margin: 0 auto;
-    margin-bottom: 30px;
+    margin-bottom: 50px;
     box-shadow: 0px 0px 20px rgba(0,0,0,0.18);
     border-radius: 10px;
     overflow: hidden;  /* For the rounded corners */
