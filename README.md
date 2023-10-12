@@ -12,7 +12,7 @@ Embark on real-time coding battles with **CodeDuel⚔️**! Our platform, design
 Embrace the scalability, resilience, and agility offered by our microservices-based system architecture. Each component of CodeDuel operates as a standalone service, ensuring smooth performance and optimal resource utilization.
 
 <p align="center">
-  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/system_architecture.png?raw=true" alt="CodeDuel System Architecture" width="85%">
+  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/system_architecture.png?raw=true" alt="CodeDuel System Architecture" width="100%">
   </br>
 </p>
 
