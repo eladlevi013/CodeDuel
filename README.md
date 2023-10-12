@@ -13,7 +13,7 @@ Embrace the scalability, resilience, and agility offered by our microservices-ba
 
 <p align="center">
   <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/system_architecture.png?raw=true" alt="CodeDuel System Architecture" width="85%">
-  </br></br>
+  </br>
 </p>
 
 ### 🌐 Web Client 
