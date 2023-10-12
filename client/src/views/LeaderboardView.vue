@@ -2,7 +2,7 @@
     <h1 class="title">Leaderboard📊</h1>
     <div class="table-container" v-if="leaderboard.length > 0">
         <table class="table">
-            <thead>
+            <thead> 
                 <tr>
                     <th>Rank</th>
                     <th>Username</th>
@@ -11,8 +11,11 @@
             </thead>
             <tbody>
                 <tr v-for="(user, index) in leaderboard" :key="user.username">
-                    <td>{{ index + 1 }}</td>
-                    <td>{{ user.username }}</td>
+                    <td>
+                <!-- Using a span to adjust the size of the crown -->
+                <span v-if="index === 0" class="crown">👑</span> 
+                <span v-else>{{ index + 1 }}</span>
+            </td>                    <td>{{ user.username }}</td>
                     <td>{{ user.score }}</td>
                 </tr>
             </tbody>
@@ -44,6 +47,11 @@ export default {
 </script>
 
 <style scoped>
+body {
+    font-family: 'Poppins', cursive;
+
+}
+
 .table-container {
     display: flex;
     justify-content: center;
@@ -75,6 +83,7 @@ export default {
     padding: 15px 20px;
     border: none; 
     text-align: center;
+    font-size: 20px;
 }
 
 .table tbody tr:nth-child(odd) {
@@ -103,6 +112,11 @@ export default {
     font-size: 20px;
 }
 
-
+.crown {
+    font-size: 35px;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1; /* Reset the line-height for the crown span to ensure it doesn't add extra height. */
+}
 
 </style>
