@@ -130,29 +130,6 @@ export const questions: Question[] = [
         ])
     },
     {
-        id: '8',
-        title: 'Merge Intervals',
-        description: 'Given an array of intervals where intervals[i] = [starti, endi], merge any overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input. Your solution should work efficiently even when the input list of intervals is not sorted.',
-        example: 'mergeIntervals([[1,3],[2,6],[8,10],[15,18]]) === [[1,6],[8,10],[15,18]]',
-        funcSignature: {
-            name: 'mergeIntervals',
-            args: [{ value: 'intervals', type: 'int[][]' }],
-            returnType: 'int[][]'
-        },
-        difficulty: 3,
-        categories: ['array', 'interval'],
-        testCases: new Map<Variable, Variable>([
-            [
-                { value: '[[1,3],[2,6],[8,10],[15,18]]', type: 'int[][]' }, 
-                { value: '[[1,6],[8,10],[15,18]]', type: 'int[][]' }
-            ],
-            [
-                { value: '[[1,4],[4,5]]', type: 'int[][]' }, 
-                { value: '[[1,5]]', type: 'int[][]' }
-            ]
-        ])
-    },
-    {
         id: '9',
         title: 'Balanced Parentheses',
         description: 'Write a function that takes a string containing just the characters \'(\', \')\', \'{\', \'}\', \'[\' and \']\' and determines if the input string is valid. An input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. An empty string is also considered valid.',
@@ -185,22 +162,6 @@ export const questions: Question[] = [
         testCases: new Map<Variable, Variable>([
             [{ value: 's:ADOBECODEBANC,t:ABC', type: 'string' }, { value: 'BANC', type: 'string' }],
             [{ value: 's:AA,t:AA', type: 'string' }, { value: 'AA', type: 'string' }]
-        ])
-    },
-    {
-        id: '12',
-        title: 'Serialize and Deserialize Binary Tree',
-        description: 'Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You need to ensure that a binary tree can be serialized to a string, and this string can be deserialized back to the original tree structure.',
-        example: 'deserialize(serialize(root)).val === root.val',
-        funcSignature: {
-            name: 'serialize',
-            args: [{ value: 'root', type: 'TreeNode' }],
-            returnType: 'string'
-        },
-        difficulty: 4,
-        categories: ['tree', 'design'],
-        testCases: new Map<Variable, Variable>([
-            [{ value: '1,2,3,null,null,4,5', type: 'TreeNode' }, { value: '1,2,3,null,null,4,5', type: 'string' }],
         ])
     },
     {
