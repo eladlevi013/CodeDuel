@@ -1,4 +1,4 @@
-# 🛡️ CodeDuel⚔️ 
+# CodeDuel⚔️
 
 Embark on real-time coding battles with **CodeDuel⚔️**! Our platform, designed with a robust **Microservices Architecture**, invites programmers of all levels. Challenge your peers and refine your coding skills in an environment like never before!
 
@@ -12,8 +12,7 @@ Embark on real-time coding battles with **CodeDuel⚔️**! Our platform, design
 Embrace the scalability, resilience, and agility offered by our microservices architecture. Each component of CodeDuel operates as a standalone service, ensuring smooth performance and optimal resource utilization.
 
 <p align="center">
-  </br>
-  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/system_architecture.png?raw=true" alt="CodeDuel System Architecture" width="70%">
+  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/system_architecture.png?raw=true" alt="CodeDuel System Architecture" width="75%">
   </br></br>
 </p>
 
