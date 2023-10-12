@@ -1,6 +1,6 @@
 <template>
 <!-- Messages Container -->
-<div class="chat-container">
+<div class="chat-container" ref="chatContainer">
   <div v-for="message in messages" :key="message.id" class="chat-message" 
     :class="{ 'self': message.self, 'other': !message.self }">
     <div class="chat-message-bubble">
@@ -27,6 +27,11 @@ export default {
       newMessage: '',
     };
   },
+  updated() {
+    this.$nextTick(() => {
+      this.scrollToBottom();
+    });
+  },
   mounted() {
     this.$store.state.socket.on('receiveMessage', (message) => {
       this.messages.push({
@@ -36,6 +41,10 @@ export default {
     });
   },
   methods: {
+    scrollToBottom() {
+        const container = this.$refs.chatContainer;
+        container.scrollTop = container.scrollHeight;
+    },
     sendMessage() {
       if (this.newMessage.trim() !== '') {
         this.messages.push({
