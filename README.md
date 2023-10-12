@@ -25,12 +25,11 @@ Embrace the scalability, resilience, and agility offered by our microservices-ba
 - **Real-Time Sync:** Provides a WebSocket connection for instant updates.
 
 ### 🚀 RedisStore
-- **Fast Cache:** Fetches data at lightning speeds.
-- **Game Status:** Keeps current state of battles & leaderboards.
+- **Session Management:** Uses express-session to securely and efficiently manage user sessions, optimizing the user experience by remembering user states and preferences.
+- **High-Speed Cache:** With its in-memory nature, Redis offers lightning-fast data access, minimizing latency and accelerating response times for session-related operations.
 
 ### 🗄 MongoDB
-- **Data Repository:** Secures valuable data like user profiles.
-- **Duel Logs:** Records every battle history & code endeavor.
+- Safeguards user profiles and tracks scores.
 
 > 💡 _Unleash the power of microservices with CodeDuel and redefine your coding experience!_
 
