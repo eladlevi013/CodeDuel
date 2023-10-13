@@ -16,8 +16,9 @@ const routes = [
     { path: '/', component: LandingPage },
     { path: '/auth/login', component: AuthView },
     { path: '/auth/register', component: AuthView },
-    { path: '/game/room/:roomCode', component: GameRoom },
     { path: '/rooms', component: RoomsView },
+    { path: '/rooms/:roomCode', component: RoomsView },
+    { path: '/rooms/game/:roomCode', component: GameRoom },
     { path: '/leaderboard', component: LeaderboardView },
     { path: '/:pathMatch(.*)*', component: NotFound}
 ]

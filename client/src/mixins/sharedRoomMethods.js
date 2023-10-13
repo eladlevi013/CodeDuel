@@ -50,7 +50,7 @@ export const sharedRoomMethods = {
         this.$store.commit('setQuestion', question);
         Message.closeAll();
         Message.info(`Joined room ${this.joinedRoomCode}`, { duration: MESSAGE_DURATION });
-        this.$router.push({ path: `game/room/${this.joinedRoomCode}` });
+        this.$router.push({ path: `rooms/game/${this.joinedRoomCode}` });
       });
 
       this.socket.on('joinedRoom', (roomCode) => {
@@ -67,6 +67,10 @@ export const sharedRoomMethods = {
       this.socket.on('roomNotFound', () => {
         Message.error(`Room ${this.roomCode} not found`, { duration: MESSAGE_DURATION });
       });
+
+      this.socket.on('roomFull', () => {
+        Message.warning(`Room ${this.roomCode} is full`, { duration: MESSAGE_DURATION });
+      })
     }
   },
   beforeUnmount() {

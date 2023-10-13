@@ -18,6 +18,7 @@ const GET_ROOMS_SOCKET_EVENT = 'getRooms';
 const DISCONNECT_SOCKET_EVENT = 'disconnect';
 const OTHER_PLAYER_LEFT_SOCKET_EVENT = 'otherPlayerLeft';
 const LEAVE_ROOM_SOCKET_EVENT = 'leaveRoom';
+const ROOM_FULL_SOCKET_EVENET = 'roomFull';
 const CREATE_ROOM_SOCKET_EVENT = 'createRoom';
 const CREATED_ROOM_SOCKET_EVENT = 'createdRoom';
 const JOIN_ROOM_SOCKET_EVENT = 'joinRoom';
@@ -245,6 +246,12 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string, initialScoreZero: number) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
+
+        // if room is full 
+        if (room && room.players.length === PLAYERS_PER_ROOM) {
+          socket.emit(ROOM_FULL_SOCKET_EVENET);
+          return;
+        }
 
         if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
           // adding player to room object
