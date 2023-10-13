@@ -46,16 +46,21 @@ export default {
     this.$store.dispatch('fetchUserScore');
     this.socket.emit('sendRooms');
 
+    // from link
+    if (this.$route.params.roomCode) {
+      this.joinRoom(this.$route.params.roomCode);
+    }
+
     this.$store.state.socket.on('createdRoom', (roomCode) => {
       this.$swal.fire({
         title: 'Room Created',
         text: `Share this code with your friend: ${roomCode}`,
         icon: 'success',
-        confirmButtonText: 'Copy Room Code',
+        confirmButtonText: 'Copy Room Link',
         confirmButtonColor: '#005ce6',
       }).then((result) => {
         if (result.isConfirmed) {
-          navigator.clipboard.writeText(roomCode);
+          navigator.clipboard.writeText(`${process.env.VUE_APP_BASE_URL}/rooms/${roomCode}`);
         }
       })
 

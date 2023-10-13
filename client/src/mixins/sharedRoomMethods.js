@@ -50,7 +50,7 @@ export const sharedRoomMethods = {
         this.$store.commit('setQuestion', question);
         Message.closeAll();
         Message.info(`Joined room ${this.joinedRoomCode}`, { duration: MESSAGE_DURATION });
-        this.$router.push({ path: `rooms/game/${this.joinedRoomCode}` });
+        this.$router.push(`/rooms/game/${this.joinedRoomCode}`);
       });
 
       this.socket.on('joinedRoom', (roomCode) => {
@@ -80,7 +80,7 @@ export const sharedRoomMethods = {
       this.socket.emit('leaveRoom', this.joinedRoomCode);
     }
 
-    ['startGame', 'joinedRoom', 'getRooms', 'roomNotFound'].forEach(event => {
+    ['startGame', 'joinedRoom', 'getRooms', 'roomNotFound', 'roomFull'].forEach(event => {
       this.socket.off(event);
     });
   },
