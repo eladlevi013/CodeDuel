@@ -24,9 +24,9 @@ interface ExecutionResult {
 }
 
 async function executePython(code: string): Promise<ExecutionResult> {
-    const tempFilePath = join(tmpdir(), 'temp_python_code.py');  // Get temp file path
-    await writeFile(tempFilePath, code);  // Write code to temp file
-    return executeCommand(`python "${tempFilePath}"`);  // Execute the temp file
+    const tempFilePath = join(tmpdir(), 'temp.py');
+    await writeFile(tempFilePath, code);
+    return executeCommand(`python "${tempFilePath}"`);
 }
 
 async function executeJava(code: string): Promise<ExecutionResult> {

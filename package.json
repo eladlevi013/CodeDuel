@@ -1,7 +1,7 @@
 {
-  "name": "playground-ts",
+  "name": "codeduel-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A dynamic platform for programmers of all skill levels to challenge peers and sharpen their coding prowess.⚔️",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,7 +9,7 @@
     "dev": "nodemon server/index.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "eladlevi013",
   "license": "ISC",
   "dependencies": {
     "@types/connect-redis": "^0.0.21",
