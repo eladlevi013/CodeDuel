@@ -5,6 +5,7 @@ import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
 import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId } from './utils/roomsHelper'
 import accountSchema from './models/Account';
+import Account from './models/Account';
 
 // Sockets constants
 const PLAYERS_PER_ROOM = 2;
@@ -252,13 +253,18 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(ROOM_FULL_SOCKET_EVENET);
           return;
         }
-
+        
         if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
           // adding player to room object
           if (initialScoreZero == -1) {
             room.players.push({sid: socket.id});
           } else {
-            room.players.push({ sid: socket.id, uid: uid, initialScoreZero:  initialScoreZero == 0});
+            const account = await Account.findById(uid);
+            const username = account?.username;
+            const score = account?.score;
+
+            room.players.push({ sid: socket.id, uid: uid, initialScoreZero:  initialScoreZero == 0, username: username, score: score});
+            printRooms(rooms);
           }
 
           // Join the room
