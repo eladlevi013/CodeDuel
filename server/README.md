@@ -19,7 +19,7 @@ The quick-match algorithm navigates through available rooms and pairs users in t
 To give you a clearer picture, here's a flowchart of the quick-match algorithm:
 
 <p align="center">
-  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/quick-match-flowchart.png?raw=true" alt="Quick-Match Algorithm Flowchart" width="100%">
+  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/quick-match-flowchart.png?raw=true" alt="Quick-Match Algorithm Flowchart" width="80%">
   </br>
 </p>
 
