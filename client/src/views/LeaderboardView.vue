@@ -1,5 +1,5 @@
 <template>
-    <h1 class="title">Leaderboard📊</h1>
+    <h1 class="title">Leaderboard🏆</h1>
     <div class="table-container" v-if="leaderboard.length > 0">
         <table class="table">
             <thead> 

@@ -15,8 +15,8 @@
   </div>
 
   <!-- rooms -->
-  <h1 class="roomsTitle">Rooms🗄️</h1>
-  <div class="rooms-container">
+  <h1 class="roomsTitle" v-if="this.availableRooms.length > 0">Rooms🗄️</h1>
+  <div class="rooms-container" v-if="this.availableRooms.length > 0">
     <div v-if="availableRooms.length > 0" class="rooms-btn-container">
       <button v-for="server in availableRooms" :key="server.roomCode" 
         @click="joinRoom(server.roomCode)" class="server-btn">
@@ -24,10 +24,6 @@
       </button>
     </div>
   </div>
-
-  <h3 v-if="this.availableRooms.length === 0" class="no-rooms-text">
-    There are no available rooms...
-  </h3>
 </template>
 
 <script>
@@ -122,8 +118,7 @@ export default {
   border-radius: 8px;
   font-size: 18px;
   cursor: pointer;
-  transition: 0.3s;
-  width: 95%;
+  width: 100%;
 }
 
 .server-btn:hover {
@@ -176,6 +171,7 @@ export default {
   .server-btn {
     padding: 15px 25px;
     font-size: 16px;
+    width: 95%;
   }
 }
 
