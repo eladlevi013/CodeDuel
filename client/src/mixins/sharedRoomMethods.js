@@ -16,6 +16,9 @@ export const sharedRoomMethods = {
     };
   },
   methods: {
+    quickMatch() {
+      this.socket.emit('quickMatch');
+    },
     joinRoom(roomCode) {
       Message.closeAll();
 

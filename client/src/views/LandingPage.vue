@@ -15,7 +15,7 @@
     <div class="action-container">
       <input type="text" placeholder="Room Code" maxlength="6" v-model="roomCode" class="room-code-input"/>
       <button @click="joinRoom(this.roomCode)" class="buttonDesign">Join</button>
-      <button @click="createRoom" class="buttonDesign">Quick Match</button>
+      <button @click="quickMatch" class="buttonDesign">Quick Match</button>
     </div>
 
     <img src="/game_demo.webp" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">

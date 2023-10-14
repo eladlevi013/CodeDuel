@@ -1,4 +1,5 @@
-import { Room } from "../models/Room";
+import Account from "../models/Account";
+import { LoggedInPlayer, Player, Room } from "../models/Room";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
   const roomsArray: Room[] = [];
@@ -31,4 +32,21 @@ export const getRoomCodeFromSocketId = (socketId: string, rooms:Map<string, Room
   }
 
   return '';
+}
+
+export const quickMatch = async (uid: string | null, rooms: Map<string, Room>) => {
+  const loggedIn = uid !== null;
+  const roomCode = roomCodeGenerator();
+  
+  if (loggedIn) {
+    const account = await Account.findOne({ _id: uid });
+    if (!account) return;
+
+    const player: LoggedInPlayer = {
+      sid: '',
+      uid: account._id,
+      username: account.username,
+      score: account.score
+    };
+  }
 }

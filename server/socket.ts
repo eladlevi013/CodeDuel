@@ -3,7 +3,7 @@ import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
-import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId } from './utils/roomsHelper'
+import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId, quickMatch } from './utils/roomsHelper'
 import accountSchema from './models/Account';
 import Account from './models/Account';
 
@@ -208,6 +208,10 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
     });
     
+    socket.on('quickMatch', async (uid: string) => {
+      quickMatch(uid, rooms);
+    });
+
     socket.on(SEND_ROOMS_SOCKET_EVENT, () => {
       socket.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
@@ -291,12 +295,10 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
 
           if (room.players.length == PLAYERS_PER_ROOM) {
-            // const question = questions[Math.floor(Math.random() * questions.length)];
-            const question = questions[3];
+            const question = questions[Math.floor(Math.random() * questions.length)];
+            // const question = questions[3];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
-
-            printRooms(rooms);
 
             // Loop through all players in the room and update their scores
             for (let player of room.players) {
