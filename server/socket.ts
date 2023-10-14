@@ -184,7 +184,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
               // sending all players except winnerPlayer.id
               for (let player of room.players) {
                 if (player.sid !== winnerPlayer.sid) {
-                  io.to(player.sid).emit(GAME_END_LOSE_SOCKET_EVENT);
+                  const winnerPlayerName = isLoggedinPlayer(winnerPlayer) ? winnerPlayer.username : 'the other player';
+                  io.to(player.sid).emit(GAME_END_LOSE_SOCKET_EVENT, winnerPlayerName);
                 }
               }
 

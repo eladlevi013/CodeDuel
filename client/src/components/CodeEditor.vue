@@ -65,13 +65,13 @@ export default {
             });
         })
 
-        this.$store.state.socket.on('gameEndLose', () => {
+        this.$store.state.socket.on('gameEndLose', (winnerPlayerName) => {
             this.showTimer = false;
             Message.closeAll();
 
             this.$swal({
                 title: 'Game Over!',
-                text: 'You lost!',
+                text: `You lost!, ${winnerPlayerName} won!`,
                 icon: 'info',
                 timer: 10000,
                 buttons: false,
