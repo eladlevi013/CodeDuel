@@ -43,7 +43,7 @@ export default new Vuex.Store({
     },
     async logout({ commit }) {
       try {
-        await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/logout`, {}, {
+        await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/logout`, {}, {
           withCredentials: true
         });
     

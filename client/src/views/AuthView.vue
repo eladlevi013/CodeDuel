@@ -50,7 +50,7 @@ export default {
   this.isLoading = true;
   Message({ message: 'Logging in...', type: 'loading' });
   try {
-    const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/login`, {
+    const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/login`, {
       email: this.email,
       password: this.password,
     }, { withCredentials: true });
@@ -79,7 +79,7 @@ export default {
       this.isLoading = true; // Start Loading
       Message({ message: 'Registering...', type: 'loading' }); // Loading Message
       try {
-        const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/users/register`, {
+        const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/register`, {
           username: this.username,
           password: this.password,
           email: this.email,
