@@ -11,6 +11,14 @@ Welcome to the server component of **CodeDuel⚔️**. This is the backbone of o
 - **Room Management:** Facilitates the creation of dueling rooms with unique room codes for easy joining.
 - **User Authentication:** Securely handles user registration and login processes.
 
+## API Documentation with Swagger 📜
+
+To provide clearer insights into the server's endpoints and functionalities, we have integrated Swagger for API documentation. This ensures developers and users alike can understand and interact with the platform with ease.
+
+- **Accessing the API Documentation:** Visit `http://localhost:3001/api-doc` to explore the comprehensive API endpoints, models, and request-response details.
+
+Integrating Swagger not only boosts the clarity of our system's operations but also facilitates a smoother onboarding experience for developers looking to extend or integrate with CodeDuel⚔️.
+
 ## Quick-Match Algorithm: Best Fit Room Selection 🎯
 
 One of the standout features of our server is the quick-match algorithm. This algorithm is designed to match users for a duel in a way that ensures balanced competition.
