@@ -24,8 +24,7 @@ export const sharedRoomMethods = {
       }
 
       const uid = this.$store.state.user?._id;
-      const score = this.$store.state.user?.score;
-      this.socket.emit('joinRoom', roomCode, uid? uid : null, score ? score : -1);
+      this.socket.emit('joinRoom', roomCode, uid? uid : null);
     },
     createRoom() {
       if (this.joinedRoomCode) {

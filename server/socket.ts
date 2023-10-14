@@ -29,8 +29,9 @@ const START_GAME_SOCKET_EVENT = 'startGame';
 const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
 const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
 const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
-const END_GAME_SOCKET_EVENT = 'endGame';
-const END_GAME_TIE_SOCKET_EVENT = 'endGameTie';
+const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
+const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
+const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
 const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 
 // Global variables
@@ -46,7 +47,7 @@ const updateWinnerPlayerScore = async (player: Player) => {
       return null;
   }
 
-  let scoreToAdd = player.initialScoreZero ? 1 : 2;
+  let scoreToAdd = player.score == 0 ? 1 : 2;
 
   try {
     const account = await accountSchema.findById(player.uid);
@@ -177,10 +178,21 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         
         // start countdown to end game
         setTimeout(async () => {           
-          if (room.countdownStarted) {
+          if (room && room.countdownStarted && room.players.length == 2) {
             const winnerPlayer = rooms.get(roomCode)?.successfulSubmissions[0].player as BasePlayer;
-            io.in(roomCode).emit(END_GAME_SOCKET_EVENT, winnerPlayer.sid);
-            updateWinnerPlayerScore(winnerPlayer);
+            if (winnerPlayer) {
+              // sending all players except winnerPlayer.id
+              for (let player of room.players) {
+                if (player.sid !== winnerPlayer.sid) {
+                  io.to(player.sid).emit(GAME_END_LOSE_SOCKET_EVENT);
+                }
+              }
+
+              // send only to winnerPlayer.id
+              updateWinnerPlayerScore(winnerPlayer);
+              io.to(winnerPlayer.sid).emit(GAME_END_WIN_SOCKET_EVENT);
+            }
+
             rooms.delete(roomCode);
           }
         }, SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION * 1000);
@@ -188,7 +200,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       // if all players solved problem, end game
       if (room.successfulSubmissions.length === room.players.length) {
-        io.in(roomCode).emit(END_GAME_TIE_SOCKET_EVENT);
+        io.in(roomCode).emit(GAME_END_TIE_SOCKET_EVENT);
         updatePlayersScoreOnTie(room.players);
         room.countdownStarted = false;
         return;
@@ -230,6 +242,13 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         if (index > -1) {
           room.players.splice(index, 1);
           socket.leave(roomCode);
+
+          if(room.countdownStarted) {
+            socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
+            const winner = room.players[0] as LoggedInPlayer;
+            updateWinnerPlayerScore(winner);
+            rooms.delete(roomCode);
+          }
         }
       }
 
@@ -244,7 +263,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
     
-    socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string, initialScoreZero: number) => {
+    socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string) => {
       if (rooms.has(roomCode)) {
         const room = rooms.get(roomCode);
 
@@ -256,15 +275,14 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         
         if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
           // adding player to room object
-          if (initialScoreZero == -1) {
+          if (uid == null) {
             room.players.push({sid: socket.id});
           } else {
             const account = await Account.findById(uid);
             const username = account?.username;
             const score = account?.score;
 
-            room.players.push({ sid: socket.id, uid: uid, initialScoreZero:  initialScoreZero == 0, username: username, score: score});
-            printRooms(rooms);
+            room.players.push({ sid: socket.id, uid: uid, username: username, score: score});
           }
 
           // Join the room
@@ -272,9 +290,12 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
 
           if (room.players.length == PLAYERS_PER_ROOM) {
-            const question = questions[Math.floor(Math.random() * questions.length)];
+            // const question = questions[Math.floor(Math.random() * questions.length)];
+            const question = questions[3];
             room.gameStarted = true;
             io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
+
+            printRooms(rooms);
 
             // Loop through all players in the room and update their scores
             for (let player of room.players) {

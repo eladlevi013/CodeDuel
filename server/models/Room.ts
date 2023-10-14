@@ -4,7 +4,6 @@ export interface BasePlayer {
 
 export interface LoggedInPlayer extends BasePlayer {
   uid: string; // mongodb user id
-  initialScoreZero: boolean;
   username: string;
   score: number;
 }
