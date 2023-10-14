@@ -3,36 +3,36 @@ import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
-import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId, quickMatch } from './utils/roomsHelper'
+import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId, quickMatch, joinRoom } from './utils/roomsHelper'
 import accountSchema from './models/Account';
 import Account from './models/Account';
 
 // Sockets constants
-const PLAYERS_PER_ROOM = 2;
-const CONNECTION_SOCKET_EVENT = 'connection';
-const CODE_SUBMISSION_SOCKET_EVENT = 'codeSubmission';
-const CODE_SUCCESS_SOCKET_EVENT = 'codeSuccess';
-const CODE_WRONG_SOCKET_EVENT = 'codeWrong';
-const CODE_ERROR_SOCKET_EVENT = 'codeError';
-const SEND_ROOMS_SOCKET_EVENT = 'sendRooms';
-const GET_ROOMS_SOCKET_EVENT = 'getRooms';
-const DISCONNECT_SOCKET_EVENT = 'disconnect';
-const OTHER_PLAYER_LEFT_SOCKET_EVENT = 'otherPlayerLeft';
-const LEAVE_ROOM_SOCKET_EVENT = 'leaveRoom';
-const ROOM_FULL_SOCKET_EVENET = 'roomFull';
-const CREATE_ROOM_SOCKET_EVENT = 'createRoom';
-const CREATED_ROOM_SOCKET_EVENT = 'createdRoom';
-const JOIN_ROOM_SOCKET_EVENT = 'joinRoom';
-const JOINED_ROOM_SOCKET_EVENT = 'joinedRoom';
-const ROOM_NOT_FOUND_SOCKET_EVENT = 'roomNotFound';
-const START_GAME_SOCKET_EVENT = 'startGame';
-const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
-const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
-const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
-const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
-const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
-const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
-const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
+export const PLAYERS_PER_ROOM = 2;
+export const CONNECTION_SOCKET_EVENT = 'connection';
+export const CODE_SUBMISSION_SOCKET_EVENT = 'codeSubmission';
+export const CODE_SUCCESS_SOCKET_EVENT = 'codeSuccess';
+export const CODE_WRONG_SOCKET_EVENT = 'codeWrong';
+export const CODE_ERROR_SOCKET_EVENT = 'codeError';
+export const SEND_ROOMS_SOCKET_EVENT = 'sendRooms';
+export const GET_ROOMS_SOCKET_EVENT = 'getRooms';
+export const DISCONNECT_SOCKET_EVENT = 'disconnect';
+export const OTHER_PLAYER_LEFT_SOCKET_EVENT = 'otherPlayerLeft';
+export const LEAVE_ROOM_SOCKET_EVENT = 'leaveRoom';
+export const ROOM_FULL_SOCKET_EVENET = 'roomFull';
+export const CREATE_ROOM_SOCKET_EVENT = 'createRoom';
+export const CREATED_ROOM_SOCKET_EVENT = 'createdRoom';
+export const JOIN_ROOM_SOCKET_EVENT = 'joinRoom';
+export const JOINED_ROOM_SOCKET_EVENT = 'joinedRoom';
+export const ROOM_NOT_FOUND_SOCKET_EVENT = 'roomNotFound';
+export const START_GAME_SOCKET_EVENT = 'startGame';
+export const SEND_MESSAGE_SOCKET_EVENT = 'sendMessage';
+export const RECEIVE_MESSAGE_SOCKET_EVENT = 'receiveMessage';
+export const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
+export const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
+export const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
+export const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
+export const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 
 // Global variables
 const rooms = new Map<string, Room>();
@@ -41,7 +41,7 @@ const isLoggedinPlayer = (player: Player): player is LoggedInPlayer => {
   return (player as LoggedInPlayer).uid !== undefined;
 };
 
-const updateWinnerPlayerScore = async (player: Player) => {
+export const updateWinnerPlayerScore = async (player: Player) => {
   if (!isLoggedinPlayer(player)) {
       // The player is not logged in; nothing to update
       return null;
@@ -87,7 +87,7 @@ const updatePlayersScoreOnTie = async (players: Player[]) => {
   }
 }
 
-const updatePariticipantScore = async (player: Player) => {
+export const updatePariticipantScore = async (player: Player) => {
   const loggedInPlayer = player as LoggedInPlayer;
 
   if (loggedInPlayer && loggedInPlayer.uid !== null) {
@@ -209,7 +209,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
     
     socket.on('quickMatch', async (uid: string) => {
-      quickMatch(uid, rooms);
+      const roomCode = await quickMatch(uid, rooms);
+      joinRoom(socket, io, rooms, roomCode, uid);
     });
 
     socket.on(SEND_ROOMS_SOCKET_EVENT, () => {
@@ -269,48 +270,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
     
     socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string) => {
-      if (rooms.has(roomCode)) {
-        const room = rooms.get(roomCode);
-
-        // if room is full 
-        if (room && room.players.length === PLAYERS_PER_ROOM) {
-          socket.emit(ROOM_FULL_SOCKET_EVENET);
-          return;
-        }
-        
-        if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
-          // adding player to room object
-          if (uid == null) {
-            room.players.push({sid: socket.id});
-          } else {
-            const account = await Account.findById(uid);
-            const username = account?.username;
-            const score = account?.score;
-
-            room.players.push({ sid: socket.id, uid: uid, username: username, score: score});
-          }
-
-          // Join the room
-          socket.join(roomCode);
-          socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
-
-          if (room.players.length == PLAYERS_PER_ROOM) {
-            const question = questions[Math.floor(Math.random() * questions.length)];
-            // const question = questions[3];
-            room.gameStarted = true;
-            io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
-
-            // Loop through all players in the room and update their scores
-            for (let player of room.players) {
-              updatePariticipantScore(player);
-            }
-          }
-        }
-      } else {
-        socket.emit(ROOM_NOT_FOUND_SOCKET_EVENT);
-      }
-    
-      io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
+      joinRoom(socket, io, rooms, roomCode, uid);
     });    
 
     socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
