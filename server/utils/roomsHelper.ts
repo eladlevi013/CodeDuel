@@ -92,10 +92,6 @@ export const quickMatch = async (uid: string | null, rooms: Map<string, Room>) =
   const guestPlayersRooms = Array.from(roomsFiltered.values()).filter((room: { players: any[]; }) =>
     room.players.some((player: any) => !('uid' in player)));
 
-  console.log('loggedInPlayersRooms', loggedInPlayersRooms);
-  console.log('guestPlayersRooms', guestPlayersRooms);
-  console.log('logged-in: ' + loggedIn + uid);
-
   if (loggedIn) {
     if (loggedInPlayersRooms.length > 0) {
       const player = await Account.findById(uid);
