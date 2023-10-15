@@ -83,28 +83,38 @@ export const joinRoom = async (socket: any, io: any, rooms: Map<string, Room>, r
 }
 
 export const quickMatch = async (uid: string | null, rooms: Map<string, Room>) => {
-  const loggedIn = uid !== null;
+  const loggedIn = uid !== null && uid !== undefined;
 
   // filtered rooms
   const roomsFiltered = publicRooms(rooms).filter((room: { players: any[]; }) => room.players.length == 1);
   const loggedInPlayersRooms = Array.from(roomsFiltered.values()).filter((room: { players: any[]; }) =>
     room.players.some((player: any) => 'uid' in player));
   const guestPlayersRooms = Array.from(roomsFiltered.values()).filter((room: { players: any[]; }) =>
-    room.players.some((player: any) => !('uid' in player))); 
-  
+    room.players.some((player: any) => !('uid' in player)));
+
+  console.log('loggedInPlayersRooms', loggedInPlayersRooms);
+  console.log('guestPlayersRooms', guestPlayersRooms);
+  console.log('logged-in: ' + loggedIn + uid);
+
   if (loggedIn) {
     if (loggedInPlayersRooms.length > 0) {
-      // find room with the most close score
       const player = await Account.findById(uid);
       const playerScore = player?.score;
-      const room = loggedInPlayersRooms.reduce((prev: any, curr: any) => {
-        const currScore = curr.players[0].score;
-        const prevScore = prev.players[0].score;
-      
-        return Math.abs(currScore - playerScore!) < Math.abs(prevScore - playerScore!) ? curr : prev;
-      }, { players: [{ score: Infinity }] });      
 
-      return room.roomCode;
+      let closestRoom = loggedInPlayersRooms[0];
+      let closestScoreDifference = Math.abs((closestRoom.players[0] as LoggedInPlayer).score - playerScore!);
+
+      for (let i = 1; i < loggedInPlayersRooms.length; i++) {
+        const roomPlayerScore = (loggedInPlayersRooms[i].players[0] as LoggedInPlayer).score;
+        const scoreDifference = Math.abs(roomPlayerScore - playerScore!);
+
+        if (scoreDifference < closestScoreDifference) {
+          closestRoom = loggedInPlayersRooms[i];
+          closestScoreDifference = scoreDifference;
+        }
+      }
+
+      return closestRoom.roomCode;
     } else {
       if (guestPlayersRooms.length > 0) {
         return guestPlayersRooms[0].roomCode;
