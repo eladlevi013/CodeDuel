@@ -100,8 +100,9 @@ export const quickMatch = async (uid: string | null, rooms: Map<string, Room>) =
       const room = loggedInPlayersRooms.reduce((prev: any, curr: any) => {
         const currScore = curr.players[0].score;
         const prevScore = prev.players[0].score;
-        return Math.abs(currScore - playerScore) < Math.abs(prevScore - playerScore) ? curr : prev;
-      });
+      
+        return Math.abs(currScore - playerScore!) < Math.abs(prevScore - playerScore!) ? curr : prev;
+      }, { players: [{ score: Infinity }] });      
 
       return room.roomCode;
     } else {
