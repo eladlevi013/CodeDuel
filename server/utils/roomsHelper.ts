@@ -1,7 +1,7 @@
 import Account from "../models/Account";
 import { LoggedInPlayer, Player, Room } from "../models/Room";
 import { ROOM_FULL_SOCKET_EVENET, PLAYERS_PER_ROOM, JOINED_ROOM_SOCKET_EVENT } from "../socket";
-import { GET_ROOMS_SOCKET_EVENT, ROOM_NOT_FOUND_SOCKET_EVENT, START_GAME_SOCKET_EVENT, updatePariticipantScore } from "../socket";
+import { GET_ROOMS_SOCKET_EVENT, ROOM_NOT_FOUND_SOCKET_EVENT, START_GAME_SOCKET_EVENT, ROOM_MANAGEMENT_ERROR_SOCKET_EVENT, updatePariticipantScore } from "../socket";
 import { questions } from "../db/questions";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
@@ -47,6 +47,13 @@ export const joinRoom = async (socket: any, io: any, rooms: Map<string, Room>, r
       return;
     }
     
+    // checking if logged-in player is already in the room
+    if (room && room.players.some(player => 'uid' in player && player.uid === uid)) {
+      socket.emit(ROOM_MANAGEMENT_ERROR_SOCKET_EVENT, 'You are already in this room from another client!');
+      return;
+    }
+
+    // checking whether the socketid is already in the room
     if ((room && room.players[0] && room.players[0].sid !== socket.id) || room && room.players.length === 0) {
       // adding player to room object
       if (uid == null) {

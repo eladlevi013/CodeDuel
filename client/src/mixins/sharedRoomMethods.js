@@ -73,6 +73,10 @@ export const sharedRoomMethods = {
       this.socket.on('roomFull', () => {
         Message.warning(`Room ${this.roomCode} is full`, { duration: MESSAGE_DURATION });
       })
+
+      this.socket.on('roomManagementError', (error) => {
+        Message.error(error, { duration: MESSAGE_DURATION });
+      })
     }
   },
   beforeUnmount() {
@@ -82,7 +86,7 @@ export const sharedRoomMethods = {
       this.socket.emit('leaveRoom', this.joinedRoomCode);
     }
 
-    ['startGame', 'joinedRoom', 'getRooms', 'roomNotFound', 'roomFull'].forEach(event => {
+    ['startGame', 'joinedRoom', 'getRooms', 'roomNotFound', 'roomFull', 'roomManagementError'].forEach(event => {
       this.socket.off(event);
     });
   },

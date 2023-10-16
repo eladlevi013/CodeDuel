@@ -30,6 +30,7 @@ export const START_GAME_TIMER_SOCKET_EVENT = 'startGameTimer';
 export const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
 export const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
 export const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
+export const ROOM_MANAGEMENT_ERROR_SOCKET_EVENT = 'roomManagementError';
 export const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
 
 // Global variables
