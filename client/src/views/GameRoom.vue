@@ -101,6 +101,10 @@ export default {
 </script>
 
 <style>
+pre {
+  margin-bottom: 40px;
+}
+
 .main-div {
   display: flex;
   flex-direction: column;

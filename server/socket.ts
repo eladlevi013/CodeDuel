@@ -1,11 +1,9 @@
 import { runTestCases } from './codeExecutor/runTestCases';
-import { questions } from './db/questions';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
 import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId, quickMatch, joinRoom } from './utils/roomsHelper'
 import accountSchema from './models/Account';
-import Account from './models/Account';
 
 // Sockets constants
 export const PLAYERS_PER_ROOM = 2;
