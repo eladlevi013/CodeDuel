@@ -9,10 +9,13 @@
           <div class="panel question-section">
             <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
             <div style="display: flex; flex-direction: row; align-items: center;">
-              <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
+              <div class="tags-wrapper">
+                <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
                 <div class="question-tags-container" v-for="(tag, index) in question?.categories" :key="index">
                   <div class="question-tag">{{ tag }}</div>
                 </div>
+              </div>
+
               </div>
               <div class="content">
                 <p>{{ question?.description }}</p>
@@ -150,6 +153,14 @@ pre {
   padding: 15px;
 }
 
+.tags-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
 pre {
   background-color: #F5F5DC;
   border: 1px solid #A1887F;
@@ -169,14 +180,14 @@ p { margin-bottom: 10px; }
 .question-tag {
   background-color: #e5dfcc;
   border-radius: 50px;
-  font-size: 1.0em;
-  padding: 3px 30px;
+  font-size: 0.9em;
+  padding: 3px 23px;
   margin-bottom: 10px;
-  margin-right: -10px;
+  white-space: nowrap;
 }
 
 .question-tags-container {
-  margin-left: 20px;
+  margin-left: 9px;
 }
 
 .question-difficulty-easy {
