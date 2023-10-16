@@ -274,7 +274,12 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });    
 
     socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
-      socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message);
+      const sender = rooms.get(roomCode)?.players.find(player => player.sid === socket.id);
+
+      if (sender) {
+        const username = isLoggedinPlayer(sender) ? sender.username : 'Anonymous';
+        socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message, username);
+      } 
     });
   })
 }

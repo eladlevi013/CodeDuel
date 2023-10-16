@@ -1,14 +1,22 @@
 <template>
 <!-- Messages Container -->
 <div class="chat-container" ref="chatContainer">
-  <div v-for="message in messages" :key="message.id" class="chat-message" 
-    :class="{ 'self': message.self, 'other': !message.self }">
-    <div class="chat-message-bubble">
-      {{ message.text }}
-      <div :class="{ 'timestamp-self': message.self, 'timestamp-other': 
-        !message.self }">{{ message.timestamp }}</div>
+    <div v-for="(message, index) in messages" :key="message.id" class="chat-message"
+      :class="{ 'self': message.self, 'other': !message.self }">
+
+      <!-- Sender's Name -->
+      <div v-if="isSenderChanged(index)" class="sender-name">
+        <span v-if="message.self">You</span>
+        <span v-else>{{ message.sender}}</span>
+      </div>
+
+      <!-- Message Bubble -->
+      <div class="chat-message-bubble">
+        {{ message.text }}
+        <div :class="{ 'timestamp-self': message.self, 'timestamp-other':
+          !message.self }">{{ message.timestamp }}</div>
+      </div>
     </div>
-  </div>
 </div>
 
 <!-- Chat input container -->
@@ -33,14 +41,19 @@ export default {
     });
   },
   mounted() {
-    this.$store.state.socket.on('receiveMessage', (message) => {
+    this.$store.state.socket.on('receiveMessage', (message, sender) => {
       this.messages.push({
         self: false,
         text: message,
+        sender: sender
       });
     });
   },
   methods: {
+    isSenderChanged(index) {
+      if (index === 0) return true;
+      return this.messages[index].self !== this.messages[index - 1].self;
+    },
     scrollToBottom() {
         const container = this.$refs.chatContainer;
         container.scrollTop = container.scrollHeight;
@@ -73,26 +86,53 @@ export default {
 }
 
 .chat-message {
-  text-align: left;
   clear: both;
-  margin: 3px 0;
-  padding: 5px 30px;
-  border-radius: 5px;
-  max-width: 80%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0);
+  /* margin: 3px 0; */
+  padding: 5px 0;
 }
 
-.self { float: left; color: white; background-color: #3F2305; }
-.other { float: right; background-color: #F2EAD3; text-align: right; }
+.sender-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+  text-align: left;  /* default alignment for "You" */
+  font-size: 0.8em;
+  color: #888;
+  margin-top: 10px;
+}
+
+.other > .sender-name {
+  text-align: right;  /* alignment for "Opponent" */
+}
+
+.chat-message-bubble {
+  padding: 5px 30px;
+  border-radius: 5px;
+  text-align: left;
+  max-width: 80%;
+}
+
+.self .chat-message-bubble {
+  background-color: #3F2305;
+  color: white;
+  float: left;
+}
+
+.chat-message:first-child .sender-name {
+  margin-top: 0;
+}
+
+
+.other .chat-message-bubble {
+  background-color: #F2EAD3;
+  float: right;
+}
 
 .timestamp-self, .timestamp-other {
+  display: block; /* Making timestamps block-level */
   font-size: 0.8em;
   color: #888;
   margin-top: 3px;
 }
-
-.timestamp-self { float: left; }
-.timestamp-other { float: right; }
 
 .chat-input-container {
   display: flex;
@@ -125,4 +165,5 @@ export default {
   cursor: pointer;
   margin-left: 5px;
 }
+
 </style>
