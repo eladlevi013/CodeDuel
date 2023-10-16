@@ -64,7 +64,7 @@ body {
 }
 
 .parContainer {
-  font-size: 29px;
+  font-size: 27px;
   max-width: 800px;
   margin: -40px auto 0 auto;
   text-align: center;
@@ -137,7 +137,7 @@ img {
   }
 }
 
-@media only screen and (max-width: 840px) {
+@media only screen and (max-width: 850px) {
   .title {
     font-size: 3rem;
     margin: 50px 0 30px 0;

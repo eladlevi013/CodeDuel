@@ -200,7 +200,7 @@ export const register = async (req: Request, res: Response) => {
             .run(req);
 
         await body('username')
-            .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long.')
+            .isLength({ min: 3, max: 10 }).withMessage('Username must be between 3 and 10 characters long.')
             .trim()
             .run(req);
 
