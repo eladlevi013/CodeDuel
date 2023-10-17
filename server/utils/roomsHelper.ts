@@ -3,6 +3,7 @@ import { LoggedInPlayer, Player, Room } from "../models/Room";
 import { ROOM_FULL_SOCKET_EVENET, PLAYERS_PER_ROOM, JOINED_ROOM_SOCKET_EVENT } from "../socket";
 import { GET_ROOMS_SOCKET_EVENT, ROOM_NOT_FOUND_SOCKET_EVENT, START_GAME_SOCKET_EVENT, ROOM_MANAGEMENT_ERROR_SOCKET_EVENT, updatePariticipantScore } from "../socket";
 import { questions } from "../db/questions";
+import { getTypeByLanguage } from "../codeExecutor/languageHelper";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
   const roomsArray: Room[] = [];
@@ -72,7 +73,12 @@ export const joinRoom = async (socket: any, io: any, rooms: Map<string, Room>, r
 
       if (room.players.length == PLAYERS_PER_ROOM) {
         const question = questions[Math.floor(Math.random() * questions.length)];
-        // const question = questions[3];
+
+        // updating question data-types
+        question.funcSignature.args.forEach(arg => {
+          arg.type = getTypeByLanguage(arg.type).java;
+        });
+
         room.gameStarted = true;
         io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
 

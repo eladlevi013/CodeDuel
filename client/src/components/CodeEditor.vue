@@ -118,7 +118,7 @@ export default {
 
         this.$store.state.socket.on('codeError', (error) => {
         Message.closeAll();
-        Message.error(() => (`Code error: ${error}`), {duration: 2100})
+        Message.error(() => (`Code error: ${error}`), {duration: 3400})
         });
     },
     data() {

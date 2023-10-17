@@ -1,86 +1,69 @@
 import { exec as execCb } from 'child_process';
 import { writeFile } from 'fs/promises';
 import { promisify } from 'util';
-import { tmpdir } from 'os';  // Import the required module
+import { tmpdir } from 'os';
 import { join } from 'path';
 
-const exec = promisify(execCb);
-
-// Constants
 const MAX_EXECUTION_TIME = 3000;
-const JAVA_FILE_NAME = "Main.java";
+const FILE_NAMES = {
+  'python': 'main.py',
+  'java': 'Main.java'
+};
 
-// Custom error type
-interface CustomError extends Error {
+interface ExecutionError extends Error {
   killed?: boolean;
-  message: string;
 }
 
-// Response structure
 interface ExecutionResult {
   stdout: string;
   stderr: string;
-  memoryUsage?: NodeJS.MemoryUsage;
 }
 
+const exec = promisify(execCb);
+
 async function executePython(code: string): Promise<ExecutionResult> {
-    const tempFilePath = join(tmpdir(), 'temp.py');
-    await writeFile(tempFilePath, code);
-    return executeCommand(`python "${tempFilePath}"`);
+  const filePath = join(tmpdir(), FILE_NAMES.python);
+  await writeFile(filePath, code);
+  return executeCommand(`python "${filePath}"`);
 }
 
 async function executeJava(code: string): Promise<ExecutionResult> {
-  await writeFile(JAVA_FILE_NAME, code);
+  const fileName = FILE_NAMES.java;
+  await writeFile(fileName, code);
 
   try {
-    await exec(`javac ${JAVA_FILE_NAME}`, { timeout: MAX_EXECUTION_TIME });
+    await exec(`javac ${fileName}`, { timeout: MAX_EXECUTION_TIME });
+    return executeCommand('java Main');
   } catch (compileError) {
-    return handleError(compileError, 'Compilation');
+    return formatError(compileError, 'Compilation');
   }
-
-  return executeCommand('java Main');
 }
 
-function handleError(errorRaw: any, phase: string): ExecutionResult {
-  const error = errorRaw as CustomError;
+function formatError(errorRaw: any, phase: string): ExecutionResult {
+  const error = errorRaw as ExecutionError;
 
   if (error.killed) {
-    return {
-      stdout: '',
-      stderr: `${phase} timed out.`,
-    };
+    return { stdout: '', stderr: `${phase} timed out.` };
   }
 
-  return {
-    stdout: '',
-    stderr: `${phase} error: ${error.message}`,
-  };
+  return { stdout: '', stderr: `${phase} error: ${error.message}` };
 }
 
 async function executeCommand(command: string): Promise<ExecutionResult> {
   try {
     const { stdout, stderr } = await exec(command, { timeout: MAX_EXECUTION_TIME });
-    const memoryUsage = process.memoryUsage();
-
-    return {
-      stdout,
-      stderr,
-      memoryUsage,
-    };
+    return { stdout, stderr };
   } catch (errorRaw) {
-    return handleError(errorRaw, 'Execution');
+    return formatError(errorRaw, 'Execution');
   }
 }
 
-export async function executeCodeOnServer(language: string, code: string): Promise<ExecutionResult> {
-  if (!language) {
-    throw new Error('Language not provided or not supported.');
-  }
-
+export async function executeCode(language: string, code: string): Promise<ExecutionResult> {
   switch (language) {
     case 'python':
       return executePython(code);
     case 'java':
+      console.log(code);
       return executeJava(code);
     default:
       throw new Error('Language not supported.');

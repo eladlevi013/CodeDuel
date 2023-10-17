@@ -1,6 +1,18 @@
+/*
+    primitive types:
+    - string
+    - char
+    - boolean
+    - number
+    - decimal
+
+    complex types:
+    - array(primitive)
+    - array(complex)
+*/
 export interface Variable {
-    value: string,
-    type: string
+    value: string;
+    type: string;
 }
 
 export interface FunctionSignature {
