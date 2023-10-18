@@ -11,14 +11,14 @@
     - array(complex)
 */
 export interface Variable {
-    value: string;
-    type: string;
+    value: any; 
+    type: any;
 }
 
 export interface FunctionSignature {
     name: string,
     args: Variable[],
-    returnType: string
+    returnType: any
 }
 
 export interface Question {

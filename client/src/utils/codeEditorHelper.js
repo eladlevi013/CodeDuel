@@ -15,9 +15,9 @@ export function getSignitureByLanguage(funcSigniture, language) {
 }
 
 function getJavaSigniture(funcSigniture) {
-    const javaArgs = funcSigniture.args.map(arg => `${arg.type} ${arg.value}`).join(", ");
+    const javaArgs = funcSigniture.args.map(arg => `${arg.type.java} ${arg.value}`).join(", ");
 
-    return `public static ${funcSigniture.returnType} ${funcSigniture.name}(${javaArgs}) {
+    return `public static ${funcSigniture.returnType.java} ${funcSigniture.name}(${javaArgs}) {
   // write java code here...
 }`;
 }

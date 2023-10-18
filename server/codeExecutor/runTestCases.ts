@@ -24,9 +24,6 @@ export async function runTestCases(code: string, questionId: string, language: s
 
   const helper = LANGUAGE_HELPERS[language];
   const finalCode = helper.getFullCode(code, question, testCases);
-  console.log(finalCode);
-
   const result = await executeCode(language, finalCode);
-  console.log(result);
   return result;
 }

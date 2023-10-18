@@ -76,8 +76,11 @@ export const joinRoom = async (socket: any, io: any, rooms: Map<string, Room>, r
 
         // updating question data-types
         question.funcSignature.args.forEach(arg => {
-          arg.type = getTypeByLanguage(arg.type).java;
+          arg.type = { ...arg.type, java: getTypeByLanguage(arg.type).java, python: getTypeByLanguage(arg.type).python}
         });
+
+        // updating question return type
+        question.funcSignature.returnType = { ...question.funcSignature.returnType, java: getTypeByLanguage(question.funcSignature.returnType).java, python: getTypeByLanguage(question.funcSignature.returnType).python}
 
         room.gameStarted = true;
         io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
