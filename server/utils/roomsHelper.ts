@@ -3,7 +3,7 @@ import { LoggedInPlayer, Player, Room } from "../models/Room";
 import { ROOM_FULL_SOCKET_EVENET, PLAYERS_PER_ROOM, JOINED_ROOM_SOCKET_EVENT } from "../socket";
 import { GET_ROOMS_SOCKET_EVENT, ROOM_NOT_FOUND_SOCKET_EVENT, START_GAME_SOCKET_EVENT, ROOM_MANAGEMENT_ERROR_SOCKET_EVENT, updatePariticipantScore } from "../socket";
 import { questions } from "../db/questions";
-import { getTypeByLanguage } from "../codeExecutor/languageHelper";
+import { getTypeByLanguage } from "../codeExecutor/languageUtil/languageHelper";
 
 export const publicRooms = (rooms:Map<string, Room>) => {
   const roomsArray: Room[] = [];
