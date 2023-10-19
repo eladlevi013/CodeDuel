@@ -47,8 +47,6 @@ import Chat from '../components/Chat.vue';
 import CodeEditor from '../components/CodeEditor.vue';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
-import Message from 'vue-m-message';
-import 'vue-m-message/dist/style.css'
 
 export default {
   components: { Splitpanes, Pane, Chat, CodeEditor },
@@ -87,14 +85,21 @@ export default {
       this.$router.push('/');
     }
 
-    Message.info(`Joined room ${this.roomCode}`, { duration: 1500 });
-    
     this.$store.state.socket.on('otherPlayerLeft', () => {
-      Message.warning('Other player left the room, redirecting to home page...', {
-        duration: 3000});
-      setTimeout(() => {this.$router.push('/')}, 3000)
+      this.$swal({
+        title: 'Other player left the room',
+        text: 'Redirecting to home page...',
+        icon: 'warning',
+        timer: 5000,
+        buttons: false,
+        closeOnClickOutside: false,
+        closeOnEsc: false,
+      }).then(() => {
+        if (this.$route.path !== '/') {
+          this.$router.push('/');
+        }
+      })
     });
-
   },
   beforeUnmount() {
     this.$store.state.socket.off('otherPlayerLeft');

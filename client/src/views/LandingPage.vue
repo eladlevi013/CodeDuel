@@ -1,6 +1,5 @@
 <template>  
   <div class="main">
-
     <!-- codeduel title -->
     <h1 class="title">CodeDuel⚔️</h1>
 

@@ -53,7 +53,6 @@ export const getTypeByLanguage = (type: any): { java: string, python: string } =
             python: pythonHelper.getType(type)
         }
     } else {
-        console.log('type', type);
         if (type.startsWith('array')) {
             const arrayData = getArrayInfo(type);
     
