@@ -1,8 +1,13 @@
 import { Question, Variable } from '../../models/Question';
+import { javaHelper } from './javaHelper';
+import { pythonHelper } from './pythonHelper';
 
 export interface LanguageHelper {
     getCheckStatement: (question: Question, testCases: Map<Variable, Variable>) => string;
     getFullCode(code: string, question: Question, testCases: Map<Variable, Variable>): string;
+    transformArrayValues(value: any, type: any): string;
+    getType(type: string): string;
+    getValue(variable: Variable): string;
 }
 
 // getting array inner-type and nesting count
@@ -15,6 +20,7 @@ export function getArrayInfo(str: string): { nestedArray: number; arrayType: str
             nestingCount++;
             return peelLayer(match[1]);
         }
+        
         return s;
     }
     
@@ -27,83 +33,57 @@ export function getArrayInfo(str: string): { nestedArray: number; arrayType: str
 }
 
 // converting array to valid representation for language
-export function transformArrayToValidByLanguage(obj: any) {
-    function toJava(value: any): string {
-        if (Array.isArray(value)) {
-            const result = `{${value.map(item => toJava(item)).join(', ')}}`;
-            return result;
-        } else {
-            return getValueByLanguage({ type: getArrayInfo(obj.type).arrayType, value: value }).java;
-        }
-    }
-
-    function toPython(value: string | string[]): string {
-        if (Array.isArray(value)) {
-            return '[' + value.map(item => toPython(item)).join(', ') + ']';
-        } else {
-            return getValueByLanguage({ type: getArrayInfo(obj.type).arrayType, value: value }).python;
-        }            
-    }
-
+export function transformArrayValuesByLanguage(obj: any) {
     return {
-        java: toJava(obj.value),
-        python: toPython(obj.value)
+        java: javaHelper.transformArrayValues(obj.value, obj.type),
+        python: pythonHelper.transformArrayValues(obj.value, obj.type)
     };
 }
 
-// handling data-strucutres for each language
-export const getComplexTypeByLanguage = (type: string): { java: string, python: string } => {
-    if (type.startsWith('array')) {
-        const arrayData = getArrayInfo(type);
+// checking if type is primitive 
+export function isPrimitiveType(type: string) {
+    return ['string', 'char', 'boolean', 'number', 'decimal'].includes(type);
+}
 
-        return { 
-            java: `${getTypeByLanguage(arrayData?.arrayType).java}${'[]'
-                .repeat(arrayData.nestedArray)}`,
-            python: `List[${getTypeByLanguage(arrayData?.arrayType).python}]${' * '
-                .repeat(arrayData.nestedArray)}`
-        };
+// handling primitive types for each language
+export const getTypeByLanguage = (type: any): { java: string, python: string } => {
+    if (isPrimitiveType(type)) {
+        return {
+            java: javaHelper.getType(type),
+            python: pythonHelper.getType(type)
+        }
+    } else {
+        console.log('type', type);
+        if (type.startsWith('array')) {
+            const arrayData = getArrayInfo(type);
+    
+            return { 
+                java: `${getTypeByLanguage(arrayData?.arrayType).java}${'[]'
+                    .repeat(arrayData.nestedArray)}`,
+                python: `List[${getTypeByLanguage(arrayData?.arrayType).python}]${' * '
+                    .repeat(arrayData.nestedArray)}`
+            };
+        }
     }
 
     return { java: type, python: type };
 }
 
-// handling primitive types for each language
-export const getTypeByLanguage = (type: string) => {
-    switch (type) {
-        case 'string':
-            return { java: 'String', python: 'str' };
-        case 'char':
-            return { java: 'char', python: 'str' };
-        case 'boolean':
-            return { java: 'boolean', python: 'bool' };
-        case 'number':
-            return { java: 'int', python: 'int' };
-        case 'decimal':
-            return { java: 'double', python: 'float' };
-        default:
-            return getComplexTypeByLanguage(type);
-    }
-}
-
 // handling values for each language
-export const getValueByLanguage = (value: Variable) => {
-    const type = value.type;
+export const getValueByLanguage = (variable: Variable) => {
+    const type = variable.type;
 
-    if (type === 'string') {
-        return { java: `"${value.value}"`, python: `"${value.value}"` };
-    } else if (type === 'char') {
-        return { java: `'${value.value}'`, python: `'${value.value}'` };
-    } else if (type === 'boolean') {
-        return { java: `${value.value}`, python: `${value.value.charAt(0).toUpperCase() + value.value.slice(1)}` };
-    } else if (type === 'number') {
-        return { java: `${value.value}`, python: `${value.value}` };
-    } else if (type === 'decimal') {
-        return { java: `${value.value}`, python: `${value.value}` };
+    if (isPrimitiveType(type)) {
+        return {
+            java: javaHelper.getValue(variable),
+            python: pythonHelper.getValue(variable)
+        }
     } else if (type.startsWith('array')) {
-        const arrayData = transformArrayToValidByLanguage(value);
-        arrayData.java = `new ${getComplexTypeByLanguage(type).java}` + arrayData.java;
-        return arrayData;
+        const arrayValues = transformArrayValuesByLanguage(variable);
+        arrayValues.java = `new ${getTypeByLanguage(type).java} ${arrayValues.java}`;
+        arrayValues.python = `${arrayValues.python}`;
+        return arrayValues;
     } else {
-        return { java: `${value.value}`, python: `${value.value}` };
+        return { java: `${variable.value}`, python: `${variable.value}` };
     }
 }

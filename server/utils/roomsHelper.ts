@@ -1,5 +1,5 @@
 import Account from "../models/Account";
-import { LoggedInPlayer, Player, Room } from "../models/Room";
+import { LoggedInPlayer, Room } from "../models/Room";
 import { ROOM_FULL_SOCKET_EVENET, PLAYERS_PER_ROOM, JOINED_ROOM_SOCKET_EVENT } from "../socket";
 import { GET_ROOMS_SOCKET_EVENT, ROOM_NOT_FOUND_SOCKET_EVENT, START_GAME_SOCKET_EVENT, ROOM_MANAGEMENT_ERROR_SOCKET_EVENT, updatePariticipantScore } from "../socket";
 import { questions } from "../db/questions";
@@ -72,15 +72,24 @@ export const joinRoom = async (socket: any, io: any, rooms: Map<string, Room>, r
       socket.emit(JOINED_ROOM_SOCKET_EVENT, roomCode);
 
       if (room.players.length == PLAYERS_PER_ROOM) {
-        const question = questions[Math.floor(Math.random() * questions.length)];
+        // deep copy of question object
+        const question = JSON.parse(JSON.stringify(questions[Math.floor(Math.random() * questions.length)]));
 
         // updating question data-types
-        question.funcSignature.args.forEach(arg => {
-          arg.type = { ...arg.type, java: getTypeByLanguage(arg.type).java, python: getTypeByLanguage(arg.type).python}
+        question.funcSignature.args.forEach((arg: { type: { base: any; java: string; python: string; }; }) => {
+          arg.type = {
+            base: arg.type,
+            java: getTypeByLanguage(arg.type).java, 
+            python: getTypeByLanguage(arg.type).python
+          }
         });
 
         // updating question return type
-        question.funcSignature.returnType = { ...question.funcSignature.returnType, java: getTypeByLanguage(question.funcSignature.returnType).java, python: getTypeByLanguage(question.funcSignature.returnType).python}
+        question.funcSignature.returnType = { 
+          base: question.funcSignature.returnType,
+          java: getTypeByLanguage(question.funcSignature.returnType).java, 
+          python: getTypeByLanguage(question.funcSignature.returnType).python
+        }
 
         room.gameStarted = true;
         io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
