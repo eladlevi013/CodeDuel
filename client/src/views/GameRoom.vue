@@ -35,7 +35,7 @@
           <!-- Code editor section -->
           <pane>
             <div class="panel code-section">
-              <CodeEditor ref="codeEditorRef" :question="this.question"/>
+              <CodeEditor ref="codeEditorRef" @closeTerminal="closeTerminal" :question="this.question"/>
             </div>
           </pane>
           
@@ -71,6 +71,9 @@ export default {
       this.terminalPaneSize = this.terminalPaneSize < 35 
         ? 35 : this.terminalPaneSize;
       this.$refs.codeEditorRef.closeMessages();
+    },
+    closeTerminal() {
+      this.terminalPaneSize = 0;
     },
     getDifficultyClass(difficulty) {
       switch (difficulty) {

@@ -109,11 +109,13 @@ export default {
         this.$store.state.socket.on('codeSuccess', () => {
             Message.closeAll();
             Message.success(() => (`Problem solved, your opponent has 60 seconds\n to finish their solution...`), {duration: 5000})
+            this.$emit("closeTerminal");
         });
 
         this.$store.state.socket.on('codeWrong', () => {
             Message.closeAll();
-            Message.warning(() => (`Wrong Answer!`), {duration: 2000})
+            Message.warning(() => (`Wrong Answer!`), {duration: 2000});
+            this.$emit("closeTerminal");
         });
     },
     data() {
