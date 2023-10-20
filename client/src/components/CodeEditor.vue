@@ -112,13 +112,8 @@ export default {
         });
 
         this.$store.state.socket.on('codeWrong', () => {
-        Message.closeAll();
-        Message.warning(() => (`Wrong Answer!`), {duration: 2000})
-        });
-
-        this.$store.state.socket.on('codeError', (error) => {
-        Message.closeAll();
-        Message.error(() => (`Code error: ${error}`), {duration: 3400})
+            Message.closeAll();
+            Message.warning(() => (`Wrong Answer!`), {duration: 2000})
         });
     },
     data() {
@@ -136,6 +131,9 @@ export default {
         if(this.timer) clearInterval(this.timer);
     },
     methods: {
+        closeMessages() {
+            Message.closeAll();
+        },
         runCode() {
             Message.loading('Testing your code...', {duration: -1,});
             this.$store.state.socket.emit('codeSubmission', this.code, this.question.id, this.selectedLanguage);
@@ -162,14 +160,14 @@ export default {
             this.code = getSignitureByLanguage(this.question.funcSignature, this.selectedLanguage);
         },
         startTimer() {
-    this.secondsLeft = 15;
-    this.timer = setInterval(() => {
-        this.secondsLeft--;
-        if (this.secondsLeft < 0) {
-            clearInterval(this.timer);
+            this.secondsLeft = 15;
+            this.timer = setInterval(() => {
+            this.secondsLeft--;
+
+            if (this.secondsLeft < 0) {
+                clearInterval(this.timer);
+            }}, 1000);
         }
-    }, 1000);
-}
     },
     watch: {
     selectedLanguage: {

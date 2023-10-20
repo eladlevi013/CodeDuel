@@ -1,62 +1,77 @@
 <template>
-<div class="main-div">
-  <splitpanes class="default-theme">
-    <pane size="30">
-      <splitpanes horizontal>
-
-        <!-- Question section -->
-        <pane size="70">
-          <div class="panel question-section">
-            <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
-            <div style="display: flex; flex-direction: row; align-items: center;">
-              <div class="tags-wrapper">
-                <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
-                <div class="question-tags-container" v-for="(tag, index) in question?.categories" :key="index">
-                  <div class="question-tag">{{ tag }}</div>
+  <div class="main-div">
+    <splitpanes class="default-theme">
+      <pane size="30">
+        <splitpanes horizontal>
+          <!-- Question section -->
+          <pane size="70">
+            <div class="panel question-section">
+              <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+                <div class="tags-wrapper">
+                  <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
+                  <div class="question-tags-container" v-for="(tag, index) in question?.categories" :key="index">
+                    <div class="question-tag">{{ tag }}</div>
+                  </div>
                 </div>
-              </div>
-
               </div>
               <div class="content">
                 <p>{{ question?.description }}</p>
                 <pre>{{ question?.example }}</pre>
+              </div>
             </div>
-          </div>
-        </pane>
-
-        <!-- Chat section -->
-        <pane>
-          <Chat/>
-        </pane>
-      </splitpanes>
-    </pane>
-
-    <!-- Code editor section -->
-    <pane>
-      <div class="panel code-section">
-        <CodeEditor :question="this.question"/>
-      </div>
-    </pane>
-  </splitpanes>
-</div>
-
-</template>
+          </pane>
+  
+          <!-- Chat section -->
+          <pane>
+            <Chat/>
+          </pane>
+        </splitpanes>
+      </pane>
+  
+      <!-- Code editor and new pane section -->
+      <pane>
+        <splitpanes horizontal @resize="terminalPaneSize = $event[1].size">
+          <!-- Code editor section -->
+          <pane>
+            <div class="panel code-section">
+              <CodeEditor ref="codeEditorRef" :question="this.question"/>
+            </div>
+          </pane>
+          
+          <!-- New pane section -->
+          <pane :size="terminalPaneSize">
+            <error-console @openTerminal="openTerminalOnError"/>
+          </pane>
+        </splitpanes>
+      </pane>
+    </splitpanes>
+  </div>
+  
+  </template>
 
 <script>
 import Chat from '../components/Chat.vue';
 import CodeEditor from '../components/CodeEditor.vue';
+import ErrorConsole from '../components/ErrorConsole.vue';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
 
 export default {
-  components: { Splitpanes, Pane, Chat, CodeEditor },
+  components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },
   data() {
     return {
       question: {},
       roomCode: '',
+      terminalPaneSize: 0,
     };
   },
   methods: {
+    openTerminalOnError() {
+      this.terminalPaneSize = this.terminalPaneSize < 35 
+        ? 35 : this.terminalPaneSize;
+      this.$refs.codeEditorRef.closeMessages();
+    },
     getDifficultyClass(difficulty) {
       switch (difficulty) {
         case 1: return 'question-difficulty-easy';

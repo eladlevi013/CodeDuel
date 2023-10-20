@@ -10,6 +10,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css'
 import store from './store'; 
+import Message from 'vue-m-message'
+import 'vue-m-message/dist/style.css'
 
 // Routes
 const routes = [
@@ -34,4 +36,5 @@ const app = createApp(App);
 app.use(VueSweetalert2);
 app.use(router);
 app.use(store);
+app.use(Message)
 app.mount('#app')

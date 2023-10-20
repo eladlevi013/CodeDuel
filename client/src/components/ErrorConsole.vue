@@ -1,0 +1,34 @@
+<template>
+    <div class="error-container">{{ error }}</div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            error: '',
+        }
+    },
+    mounted() {
+        this.$store.state.socket.on('codeError', (error) => {
+            this.error = error;
+            this.$emit('openTerminal');
+        });
+    },
+    beforeUnmount() {
+        this.$store.state.socket.off('codeError');
+    }
+}
+</script>
+
+<style scoped>
+.error-container {
+    background-color: #1f1611;
+    width: 100%;
+    height: 100%;
+    color: #6b4e32;
+    padding: 10px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+</style>
