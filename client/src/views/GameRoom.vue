@@ -73,7 +73,7 @@ export default {
       this.$refs.codeEditorRef.closeMessages();
     },
     closeTerminal() {
-      this.terminalPaneSize = 0;
+      // this.terminalPaneSize = 20;
     },
     getDifficultyClass(difficulty) {
       switch (difficulty) {
