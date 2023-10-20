@@ -1,10 +1,10 @@
 <template>
   <div class="main-div">
     <splitpanes class="default-theme">
-      <pane size="30">
+      <pane size="20">
         <splitpanes horizontal>
           <!-- Question section -->
-          <pane size="70">
+          <pane size="60">
             <div class="panel question-section">
               <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
               <div style="display: flex; flex-direction: row; align-items: center;">
@@ -68,8 +68,8 @@ export default {
   },
   methods: {
     openTerminalOnError() {
-      this.terminalPaneSize = this.terminalPaneSize < 35 
-        ? 35 : this.terminalPaneSize;
+      this.terminalPaneSize = this.terminalPaneSize < 43
+        ? 43 : this.terminalPaneSize;
       this.$refs.codeEditorRef.closeMessages();
     },
     closeTerminal() {

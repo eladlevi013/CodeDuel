@@ -49,6 +49,7 @@ export default {
     components: { Codemirror },
     mounted() {
         this.$store.state.socket.on('gameEndWin', () => {
+            this.removeSocketListener();
             this.showTimer = false;
             Message.closeAll();
 
@@ -66,8 +67,10 @@ export default {
         })
 
         this.$store.state.socket.on('gameEndLose', (winnerPlayerName) => {
+            this.removeSocketListener();
             this.showTimer = false;
             Message.closeAll();
+
 
             this.$swal({
                 title: 'Game Over!',
@@ -83,6 +86,7 @@ export default {
         })
 
         this.$store.state.socket.on('endGameTie', () => {
+            this.removeSocketListener();
             this.showTimer = false;
             Message.closeAll();
 
@@ -169,6 +173,14 @@ export default {
             if (this.secondsLeft < 0) {
                 clearInterval(this.timer);
             }}, 1000);
+        },
+        removeSocketListener() {
+            this.$store.state.socket.off('gameEndWin');
+            this.$store.state.socket.off('gameEndLose');
+            this.$store.state.socket.off('endGameTie');
+            this.$store.state.socket.off('startGameTimer');
+            this.$store.state.socket.off('codeSuccess');
+            this.$store.state.socket.off('codeWrong');
         }
     },
     watch: {
