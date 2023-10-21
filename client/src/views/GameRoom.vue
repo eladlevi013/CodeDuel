@@ -70,7 +70,6 @@ export default {
       this.showTerminalPane = true;
       this.$nextTick(() => {
         this.$refs.codeEditorRef.closeMessages();
-        console.log(this.$refs.terminalRef);
         this.$refs.terminalRef.setErrorMessage(error);
       });
     },

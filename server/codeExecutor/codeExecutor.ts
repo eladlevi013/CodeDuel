@@ -63,7 +63,6 @@ export async function executeCode(language: string, code: string): Promise<Execu
     case 'python':
       return executePython(code);
     case 'java':
-      console.log(code);
       return executeJava(code);
     default:
       throw new Error('Language not supported.');

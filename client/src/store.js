@@ -13,8 +13,6 @@ export default new Vuex.Store({
   },
   mutations: {
     setUserScore(state, score) {
-      console.log('getRooms');
-
       if (state.user) {
         state.user.score = score;
       }
