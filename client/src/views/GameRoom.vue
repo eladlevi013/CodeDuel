@@ -1,7 +1,7 @@
 <template>
   <div class="main-div">
-    <splitpanes class="default-theme">
-      <pane size="20">
+    <splitpanes class="default-theme" ref="mainSplitPane">
+      <pane size="26">
         <splitpanes horizontal>
           <!-- Question section -->
           <pane size="60">
@@ -31,7 +31,7 @@
   
       <!-- Code editor and new pane section -->
       <pane>
-        <splitpanes horizontal @resize="terminalPaneSize = $event[1].size">
+        <splitpanes horizontal>
           <!-- Code editor section -->
           <pane>
             <div class="panel code-section">
@@ -39,9 +39,8 @@
             </div>
           </pane>
           
-          <!-- New pane section -->
-          <pane :size="terminalPaneSize">
-            <error-console @openTerminal="openTerminalOnError"/>
+          <pane v-if="showTerminalPane" ref="terminalPane" size="30">
+              <error-console @openTerminal="openTerminalOnError" ref="terminalRef"/>
           </pane>
         </splitpanes>
       </pane>
@@ -61,19 +60,22 @@ export default {
   components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },
   data() {
     return {
+      showTerminalPane: false,
       question: {},
       roomCode: '',
-      terminalPaneSize: 0,
     };
   },
   methods: {
-    openTerminalOnError() {
-      this.terminalPaneSize = this.terminalPaneSize < 43
-        ? 43 : this.terminalPaneSize;
-      this.$refs.codeEditorRef.closeMessages();
+    openTerminalOnError(error) {
+      this.showTerminalPane = true;
+      this.$nextTick(() => {
+        this.$refs.codeEditorRef.closeMessages();
+        console.log(this.$refs.terminalRef);
+        this.$refs.terminalRef.setErrorMessage(error);
+      });
     },
     closeTerminal() {
-      // this.terminalPaneSize = 20;
+        this.showTerminalPane = false;
     },
     getDifficultyClass(difficulty) {
       switch (difficulty) {
@@ -93,6 +95,10 @@ export default {
     },
   },
   mounted() {
+    this.$store.state.socket.on('codeError', (error) => {
+      this.openTerminalOnError(error);
+        });
+
     this.$store.dispatch('fetchUserScore');
     this.$swal.close();
     this.question = this.$store.state.question;
@@ -121,6 +127,7 @@ export default {
   },
   beforeUnmount() {
     this.$store.state.socket.off('otherPlayerLeft');
+    this.$store.state.socket.off('codeError');
     this.$store.state.socket.disconnect();
   },
 };

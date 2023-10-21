@@ -10,13 +10,18 @@ export default {
         }
     },
     mounted() {
-        this.$store.state.socket.on('codeError', (error) => {
-            this.error = error;
-            this.$emit('openTerminal');
-        });
+        // this.$store.state.socket.on('codeError', (error) => {
+        //     this.error = error;
+        //     this.$emit('openTerminal');
+        // });
     },
     beforeUnmount() {
-        this.$store.state.socket.off('codeError');
+        // this.$store.state.socket.off('codeError');
+    },
+    methods: {
+        setErrorMessage(error) {
+            this.error = error;
+        }
     }
 }
 </script>
