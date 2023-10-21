@@ -11,7 +11,7 @@ export interface LoggedInPlayer extends BasePlayer {
 export type Player = LoggedInPlayer | BasePlayer;
 
 export interface Submission {
-  player: Player; 
+  player: Player;
   time: string;
   memory: number;
 }

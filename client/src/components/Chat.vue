@@ -19,7 +19,7 @@
         <div
           :class="{
             'timestamp-self': message.self,
-            'timestamp-other': !message.self,
+            'timestamp-other': !message.self
           }"
         >
           {{ message.timestamp }}
@@ -46,49 +46,45 @@ export default {
   data() {
     return {
       messages: [],
-      newMessage: '',
-    }
+      newMessage: ''
+    };
   },
   updated() {
     this.$nextTick(() => {
-      this.scrollToBottom()
-    })
+      this.scrollToBottom();
+    });
   },
   mounted() {
     this.$store.state.socket.on('receiveMessage', (message, sender) => {
       this.messages.push({
         self: false,
         text: message,
-        sender: sender,
-      })
-    })
+        sender: sender
+      });
+    });
   },
   methods: {
     isSenderChanged(index) {
-      if (index === 0) return true
-      return this.messages[index].self !== this.messages[index - 1].self
+      if (index === 0) return true;
+      return this.messages[index].self !== this.messages[index - 1].self;
     },
     scrollToBottom() {
-      const container = this.$refs.chatContainer
-      container.scrollTop = container.scrollHeight
+      const container = this.$refs.chatContainer;
+      container.scrollTop = container.scrollHeight;
     },
     sendMessage() {
       if (this.newMessage.trim() !== '') {
         this.messages.push({
           self: true,
-          text: this.newMessage,
-        })
+          text: this.newMessage
+        });
 
-        this.$store.state.socket.emit(
-          'sendMessage',
-          this.newMessage,
-          this.$store.state.roomCode
-        )
-        this.newMessage = ''
+        this.$store.state.socket.emit('sendMessage', this.newMessage, this.$store.state.roomCode);
+        this.newMessage = '';
       }
-    },
-  },
-}
+    }
+  }
+};
 </script>
 
 <style>

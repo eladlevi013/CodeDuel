@@ -12,12 +12,7 @@
         placeholder="Enter your username"
         v-model="username"
       />
-      <input
-        class="class-input"
-        type="email"
-        placeholder="Enter your email"
-        v-model="email"
-      />
+      <input class="class-input" type="email" placeholder="Enter your email" v-model="email" />
       <input
         type="password"
         :placeholder="isLogin ? 'Enter your password' : 'Enter your password'"
@@ -36,14 +31,14 @@
 
       <p class="switch-auth">
         <transition name="fade" mode="out-in">
-          <span v-if="isLogin" key="register"
-            >New to CodeDuel?
-            <a @click.prevent="switchForm" href="#">Register Here</a></span
-          >
-          <span v-else key="login"
-            >Already have an account?
-            <a @click.prevent="switchForm" href="#">Login Here</a></span
-          >
+          <span v-if="isLogin" key="register">
+            New to CodeDuel?
+            <a @click.prevent="switchForm" href="#">Register Here</a>
+          </span>
+          <span v-else key="login">
+            Already have an account?
+            <a @click.prevent="switchForm" href="#">Login Here</a>
+          </span>
         </transition>
       </p>
     </form>
@@ -51,9 +46,9 @@
 </template>
 
 <script>
-import axios from 'axios'
-import Message from 'vue-m-message'
-import 'vue-m-message/dist/style.css'
+import axios from 'axios';
+import Message from 'vue-m-message';
+import 'vue-m-message/dist/style.css';
 
 export default {
   data() {
@@ -62,87 +57,84 @@ export default {
       username: '',
       password: '',
       email: '',
-      isLoading: false,
-    }
+      isLoading: false
+    };
   },
   created() {
-    this.checkRoute()
+    this.checkRoute();
   },
   watch: {
-    $route: 'checkRoute',
+    $route: 'checkRoute'
   },
   methods: {
     switchForm() {
-      this.$router.push(this.isLogin ? '/auth/register' : '/auth/login')
+      this.$router.push(this.isLogin ? '/auth/register' : '/auth/login');
     },
     async login() {
-      this.isLoading = true
-      Message({ message: 'Logging in...', type: 'loading' })
+      this.isLoading = true;
+      Message({ message: 'Logging in...', type: 'loading' });
       try {
         const response = await axios.post(
           `${process.env.VUE_APP_SERVER_URL}/auth/login`,
           {
             email: this.email,
-            password: this.password,
+            password: this.password
           },
           { withCredentials: true }
-        )
+        );
 
-        this.$store.commit('setUser', response.data.account)
+        this.$store.commit('setUser', response.data.account);
 
         if (response.data && response.status === 200) {
-          Message.closeAll()
-          Message.success('Logged in successfully')
-          this.$router.push('/')
+          Message.closeAll();
+          Message.success('Logged in successfully');
+          this.$router.push('/');
         }
       } catch (error) {
-        Message.closeAll()
+        Message.closeAll();
         if (error.response && error.response.data) {
-          Message.error(`Login Error: ${error.response.data.message}`)
+          Message.error(`Login Error: ${error.response.data.message}`);
         } else {
-          Message.error('An error occurred during login')
+          Message.error('An error occurred during login');
         }
       } finally {
-        this.isLoading = false
+        this.isLoading = false;
       }
     },
     async register() {
-      this.isLoading = true
-      Message({ message: 'Registering...', type: 'loading' }) // Loading Message
+      this.isLoading = true;
+      Message({ message: 'Registering...', type: 'loading' }); // Loading Message
       try {
-        const response = await axios.post(
-          `${process.env.VUE_APP_SERVER_URL}/auth/register`,
-          {
-            username: this.username,
-            password: this.password,
-            email: this.email,
-          }
-        )
+        const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/register`, {
+          username: this.username,
+          password: this.password,
+          email: this.email
+        });
 
-        this.$store.commit('setSessionId', response.data.sessionId)
-        this.$store.commit('setUser', response.data.account)
+        this.$store.commit('setSessionId', response.data.sessionId);
+        this.$store.commit('setUser', response.data.account);
 
         if (response.data && response.status === 200) {
-          Message.closeAll() // Close loading message
-          Message.success('Account created successfully')
-          this.$router.push('/')
+          Message.closeAll(); // Close loading message
+          Message.success('Account created successfully');
+          this.$router.push('/');
         }
       } catch (error) {
-        Message.closeAll() // Close loading message
+        Message.closeAll(); // Close loading message
         if (error.response && error.response.data) {
-          Message.error(`Registration Error: ${error.response.data.message}`)
+          Message.error(`Registration Error: ${error.response.data.message}`);
         } else {
-          Message.error('An error occurred during registration')
+          Message.error('An error occurred during registration');
         }
       } finally {
-        this.isLoading = false // End Loading
+        this.isLoading = false; // End Loading
       }
     },
     checkRoute() {
-      this.isLogin = this.$route.path === '/auth/login'
-    },
-  },
-}
+      this.isLogin = this.$route.path === '/auth/login';
+    }
+  }
+};
 </script>
 
 <style scoped>

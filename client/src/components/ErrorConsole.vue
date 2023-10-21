@@ -6,8 +6,8 @@
 export default {
   data() {
     return {
-      error: '',
-    }
+      error: ''
+    };
   },
   mounted() {
     // this.$store.state.socket.on('codeError', (error) => {
@@ -20,10 +20,10 @@ export default {
   },
   methods: {
     setErrorMessage(error) {
-      this.error = error
-    },
-  },
-}
+      this.error = error;
+    }
+  }
+};
 </script>
 
 <style scoped>

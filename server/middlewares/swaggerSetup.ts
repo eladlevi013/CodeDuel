@@ -9,10 +9,10 @@ const options = {
     info: {
       title: 'CodeDuel API',
       version: '1.0.0',
-      description: 'API documentation for CodeDuel server',
-    },
+      description: 'API documentation for CodeDuel server'
+    }
   },
-  apis: [path.join(__dirname, '../controllers/*.ts')],
+  apis: [path.join(__dirname, '../controllers/*.ts')]
 };
 
 const specs = swaggerJsdoc(options);

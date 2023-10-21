@@ -10,7 +10,7 @@ import { swaggerMiddleware } from './middlewares/swaggerSetup';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// Middlewares 
+// Middlewares
 const app = express();
 app.set('trust proxy', 1);
 app.use(express.json());
@@ -18,8 +18,7 @@ app.use(corsMiddleware);
 app.use(sessionMiddleware);
 app.use('/users/', userRoutes);
 app.use('/auth/', authRoutes);
-app.use(process.env.PRODUCTION === 'false' ?
-  swaggerMiddleware() : (req, res, next) => next());
+app.use(process.env.PRODUCTION === 'false' ? swaggerMiddleware() : (req, res, next) => next());
 
 // Database setup
 connectDB();

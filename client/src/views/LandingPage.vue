@@ -5,9 +5,9 @@
 
     <!-- codeduel description -->
     <p class="parContainer">
-      Welcome to CodeDuel, where programmers worldwide engage in real-time
-      coding battles! Perfect for all skill levels, it’s a dynamic platform to
-      challenge peers and enhance your programming skills.
+      Welcome to CodeDuel, where programmers worldwide engage in real-time coding battles! Perfect
+      for all skill levels, it’s a dynamic platform to challenge peers and enhance your programming
+      skills.
     </p>
 
     <!-- quick menu container -->
@@ -19,9 +19,7 @@
         v-model="roomCode"
         class="room-code-input"
       />
-      <button @click="joinRoom(this.roomCode)" class="buttonDesign">
-        Join
-      </button>
+      <button @click="joinRoom(this.roomCode)" class="buttonDesign">Join</button>
       <button @click="quickMatch" class="buttonDesign">Quick Match</button>
     </div>
 
@@ -34,20 +32,20 @@
 </template>
 
 <script>
-import { sharedRoomMethods } from '../mixins/sharedRoomMethods'
+import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
 
 export default {
   mixins: [sharedRoomMethods],
   name: 'App',
   data() {
     return {
-      roomCode: '',
-    }
+      roomCode: ''
+    };
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore')
-  },
-}
+    this.$store.dispatch('fetchUserScore');
+  }
+};
 </script>
 
 <style>

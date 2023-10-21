@@ -6,8 +6,8 @@ import { join } from 'path';
 
 const MAX_EXECUTION_TIME = 3000;
 const FILE_NAMES = {
-  'python': 'main.py',
-  'java': 'Main.java'
+  python: 'main.py',
+  java: 'Main.java'
 };
 
 interface ExecutionError extends Error {

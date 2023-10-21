@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { sharedRoomMethods } from '../mixins/sharedRoomMethods'
+import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
 
 export default {
   mixins: [sharedRoomMethods],
@@ -45,42 +45,40 @@ export default {
     return {
       availableRooms: [],
       isPrivate: false,
-      roomCode: '',
-    }
+      roomCode: ''
+    };
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore')
-    this.socket.emit('sendRooms')
+    this.$store.dispatch('fetchUserScore');
+    this.socket.emit('sendRooms');
 
     // from link
     if (this.$route.params.roomCode) {
-      this.joinRoom(this.$route.params.roomCode)
+      this.joinRoom(this.$route.params.roomCode);
     }
 
-    this.$store.state.socket.on('createdRoom', (roomCode) => {
+    this.$store.state.socket.on('createdRoom', roomCode => {
       this.$swal
         .fire({
           title: 'Room Created',
           text: `Share this code with your friend: ${roomCode}`,
           icon: 'success',
           confirmButtonText: 'Copy Room Link',
-          confirmButtonColor: '#005ce6',
+          confirmButtonColor: '#005ce6'
         })
-        .then((result) => {
+        .then(result => {
           if (result.isConfirmed) {
-            navigator.clipboard.writeText(
-              `${process.env.VUE_APP_BASE_URL}/rooms/${roomCode}`
-            )
+            navigator.clipboard.writeText(`${process.env.VUE_APP_BASE_URL}/rooms/${roomCode}`);
           }
-        })
+        });
 
-      this.joinRoom(roomCode)
-    })
+      this.joinRoom(roomCode);
+    });
   },
   beforeUnmount() {
-    this.$store.state.socket.off('createdRoom')
-  },
-}
+    this.$store.state.socket.off('createdRoom');
+  }
+};
 </script>
 
 <style>

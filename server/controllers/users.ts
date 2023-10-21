@@ -37,17 +37,17 @@ import SessionModel from '../models/SessionModel';
  *       - sessionAuth: []
  */
 export const getScore = async (req: Request, res: Response) => {
-    const accountId = (req.session as SessionModel).account;
-    const account = await Account.findById(accountId);
+  const accountId = (req.session as SessionModel).account;
+  const account = await Account.findById(accountId);
 
-    if (!account) {
-        return res.status(404).json({ message: 'Account not found' });
-    } else {
-        return res.status(200).json({
-            message: 'Score retrieved',
-            score: account.score,
-        });
-    }
+  if (!account) {
+    return res.status(404).json({ message: 'Account not found' });
+  } else {
+    return res.status(200).json({
+      message: 'Score retrieved',
+      score: account.score
+    });
+  }
 };
 
 /**
@@ -70,12 +70,16 @@ export const getScore = async (req: Request, res: Response) => {
  *                   example: Leaderboard retrieved
  */
 export const getLeaderboard = async (req: Request, res: Response) => {
-    Account.find().sort({score: -1}).limit(10)
+  Account.find()
+    .sort({ score: -1 })
+    .limit(10)
     .then(results => {
-        return res.status(200).json({
-            message: 'Leaderboard retrieved',
-            leaderboard: results,
-        });
+      return res.status(200).json({
+        message: 'Leaderboard retrieved',
+        leaderboard: results
+      });
     })
-    .catch(error => {console.log(error.message)})
+    .catch(error => {
+      console.log(error.message);
+    });
 };

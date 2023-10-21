@@ -6,12 +6,8 @@
           <!-- Question section -->
           <pane size="60">
             <div class="panel question-section">
-              <h2 class="question-title">
-                Question {{ question?.id }}: {{ question?.title }}
-              </h2>
-              <div
-                style="display: flex; flex-direction: row; align-items: center"
-              >
+              <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
+              <div style="display: flex; flex-direction: row; align-items: center">
                 <div class="tags-wrapper">
                   <div :class="getDifficultyClass(question?.difficulty)">
                     {{ getDifficultyText(question?.difficulty) }}
@@ -54,10 +50,7 @@
 
           <!-- Console section -->
           <pane v-if="showTerminalPane" ref="terminalPane" size="30">
-            <error-console
-              @openTerminal="openTerminalOnError"
-              ref="terminalRef"
-            />
+            <error-console @openTerminal="openTerminalOnError" ref="terminalRef" />
           </pane>
         </splitpanes>
       </pane>
@@ -66,11 +59,11 @@
 </template>
 
 <script>
-import Chat from '../components/Chat.vue'
-import CodeEditor from '../components/CodeEditor.vue'
-import ErrorConsole from '../components/ErrorConsole.vue'
-import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
+import Chat from '../components/Chat.vue';
+import CodeEditor from '../components/CodeEditor.vue';
+import ErrorConsole from '../components/ErrorConsole.vue';
+import { Splitpanes, Pane } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
 
 export default {
   components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },
@@ -78,62 +71,59 @@ export default {
     return {
       showTerminalPane: false,
       question: {},
-      roomCode: '',
-    }
+      roomCode: ''
+    };
   },
   methods: {
     openTerminalOnError(error) {
-      this.showTerminalPane = true
+      this.showTerminalPane = true;
       this.$nextTick(() => {
-        this.$refs.codeEditorRef.closeMessages()
-        this.$refs.terminalRef.setErrorMessage(error)
-      })
+        this.$refs.codeEditorRef.closeMessages();
+        this.$refs.terminalRef.setErrorMessage(error);
+      });
     },
     closeTerminal() {
-      this.showTerminalPane = false
+      this.showTerminalPane = false;
     },
     getDifficultyClass(difficulty) {
       switch (difficulty) {
         case 1:
-          return 'question-difficulty-easy'
+          return 'question-difficulty-easy';
         case 2:
-          return 'question-difficulty-medium'
+          return 'question-difficulty-medium';
         case 3:
-          return 'question-difficulty-hard'
+          return 'question-difficulty-hard';
         default:
-          return ''
+          return '';
       }
     },
     getDifficultyText(difficulty) {
       switch (difficulty) {
         case 1:
-          return 'Easy'
+          return 'Easy';
         case 2:
-          return 'Medium'
+          return 'Medium';
         case 3:
-          return 'Hard'
+          return 'Hard';
         default:
-          return ''
+          return '';
       }
-    },
+    }
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore')
-    this.$swal.close()
-    this.question = this.$store.state.question
-    this.roomCode = this.$store.state.roomCode
+    this.$store.dispatch('fetchUserScore');
+    this.$swal.close();
+    this.question = this.$store.state.question;
+    this.roomCode = this.$store.state.roomCode;
 
     // on socket problem, redirect to home page
-    if (
-      this.$store.state.socket == null ||
-      this.$store.state.socket.disconnected
-    ) {
-      this.$router.push('/')
+    if (this.$store.state.socket == null || this.$store.state.socket.disconnected) {
+      this.$router.push('/');
     }
 
-    this.$store.state.socket.on('codeError', (error) => {
-      this.openTerminalOnError(error)
-    })
+    this.$store.state.socket.on('codeError', error => {
+      this.openTerminalOnError(error);
+    });
 
     this.$store.state.socket.on('otherPlayerLeft', () => {
       this.$swal({
@@ -143,20 +133,20 @@ export default {
         timer: 5000,
         buttons: false,
         closeOnClickOutside: false,
-        closeOnEsc: false,
+        closeOnEsc: false
       }).then(() => {
         if (this.$route.path !== '/') {
-          this.$router.push('/')
+          this.$router.push('/');
         }
-      })
-    })
+      });
+    });
   },
   beforeUnmount() {
-    this.$store.state.socket.off('otherPlayerLeft')
-    this.$store.state.socket.off('codeError')
-    this.$store.state.socket.disconnect()
-  },
-}
+    this.$store.state.socket.off('otherPlayerLeft');
+    this.$store.state.socket.off('codeError');
+    this.$store.state.socket.disconnect();
+  }
+};
 </script>
 
 <style>

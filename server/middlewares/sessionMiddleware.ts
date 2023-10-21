@@ -4,31 +4,31 @@ import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
 
 const getStore = (): session.Store => {
-    if (process.env.PRODUCTION === 'true') {
-        return new MongoStore({ mongoUrl: process.env.MONGO_URL });
-    } else {
-        let redisClient = createClient();
-        redisClient.connect().catch(console.error);
+  if (process.env.PRODUCTION === 'true') {
+    return new MongoStore({ mongoUrl: process.env.MONGO_URL });
+  } else {
+    let redisClient = createClient();
+    redisClient.connect().catch(console.error);
 
-        return new (RedisStore as any)({
-            client: redisClient,
-            prefix: 'codeduel:'
-        });        
-    }
+    return new (RedisStore as any)({
+      client: redisClient,
+      prefix: 'codeduel:'
+    });
+  }
 };
 
 const sessionConfig: session.SessionOptions = {
-    store: getStore(),
-    secret: process.env.SESSION_SECRET_KEY as string,
-    resave: false,
-    saveUninitialized: false,
-    name: 'sessionServer',
-    cookie: {
-        secure: process.env.PRODUCTION === 'true' ? true : false,
-        httpOnly: true,
-        maxAge: 2592000000,
-        sameSite: process.env.PRODUCTION === 'true' ? 'none' : 'lax',
-    },
+  store: getStore(),
+  secret: process.env.SESSION_SECRET_KEY as string,
+  resave: false,
+  saveUninitialized: false,
+  name: 'sessionServer',
+  cookie: {
+    secure: process.env.PRODUCTION === 'true' ? true : false,
+    httpOnly: true,
+    maxAge: 2592000000,
+    sameSite: process.env.PRODUCTION === 'true' ? 'none' : 'lax'
+  }
 };
 
 export default session(sessionConfig);

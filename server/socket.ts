@@ -2,7 +2,13 @@ import { runTestCases } from './codeExecutor/runTestCases';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
-import { publicRooms, roomCodeGenerator, getRoomCodeFromSocketId, quickMatch, joinRoom } from './utils/roomsHelper'
+import {
+  publicRooms,
+  roomCodeGenerator,
+  getRoomCodeFromSocketId,
+  quickMatch,
+  joinRoom
+} from './utils/roomsHelper';
 import accountSchema from './models/Account';
 
 // Sockets constants
@@ -42,15 +48,15 @@ const isLoggedinPlayer = (player: Player): player is LoggedInPlayer => {
 
 export const updateWinnerPlayerScore = async (player: Player) => {
   if (!isLoggedinPlayer(player)) {
-      // The player is not logged in; nothing to update
-      return null;
+    // The player is not logged in; nothing to update
+    return null;
   }
 
   let scoreToAdd = player.score == 0 ? 1 : 2;
 
   try {
     const account = await accountSchema.findById(player.uid);
-      
+
     if (!account) {
       console.error(`Account not found for uid: ${player.uid}`);
       return null;
@@ -63,14 +69,14 @@ export const updateWinnerPlayerScore = async (player: Player) => {
     console.error('Error updating player score:', error);
     return null;
   }
-}
+};
 
 const updatePlayersScoreOnTie = async (players: Player[]) => {
   for (let player of players) {
     if (isLoggedinPlayer(player)) {
       try {
         const account = await accountSchema.findById(player.uid);
-          
+
         if (!account) {
           console.error(`Account not found for uid: ${player.uid}`);
           return null;
@@ -84,7 +90,7 @@ const updatePlayersScoreOnTie = async (players: Player[]) => {
       }
     }
   }
-}
+};
 
 export const updatePariticipantScore = async (player: Player) => {
   const loggedInPlayer = player as LoggedInPlayer;
@@ -102,7 +108,7 @@ export const updatePariticipantScore = async (player: Player) => {
       console.log(err);
     }
   }
-}
+};
 
 export function printRooms(rooms: Map<string, Room>): void {
   rooms.forEach((room, roomKey) => {
@@ -111,13 +117,13 @@ export function printRooms(rooms: Map<string, Room>): void {
     console.log('roomCode:', room.roomCode);
     console.log('gameStarted:', room.gameStarted);
     console.log('countdownStarted:', room.countdownStarted);
-    
+
     console.log('Players:');
     room.players.forEach((player, index) => {
       // Convert the player object to a JSON string for easy printing.
       console.log(`Player ${index + 1}:`, JSON.stringify(player, null, 2));
     });
-    
+
     console.log('Successful Submissions:');
     room.successfulSubmissions.forEach((submission, index) => {
       console.log(`Submission ${index + 1}:`);
@@ -137,12 +143,12 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code, questionId, language) => {
       const result = await runTestCases(code, questionId, language);
       const errorMessage = result?.stderr;
-      
+
       if (!result) {
         console.error(`Result is undefined.`);
         return;
       }
-      
+
       // Emit error to client
       if (errorMessage) {
         socket.emit(CODE_ERROR_SOCKET_EVENT, errorMessage);
@@ -158,32 +164,34 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       // Emit success to client
       const roomCode = getRoomCodeFromSocketId(socket.id, rooms);
       const room = rooms.get(roomCode);
-      
+
       // Error in room management
       if (!roomCode || !room) {
         console.error(`RoomCode: ${roomCode}, or Room does not exist.`);
         return;
       }
-      
+
       // on successful submission, add submission to room
       const player = room.players.find(player => player.sid === socket.id) as Player;
       room.successfulSubmissions.push({ player: player, time: 'none', memory: 0 });
-      
+
       // on first successful submission, start timer
       if (room.successfulSubmissions.length === 1) {
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         room.countdownStarted = true;
-        
+
         // start countdown to end game
-        setTimeout(async () => {           
+        setTimeout(async () => {
           if (room && room.countdownStarted && room.players.length == 2) {
             const winnerPlayer = rooms.get(roomCode)?.successfulSubmissions[0].player as BasePlayer;
             if (winnerPlayer) {
               // sending all players except winnerPlayer.id
               for (let player of room.players) {
                 if (player.sid !== winnerPlayer.sid) {
-                  const winnerPlayerName = isLoggedinPlayer(winnerPlayer) ? winnerPlayer.username : 'the other player';
+                  const winnerPlayerName = isLoggedinPlayer(winnerPlayer)
+                    ? winnerPlayer.username
+                    : 'the other player';
                   io.to(player.sid).emit(GAME_END_LOSE_SOCKET_EVENT, winnerPlayerName);
                 }
               }
@@ -206,7 +214,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         return;
       }
     });
-    
+
     socket.on('quickMatch', async (uid: string) => {
       const roomCode = await quickMatch(uid, rooms);
       joinRoom(socket, io, rooms, roomCode, uid);
@@ -218,37 +226,36 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
     socket.on(DISCONNECT_SOCKET_EVENT, () => {
       for (const [roomCode, room] of rooms.entries()) {
-        const playerIndex = room.players.findIndex
-          (player => player.sid === socket.id);
-        
+        const playerIndex = room.players.findIndex(player => player.sid === socket.id);
+
         if (playerIndex > -1) {
           room.players.splice(playerIndex, 1);
-          
+
           if (room.gameStarted && room.players.length === 1) {
             socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
             const winner = room.players[0] as LoggedInPlayer;
             updateWinnerPlayerScore(winner);
             rooms.delete(roomCode);
           }
-          
+
           break;
         }
       }
-    
+
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
-    
-    socket.on(LEAVE_ROOM_SOCKET_EVENT, (roomCode) => {
+
+    socket.on(LEAVE_ROOM_SOCKET_EVENT, roomCode => {
       const room = rooms.get(roomCode);
 
       if (room) {
         const index = room.players.findIndex(player => player.sid === socket.id);
-        
+
         if (index > -1) {
           room.players.splice(index, 1);
           socket.leave(roomCode);
 
-          if(room.countdownStarted) {
+          if (room.countdownStarted) {
             socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
             const winner = room.players[0] as LoggedInPlayer;
             updateWinnerPlayerScore(winner);
@@ -259,18 +266,24 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
-    
-    socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic) => {
+
+    socket.on(CREATE_ROOM_SOCKET_EVENT, isPublic => {
       const roomCode = roomCodeGenerator().toString();
-      rooms.set(roomCode, { players: [], isPublic: isPublic, gameStarted: false, 
-        countdownStarted: false, successfulSubmissions: [], roomCode: roomCode });
+      rooms.set(roomCode, {
+        players: [],
+        isPublic: isPublic,
+        gameStarted: false,
+        countdownStarted: false,
+        successfulSubmissions: [],
+        roomCode: roomCode
+      });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
-    
+
     socket.on(JOIN_ROOM_SOCKET_EVENT, async (roomCode: string, uid: string) => {
       joinRoom(socket, io, rooms, roomCode, uid);
-    });    
+    });
 
     socket.on(SEND_MESSAGE_SOCKET_EVENT, (message: string, roomCode: string) => {
       const sender = rooms.get(roomCode)?.players.find(player => player.sid === socket.id);
@@ -278,7 +291,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       if (sender) {
         const username = isLoggedinPlayer(sender) ? sender.username : 'Anonymous';
         socket.to(roomCode).emit(RECEIVE_MESSAGE_SOCKET_EVENT, message, username);
-      } 
+      }
     });
-  })
-}
+  });
+};

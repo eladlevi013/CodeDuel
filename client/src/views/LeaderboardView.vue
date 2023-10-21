@@ -29,25 +29,25 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
   mounted() {
     axios
       .get(`${process.env.VUE_APP_SERVER_URL}/users/leaderboard`)
-      .then((res) => {
-        this.leaderboard = res.data.leaderboard
+      .then(res => {
+        this.leaderboard = res.data.leaderboard;
       })
-      .catch((err) => {
-        console.log(err)
-      })
+      .catch(err => {
+        console.log(err);
+      });
   },
   data() {
     return {
-      leaderboard: [],
-    }
-  },
-}
+      leaderboard: []
+    };
+  }
+};
 </script>
 
 <style scoped>
