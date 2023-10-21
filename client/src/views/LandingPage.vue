@@ -1,28 +1,40 @@
-<template>  
+<template>
   <div class="main">
     <!-- codeduel title -->
     <h1 class="title">CodeDuel⚔️</h1>
 
     <!-- codeduel description -->
     <p class="parContainer">
-      Welcome to CodeDuel, where programmers worldwide engage in real-time 
-      coding battles! Perfect for all skill levels, it’s a dynamic platform 
-      to challenge peers and enhance your programming skills.
+      Welcome to CodeDuel, where programmers worldwide engage in real-time
+      coding battles! Perfect for all skill levels, it’s a dynamic platform to
+      challenge peers and enhance your programming skills.
     </p>
 
     <!-- quick menu container -->
     <div class="action-container">
-      <input type="text" placeholder="Room Code" maxlength="6" v-model="roomCode" class="room-code-input"/>
-      <button @click="joinRoom(this.roomCode)" class="buttonDesign">Join</button>
+      <input
+        type="text"
+        placeholder="Room Code"
+        maxlength="6"
+        v-model="roomCode"
+        class="room-code-input"
+      />
+      <button @click="joinRoom(this.roomCode)" class="buttonDesign">
+        Join
+      </button>
       <button @click="quickMatch" class="buttonDesign">Quick Match</button>
     </div>
 
-    <img src="/game_demo.webp" style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px;">
+    <!-- demo image -->
+    <img
+      src="/game_demo.webp"
+      style="margin-bottom: 80px; border-radius: 10px; margin-top: 100px"
+    />
   </div>
 </template>
 
 <script>
-import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
+import { sharedRoomMethods } from '../mixins/sharedRoomMethods'
 
 export default {
   mixins: [sharedRoomMethods],
@@ -30,23 +42,27 @@ export default {
   data() {
     return {
       roomCode: '',
-    };
+    }
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore');
+    this.$store.dispatch('fetchUserScore')
   },
 }
 </script>
-  
+
 <style>
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   font-family: 'Poppins', sans-serif;
-  background: rgb(245,245,245);
-  background: linear-gradient(0deg, rgba(245,245,245,1) 0%,
-   rgb(244, 239, 223) 50%, rgb(234, 221, 179) 100%);
+  background: rgb(245, 245, 245);
+  background: linear-gradient(
+    0deg,
+    rgba(245, 245, 245, 1) 0%,
+    rgb(244, 239, 223) 50%,
+    rgb(234, 221, 179) 100%
+  );
 }
 
 .main {
@@ -69,7 +85,8 @@ body {
   text-align: center;
 }
 
-.action-container, .rooms-container {
+.action-container,
+.rooms-container {
   display: flex;
   justify-content: center;
   margin-top: 3rem;
@@ -80,12 +97,13 @@ body {
 .action-container {
   width: 700px;
   margin: auto;
-  gap: 1.0rem;
+  gap: 1rem;
   background-color: #e8e0c5;
   padding: 0.8rem 1.9rem;
   border-radius: 15px;
   margin-top: 35px;
-  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;}
+  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+}
 
 .room-code-input {
   font-size: 1.2rem;
@@ -99,31 +117,33 @@ body {
 button {
   cursor: pointer;
   border: none;
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   font-size: 1rem;
   padding: 0.5rem 4rem;
-  transition: transform 0.2s ease-in-out, 
+  transition:
+    transform 0.2s ease-in-out,
     background-color 0.2s ease-in-out;
 }
 
 .buttonDesign {
-  background: linear-gradient(to bottom, 
-    #fff, #f8eedb);
+  background: linear-gradient(to bottom, #fff, #f8eedb);
   color: #482307;
-  box-shadow: -6px 8px 10px rgba(81,41,10,0.1),
-    0px 2px 2px rgba(81,41,10,0.2);
+  box-shadow:
+    -6px 8px 10px rgba(81, 41, 10, 0.1),
+    0px 2px 2px rgba(81, 41, 10, 0.2);
 }
 
 .buttonDesign:active {
   background-color: #f3f4f6;
-  box-shadow: -1px 2px 5px rgba(81,41,10,0.15), 
-    0px 1px 1px rgba(81,41,10,0.15);
+  box-shadow:
+    -1px 2px 5px rgba(81, 41, 10, 0.15),
+    0px 1px 1px rgba(81, 41, 10, 0.15);
   transform: translateY(0.125rem);
 }
 
 button:hover {
   transform: scale(1.02);
-} 
+}
 
 img {
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;

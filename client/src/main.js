@@ -7,9 +7,9 @@ import LeaderboardView from './views/LeaderboardView.vue'
 import RoomsView from './views/RoomsView.vue'
 import NotFound from './views/NotFound.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import store from './store'; 
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css'
-import store from './store'; 
 import Message from 'vue-m-message'
 import 'vue-m-message/dist/style.css'
 

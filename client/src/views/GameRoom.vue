@@ -6,11 +6,21 @@
           <!-- Question section -->
           <pane size="60">
             <div class="panel question-section">
-              <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
-              <div style="display: flex; flex-direction: row; align-items: center;">
+              <h2 class="question-title">
+                Question {{ question?.id }}: {{ question?.title }}
+              </h2>
+              <div
+                style="display: flex; flex-direction: row; align-items: center"
+              >
                 <div class="tags-wrapper">
-                  <div :class="getDifficultyClass(question?.difficulty)">{{ getDifficultyText(question?.difficulty) }}</div>
-                  <div class="question-tags-container" v-for="(tag, index) in question?.categories" :key="index">
+                  <div :class="getDifficultyClass(question?.difficulty)">
+                    {{ getDifficultyText(question?.difficulty) }}
+                  </div>
+                  <div
+                    class="question-tags-container"
+                    v-for="(tag, index) in question?.categories"
+                    :key="index"
+                  >
                     <div class="question-tag">{{ tag }}</div>
                   </div>
                 </div>
@@ -21,40 +31,46 @@
               </div>
             </div>
           </pane>
-  
+
           <!-- Chat section -->
           <pane>
-            <Chat/>
+            <Chat />
           </pane>
         </splitpanes>
       </pane>
-  
-      <!-- Code editor and new pane section -->
+
       <pane>
         <splitpanes horizontal>
           <!-- Code editor section -->
           <pane>
             <div class="panel code-section">
-              <CodeEditor ref="codeEditorRef" @closeTerminal="closeTerminal" :question="this.question"/>
+              <CodeEditor
+                ref="codeEditorRef"
+                @closeTerminal="closeTerminal"
+                :question="this.question"
+              />
             </div>
           </pane>
-          
+
+          <!-- Console section -->
           <pane v-if="showTerminalPane" ref="terminalPane" size="30">
-              <error-console @openTerminal="openTerminalOnError" ref="terminalRef"/>
+            <error-console
+              @openTerminal="openTerminalOnError"
+              ref="terminalRef"
+            />
           </pane>
         </splitpanes>
       </pane>
     </splitpanes>
   </div>
-  
-  </template>
+</template>
 
 <script>
-import Chat from '../components/Chat.vue';
-import CodeEditor from '../components/CodeEditor.vue';
-import ErrorConsole from '../components/ErrorConsole.vue';
-import { Splitpanes, Pane } from 'splitpanes';
-import 'splitpanes/dist/splitpanes.css';
+import Chat from '../components/Chat.vue'
+import CodeEditor from '../components/CodeEditor.vue'
+import ErrorConsole from '../components/ErrorConsole.vue'
+import { Splitpanes, Pane } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
 
 export default {
   components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },
@@ -63,50 +79,61 @@ export default {
       showTerminalPane: false,
       question: {},
       roomCode: '',
-    };
+    }
   },
   methods: {
     openTerminalOnError(error) {
-      this.showTerminalPane = true;
+      this.showTerminalPane = true
       this.$nextTick(() => {
-        this.$refs.codeEditorRef.closeMessages();
-        this.$refs.terminalRef.setErrorMessage(error);
-      });
+        this.$refs.codeEditorRef.closeMessages()
+        this.$refs.terminalRef.setErrorMessage(error)
+      })
     },
     closeTerminal() {
-        this.showTerminalPane = false;
+      this.showTerminalPane = false
     },
     getDifficultyClass(difficulty) {
       switch (difficulty) {
-        case 1: return 'question-difficulty-easy';
-        case 2: return 'question-difficulty-medium';
-        case 3: return 'question-difficulty-hard';
-        default: return '';
+        case 1:
+          return 'question-difficulty-easy'
+        case 2:
+          return 'question-difficulty-medium'
+        case 3:
+          return 'question-difficulty-hard'
+        default:
+          return ''
       }
     },
     getDifficultyText(difficulty) {
       switch (difficulty) {
-        case 1: return 'Easy';
-        case 2: return 'Medium';
-        case 3: return 'Hard';
-        default: return '';
+        case 1:
+          return 'Easy'
+        case 2:
+          return 'Medium'
+        case 3:
+          return 'Hard'
+        default:
+          return ''
       }
     },
   },
   mounted() {
-    this.$store.state.socket.on('codeError', (error) => {
-      this.openTerminalOnError(error);
-        });
-
-    this.$store.dispatch('fetchUserScore');
-    this.$swal.close();
-    this.question = this.$store.state.question;
-    this.roomCode = this.$store.state.roomCode;
+    this.$store.dispatch('fetchUserScore')
+    this.$swal.close()
+    this.question = this.$store.state.question
+    this.roomCode = this.$store.state.roomCode
 
     // on socket problem, redirect to home page
-    if (this.$store.state.socket == null || this.$store.state.socket.disconnected) {
-      this.$router.push('/');
+    if (
+      this.$store.state.socket == null ||
+      this.$store.state.socket.disconnected
+    ) {
+      this.$router.push('/')
     }
+
+    this.$store.state.socket.on('codeError', (error) => {
+      this.openTerminalOnError(error)
+    })
 
     this.$store.state.socket.on('otherPlayerLeft', () => {
       this.$swal({
@@ -119,17 +146,17 @@ export default {
         closeOnEsc: false,
       }).then(() => {
         if (this.$route.path !== '/') {
-          this.$router.push('/');
+          this.$router.push('/')
         }
       })
-    });
+    })
   },
   beforeUnmount() {
-    this.$store.state.socket.off('otherPlayerLeft');
-    this.$store.state.socket.off('codeError');
-    this.$store.state.socket.disconnect();
+    this.$store.state.socket.off('otherPlayerLeft')
+    this.$store.state.socket.off('codeError')
+    this.$store.state.socket.disconnect()
   },
-};
+}
 </script>
 
 <style>
@@ -189,19 +216,20 @@ pre {
   flex-wrap: wrap;
 }
 
-
 pre {
-  background-color: #F5F5DC;
-  border: 1px solid #A1887F;
+  background-color: #f5f5dc;
+  border: 1px solid #a1887f;
   border-radius: 4px;
   padding: 10px;
 }
 
-p { margin-bottom: 10px; }
+p {
+  margin-bottom: 10px;
+}
 
 .question-section {
   background-color: #fff9ea;
-  border: 1px solid #E9ECEF;
+  border: 1px solid #e9ecef;
   color: #495057;
   padding: 20px;
 }
@@ -238,7 +266,7 @@ p { margin-bottom: 10px; }
 }
 
 .question-title {
-  color: #3F2305;
+  color: #3f2305;
   font-size: 1.5em;
   margin-bottom: 10px;
 }
@@ -252,19 +280,19 @@ p { margin-bottom: 10px; }
 /* Overriding default splitpanes */
 .splitpanes--vertical > .splitpanes__splitter {
   min-width: 6px;
-  background: linear-gradient(90deg, #DFD7BF, #DFD7BF);
+  background: linear-gradient(90deg, #dfd7bf, #dfd7bf);
 }
 
 .splitpanes--vertical > .splitpanes__splitter:hover {
-  background: linear-gradient(90deg, #D0C8B0, #D0C8B0);
+  background: linear-gradient(90deg, #d0c8b0, #d0c8b0);
 }
 
 .splitpanes--vertical > .splitpanes__splitter:active {
-  background: linear-gradient(90deg, #C1B898, #C1B898);
+  background: linear-gradient(90deg, #c1b898, #c1b898);
 }
 
 .splitpanes--horizontal > .splitpanes__splitter {
   min-height: 6px;
-  background: linear-gradient(0deg, #DFD7BF, #DFD7BF);
+  background: linear-gradient(0deg, #dfd7bf, #dfd7bf);
 }
 </style>

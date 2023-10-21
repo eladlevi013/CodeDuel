@@ -1,97 +1,114 @@
-import Message from 'vue-m-message';
+import Message from 'vue-m-message'
 import 'vue-m-message/dist/style.css'
 
-const MESSAGE_DURATION = 1500;
+const MESSAGE_DURATION = 1500
 
 export const sharedRoomMethods = {
   computed: {
     socket() {
-      return this.$store.state.socket;
-    }
+      return this.$store.state.socket
+    },
   },
   data() {
     return {
       joinedRoomCode: '',
       gameStarted: false,
-    };
+    }
   },
   methods: {
     quickMatch() {
-      this.socket.emit('quickMatch', this.$store.state.user?._id || null);
+      this.socket.emit('quickMatch', this.$store.state.user?._id || null)
     },
     joinRoom(roomCode) {
-      Message.closeAll();
+      Message.closeAll()
 
       if (this.joinedRoomCode.trim()) {
-        this.leaveRoom(this.joinedRoomCode);
+        this.leaveRoom(this.joinedRoomCode)
       }
 
-      const uid = this.$store.state.user?._id;
-      this.socket.emit('joinRoom', roomCode, uid? uid : null);
+      const uid = this.$store.state.user?._id
+      this.socket.emit('joinRoom', roomCode, uid ? uid : null)
     },
     createRoom() {
       if (this.joinedRoomCode) {
-        this.socket.emit('leaveRoom', this.joinedRoomCode);
+        this.socket.emit('leaveRoom', this.joinedRoomCode)
       }
-      this.socket.emit('createRoom', !this.isPrivate);
+      this.socket.emit('createRoom', !this.isPrivate)
     },
     leaveRoom(roomCode) {
-      this.socket.emit('leaveRoom', roomCode);
+      this.socket.emit('leaveRoom', roomCode)
     },
     closeAllMessages() {
-      Message.closeAll();
+      Message.closeAll()
     },
     connectSocket() {
       if (!this.socket.connected) {
-        this.socket.connect();
+        this.socket.connect()
       }
     },
     setSocketListeners() {
-      this.socket.on('startGame', question => {
-        this.gameStarted = true;
-        this.$store.commit('setQuestion', question);
-        Message.closeAll();
-        Message.info(`Joined room ${this.joinedRoomCode}`, { duration: MESSAGE_DURATION });
-        this.$router.push(`/rooms/game/${this.joinedRoomCode}`);
-      });
+      this.socket.on('startGame', (question) => {
+        this.gameStarted = true
+        this.$store.commit('setQuestion', question)
+        Message.closeAll()
+        Message.info(`Joined room ${this.joinedRoomCode}`, {
+          duration: MESSAGE_DURATION,
+        })
+        this.$router.push(`/rooms/game/${this.joinedRoomCode}`)
+      })
 
       this.socket.on('joinedRoom', (roomCode) => {
-        Message.closeAll();
-        this.$store.state.roomCode = roomCode;
-        this.joinedRoomCode = roomCode;
-        Message.loading(() => (`Waiting for another player, with room code: ${this.joinedRoomCode}`), {duration: -1});
-      });
+        Message.closeAll()
+        this.$store.state.roomCode = roomCode
+        this.joinedRoomCode = roomCode
+        Message.loading(
+          () =>
+            `Waiting for another player, with room code: ${this.joinedRoomCode}`,
+          { duration: -1 }
+        )
+      })
 
       this.socket.on('getRooms', (rooms) => {
-        this.availableRooms = rooms;
-      });
+        this.availableRooms = rooms
+      })
 
       this.socket.on('roomNotFound', () => {
-        Message.error(`Room ${this.roomCode} not found`, { duration: MESSAGE_DURATION });
-      });
+        Message.error(`Room ${this.roomCode} not found`, {
+          duration: MESSAGE_DURATION,
+        })
+      })
 
       this.socket.on('roomFull', () => {
-        Message.warning(`Room ${this.roomCode} is full`, { duration: MESSAGE_DURATION });
+        Message.warning(`Room ${this.roomCode} is full`, {
+          duration: MESSAGE_DURATION,
+        })
       })
 
       this.socket.on('roomManagementError', (error) => {
-        Message.error(error, { duration: MESSAGE_DURATION });
+        Message.error(error, { duration: MESSAGE_DURATION })
       })
-    }
+    },
   },
   beforeUnmount() {
-    this.closeAllMessages();
+    this.closeAllMessages()
 
     if (this.joinedRoomCode && !this.gameStarted) {
-      this.socket.emit('leaveRoom', this.joinedRoomCode);
+      this.socket.emit('leaveRoom', this.joinedRoomCode)
     }
 
-    ['startGame', 'joinedRoom', 'getRooms', 'roomNotFound', 'roomFull', 'roomManagementError'].forEach(event => {
-      this.socket.off(event);
-    });
+    [
+      'startGame',
+      'joinedRoom',
+      'getRooms',
+      'roomNotFound',
+      'roomFull',
+      'roomManagementError',
+    ].forEach((event) => {
+      this.socket.off(event)
+    })
   },
   mounted() {
-    this.connectSocket();
-    this.setSocketListeners();
-  }
-};
+    this.connectSocket()
+    this.setSocketListeners()
+  },
+}

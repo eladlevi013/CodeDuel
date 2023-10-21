@@ -1,20 +1,36 @@
 <template>
-  <div class='navbar-container'>
+  <div class="navbar-container">
     <div class="pages-container">
       <router-link class="navbar-title" :to="{ path: '/' }">Home</router-link>
-      <router-link class="navbar-title" :to="{ path: '/rooms' }">Rooms</router-link>
-      <router-link class="navbar-title hide-on-tablet hide-on-mobile" :to="{ path: '/leaderboard' }">Leaderboard</router-link>
-      <a class="navbar-title hide-on-tablet hide-on-mobile" href="https://github.com/eladlevi013/CodeDuel">Github</a>
+      <router-link class="navbar-title" :to="{ path: '/rooms' }"
+        >Rooms</router-link
+      >
+      <router-link
+        class="navbar-title hide-on-tablet hide-on-mobile"
+        :to="{ path: '/leaderboard' }"
+        >Leaderboard</router-link
+      >
+      <a
+        class="navbar-title hide-on-tablet hide-on-mobile"
+        href="https://github.com/eladlevi013/CodeDuel"
+        >Github</a
+      >
     </div>
     <div class="auth-container">
       <template v-if="user">
-        <span class="navbar-title hide-on-mobile">⚔️ {{ user.score }} score</span>
+        <span class="navbar-title hide-on-mobile"
+          >⚔️ {{ user.score }} score</span
+        >
         <span class="navbar-title hide-on-mobile">{{ user.username }}</span>
         <span class="navbar-title" @click="logout">Logout</span>
       </template>
       <template v-else>
-        <router-link class="navbar-title" :to="{ path: '/auth/login' }">Login</router-link>
-        <router-link class="navbar-title" :to="{ path: '/auth/register' }">Register</router-link>
+        <router-link class="navbar-title" :to="{ path: '/auth/login' }"
+          >Login</router-link
+        >
+        <router-link class="navbar-title" :to="{ path: '/auth/register' }"
+          >Register</router-link
+        >
       </template>
     </div>
   </div>
@@ -24,19 +40,19 @@
 export default {
   computed: {
     user() {
-      return this.$store.state.user;
-    }
+      return this.$store.state.user
+    },
   },
   methods: {
     logout() {
-      this.$store.commit('setUser', null);
-      this.$store.commit('setSessionId', null);
-      this.$router.push('/');
-      this.$store.dispatch('logout');
+      this.$store.commit('setUser', null)
+      this.$store.commit('setSessionId', null)
+      this.$router.push('/')
+      this.$store.dispatch('logout')
     },
     fetchUserDetails() {
-      this.$store.dispatch('fetchUserScore');
-    }
+      this.$store.dispatch('fetchUserScore')
+    },
   },
 }
 </script>
@@ -76,7 +92,7 @@ export default {
   cursor: pointer;
 }
 
-@media only screen and (max-width: 768px) { 
+@media only screen and (max-width: 768px) {
   .hide-on-tablet {
     display: none;
   }
