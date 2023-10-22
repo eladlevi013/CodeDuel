@@ -175,7 +175,7 @@ export default {
       this.code = getSignitureByLanguage(this.question.funcSignature, this.selectedLanguage);
     },
     startTimer() {
-      this.secondsLeft = 15;
+      this.secondsLeft = 60;
       this.timer = setInterval(() => {
         this.secondsLeft--;
 

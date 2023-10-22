@@ -37,7 +37,7 @@ export const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
 export const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
 export const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
 export const ROOM_MANAGEMENT_ERROR_SOCKET_EVENT = 'roomManagementError';
-export const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 15;
+export const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 60;
 
 // Global variables
 const rooms = new Map<string, Room>();
