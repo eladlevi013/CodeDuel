@@ -31,5 +31,8 @@ Embrace the scalability, resilience, and agility offered by our microservices-ba
 ### 🗄 MongoDB
 - Safeguards user profiles and tracks scores.
 
-> 💡 _Unleash the power of microservices with CodeDuel and redefine your coding experience!_
-
+## 🎮 Game Demo:
+<p align="center">
+  <img src="https://github.com/eladlevi013/CodeDuel/blob/master/docs/demo.gif" alt="CodeDuel System Architecture" width="100%">
+  </br>
+</p>
