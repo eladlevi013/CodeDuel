@@ -87,6 +87,7 @@ export default {
       this.removeSocketListener();
       this.showTimer = false;
       Message.closeAll();
+      this.$store.state.socket.off('otherPlayerLeft');
 
       this.$swal({
         title: 'Game Over!',
