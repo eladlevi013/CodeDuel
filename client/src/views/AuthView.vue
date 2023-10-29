@@ -158,7 +158,7 @@ body {
 
 .title-auth {
   font-family: 'Skranji';
-  font-size: 5rem;
+  font-size: 4rem;
   color: #26160d;
   margin: 0px 0 0rem 0;
 }
