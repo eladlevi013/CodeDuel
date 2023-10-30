@@ -1,7 +1,7 @@
 import { executeCode } from './codeExecutor';
 import { LanguageHelper } from './languageUtil/languageHelper';
 import { Variable } from '../models/Question';
-import { questions } from '../db/questions';
+import { questions } from '../db/codingQuestions';
 import { pythonHelper } from './languageUtil/pythonHelper';
 import { javaHelper } from './languageUtil/javaHelper';
 

@@ -8,7 +8,7 @@ import {
   ROOM_MANAGEMENT_ERROR_SOCKET_EVENT,
   updatePariticipantScore
 } from '../socket';
-import { questions } from '../db/questions';
+import { questions } from '../db/codingQuestions';
 import { getTypeByLanguage } from '../codeExecutor/languageUtil/languageHelper';
 
 export const publicRooms = (rooms: Map<string, Room>) => {
