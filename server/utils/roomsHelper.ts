@@ -94,9 +94,7 @@ export const joinRoom = async (
         // deep copy of question object
         const question =
           room.mode === 'sql'
-            ? JSON.parse(
-                JSON.stringify(sqlQuestions[Math.floor(Math.random() * sqlQuestions.length)])
-              )
+            ? JSON.parse(JSON.stringify(sqlQuestions[8]))
             : JSON.parse(JSON.stringify(questions[Math.floor(Math.random() * questions.length)]));
 
         if (room.mode === 'coding') {

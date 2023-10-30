@@ -66,16 +66,9 @@ export const runSqlCheck = async (questionId: string, sqlQuery: string) => {
     result.stdout = false;
     result.stderr = err.message;
   } finally {
-    db.close(err => {
-      if (err) {
-        result.stdout = false;
-        result.stderr = err.message;
-      }
-    });
+    question.example = result;
+    return result;
   }
-
-  question.example = result;
-  return result;
 };
 
 export const getTablePreview = async (tableName: string) => {

@@ -144,31 +144,5 @@ export const sqlQuestions = [
     orderMatters: false,
     difficulty: 3,
     categories: ['Subquery', 'Advanced Calculation']
-  },
-  {
-    id: '10',
-    title: 'Managers with Highest Salary Difference',
-    description:
-      'Write an SQL query to find the managers whose salary difference from their direct reports is the highest.',
-    tables: { employees: {} },
-    example: {},
-    sqlQuery: `
-      SELECT m.name AS manager_name, (m.salary - AVG(r.salary)) AS salary_difference
-      FROM employees m
-      INNER JOIN employees r ON m.id = r.manager_id
-      GROUP BY m.name
-      HAVING salary_difference = (
-        SELECT MAX(salary_difference) 
-        FROM (
-          SELECT m.name AS manager_name, (m.salary - AVG(r.salary)) AS salary_difference
-          FROM employees m
-          INNER JOIN employees r ON m.id = r.manager_id
-          GROUP BY m.name
-        )
-      );
-    `,
-    orderMatters: false,
-    difficulty: 3,
-    categories: ['Join', 'Subquery', 'Advanced Calculation']
   }
 ];
