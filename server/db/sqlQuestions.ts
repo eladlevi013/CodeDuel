@@ -125,24 +125,5 @@ export const sqlQuestions = [
     orderMatters: false,
     difficulty: 3,
     categories: ['Subquery']
-  },
-  {
-    id: '9',
-    title: 'Monthly Salary Growth',
-    description:
-      'Write an SQL query to calculate the monthly salary growth for each employee (current salary minus initial salary).',
-    tables: { employees: {} },
-    example: {},
-    sqlQuery: `
-      SELECT name, (salary - initial_salary) AS monthly_salary_growth
-      FROM (
-        SELECT e.name, e.salary, e.hire_date,
-               (SELECT salary FROM employees WHERE id = e.id) AS initial_salary
-        FROM employees e
-      ) AS employee_salary;
-    `,
-    orderMatters: false,
-    difficulty: 3,
-    categories: ['Subquery', 'Advanced Calculation']
   }
 ];
