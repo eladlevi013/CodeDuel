@@ -76,7 +76,7 @@ export const getTablePreview = async (tableName: string) => {
   await initTableDependencies([tableName]);
 
   // Getting Result
-  const result = await executeQuery(db, `SELECT * FROM ${tableName} LIMIT 6;`);
+  const result = await executeQuery(db, `SELECT * FROM ${tableName} LIMIT 5;`);
 
   // Convert result to table object
   const titles = Object.keys(result[0]);
