@@ -9,7 +9,9 @@ import {
   updatePariticipantScore
 } from '../socket';
 import { questions } from '../db/codingQuestions';
-import { getTypeByLanguage } from '../codeExecutor/languageUtil/languageHelper';
+import { getTypeByLanguage } from '../executors/codeExecutor/languageUtil/languageHelper';
+import { sqlQuestions } from '../db/sqlQuestions';
+import { getExampleAnswer, getTablePreview } from '../executors/sqlExecutor/runSqlCheck';
 
 export const publicRooms = (rooms: Map<string, Room>) => {
   const roomsArray: Room[] = [];
@@ -90,27 +92,39 @@ export const joinRoom = async (
 
       if (room.players.length == PLAYERS_PER_ROOM) {
         // deep copy of question object
-        const question = JSON.parse(
-          JSON.stringify(questions[Math.floor(Math.random() * questions.length)])
-        );
+        const question =
+          room.mode === 'sql'
+            ? JSON.parse(
+                JSON.stringify(sqlQuestions[Math.floor(Math.random() * sqlQuestions.length)])
+              )
+            : JSON.parse(JSON.stringify(questions[Math.floor(Math.random() * questions.length)]));
 
-        // updating question data-types
-        question.funcSignature.args.forEach(
-          (arg: { type: { base: any; java: string; python: string } }) => {
-            arg.type = {
-              base: arg.type,
-              java: getTypeByLanguage(arg.type).java,
-              python: getTypeByLanguage(arg.type).python
-            };
+        if (room.mode === 'coding') {
+          // updating question data-types
+          question.funcSignature.args.forEach(
+            (arg: { type: { base: any; java: string; python: string } }) => {
+              arg.type = {
+                base: arg.type,
+                java: getTypeByLanguage(arg.type).java,
+                python: getTypeByLanguage(arg.type).python
+              };
+            }
+          );
+
+          // updating question return type
+          question.funcSignature.returnType = {
+            base: question.funcSignature.returnType,
+            java: getTypeByLanguage(question.funcSignature.returnType).java,
+            python: getTypeByLanguage(question.funcSignature.returnType).python
+          };
+        } else if (room.mode === 'sql') {
+          question.example = await getExampleAnswer(question.id);
+
+          // updating question tables data
+          for (const tableName of Object.keys(question.tables)) {
+            question.tables[tableName] = await getTablePreview(tableName);
           }
-        );
-
-        // updating question return type
-        question.funcSignature.returnType = {
-          base: question.funcSignature.returnType,
-          java: getTypeByLanguage(question.funcSignature.returnType).java,
-          python: getTypeByLanguage(question.funcSignature.returnType).python
-        };
+        }
 
         room.gameStarted = true;
         io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
@@ -198,7 +212,8 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
       gameStarted: false,
       countdownStarted: false,
       successfulSubmissions: [],
-      roomCode: roomCode
+      roomCode: roomCode,
+      mode: 'sql'
     };
     rooms.set(roomCode, room);
     return roomCode;

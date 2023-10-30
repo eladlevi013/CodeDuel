@@ -6,12 +6,12 @@
       <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
     </div>
     <!-- Programming language selector -->
-    <select v-model="selectedLanguage" class="language-selector">
+    <select v-model="selectedLanguage" v-if="gameMode === 'coding'" class="language-selector">
       <option value="java">Java</option>
       <option value="python">Python</option>
     </select>
     <!-- Run button -->
-    <button class="run-button" @click="runCode">Run</button>
+    <button class="run-button" @click="runCode">Run {{ gameMode === 'sql' ? 'Query' : '' }}</button>
   </div>
 
   <!-- Codemirror IDE -->
@@ -36,6 +36,7 @@ import { getSignitureByLanguage } from '../utils/codeEditorHelper';
 import { Codemirror } from 'vue-codemirror';
 import { python } from '@codemirror/lang-python';
 import { java } from '@codemirror/lang-java';
+import { sql } from '@codemirror/lang-sql';
 // codemirror themes
 import { solarizedLight } from '@uiw/codemirror-theme-solarized';
 import { birdsOfParadise } from 'thememirror';
@@ -44,7 +45,7 @@ import Message from 'vue-m-message';
 import 'vue-m-message/dist/style.css';
 
 export default {
-  props: ['question'],
+  props: ['question', 'gameMode'],
   components: { Codemirror },
   mounted() {
     this.$store.state.socket.on('gameEndWin', () => {
@@ -163,6 +164,8 @@ export default {
           return [python(), this.isDarkMode ? solarizedLight : birdsOfParadise];
         case 'java':
           return [java(), this.isDarkMode ? solarizedLight : birdsOfParadise];
+        case 'sql':
+          return [sql(), this.isDarkMode ? solarizedLight : birdsOfParadise];
         default:
           return [this.isDarkMode ? solarizedLight : birdsOfParadise];
       }
@@ -195,6 +198,15 @@ export default {
     }
   },
   watch: {
+    gameMode: {
+      handler() {
+        if (this.gameMode === 'coding') {
+          this.selectedLanguage = 'java';
+        } else {
+          this.selectedLanguage = 'sql';
+        }
+      }
+    },
     selectedLanguage: {
       handler() {
         try {

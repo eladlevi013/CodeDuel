@@ -1,4 +1,4 @@
-import { Variable } from '../../models/Question';
+import { Variable } from '../../../models/Question';
 import { LanguageHelper } from './languageHelper';
 import { getValueByLanguage } from './languageHelper';
 import { getArrayInfo } from './languageHelper';

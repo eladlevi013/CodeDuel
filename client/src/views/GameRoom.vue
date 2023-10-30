@@ -1,7 +1,7 @@
 <template>
   <div class="main-div">
     <splitpanes class="default-theme" ref="mainSplitPane">
-      <pane size="26">
+      <pane size="30">
         <splitpanes horizontal>
           <!-- Question section -->
           <pane size="60">
@@ -23,8 +23,57 @@
               </div>
               <div class="content">
                 <p>{{ question?.description }}</p>
-                <pre>{{ question?.example }}</pre>
               </div>
+
+              <div v-if="gameMode === 'sql' && question && question.tables">
+                <div v-for="(tableData, tableName) in question.tables" :key="tableName">
+                  <h3 class="question-title">{{ tableName }} table:</h3>
+                  <table class="table">
+                    <thead v-if="tableData.titles && tableData.values">
+                      <tr>
+                        <th v-for="title in tableData.titles" :key="title">
+                          {{ title }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody v-if="tableData.values">
+                      <tr
+                        v-for="(row, index) in tableData.values"
+                        :key="tableName + '-row-' + index"
+                      >
+                        <td v-for="(value, i) in row" :key="tableName + '-cell-' + i">
+                          {{ value }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Table on SQL mode -->
+              <br />
+              <h3 class="question-title">Result:</h3>
+              <table :v-if="this.gameMode === 'sql'" class="table">
+                <thead>
+                  <tr>
+                    <th v-for="title in question?.example?.titles" :key="title">
+                      {{ title }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, index) in question?.example?.values" :key="index">
+                    <td style="padding: 10px 45px" v-for="(value, i) in row" :key="i">
+                      {{ value }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <br />
+              <br />
+              <!-- <div :v-show="this.gameMode === 'coding'">
+                <pre>{{ question?.example }}</pre>
+              </div> -->
             </div>
           </pane>
 
@@ -44,6 +93,7 @@
                 ref="codeEditorRef"
                 @closeTerminal="closeTerminal"
                 :question="this.question"
+                :gameMode="this.gameMode"
               />
             </div>
           </pane>
@@ -71,7 +121,8 @@ export default {
     return {
       showTerminalPane: false,
       question: {},
-      roomCode: ''
+      roomCode: '',
+      gameMode: ''
     };
   },
   methods: {
@@ -115,6 +166,7 @@ export default {
     this.$swal.close();
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
+    this.gameMode = this.$store.state.gameMode;
 
     // on socket problem, redirect to home page
     if (this.$store.state.socket == null || this.$store.state.socket.disconnected) {
@@ -261,6 +313,13 @@ p {
   margin-bottom: 10px;
 }
 
+.table-title {
+  color: #3f2305;
+  font-size: 1em;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
 .question-section pre {
   background-color: #e5dfcc;
   text-align: left;
@@ -283,6 +342,43 @@ p {
 
 .splitpanes--horizontal > .splitpanes__splitter {
   min-height: 6px;
-  background: linear-gradient(0deg, #dfd7bf, #dfd7bf);
+  background: linear-gr adient(0deg, #dfd7bf, #dfd7bf);
+}
+
+/* Table styles */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0 auto;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 10px 6px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: #ede6cf;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f2ebd6;
+}
+
+.table tr:hover {
+  background-color: rgba(57, 38, 31, 0.1);
+}
+
+.table th {
+  background-color: #4a3423;
+  color: #ffffff;
+  font-weight: 100;
+  font-family: Arial, sans-serif;
 }
 </style>

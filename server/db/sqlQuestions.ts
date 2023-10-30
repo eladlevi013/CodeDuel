@@ -4,8 +4,8 @@ export const sqlQuestions = [
     title: 'Highest Salary in Each Department',
     description:
       'Write an SQL query to find the highest salary in each department. Sort the result in ascending order by salary.',
-    tables: ['employees'],
-    example: 'Find the highest salary in each department, sorted by salary in ascending order.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT department, MAX(salary) AS max_salary
       FROM employees
@@ -21,9 +21,8 @@ export const sqlQuestions = [
     title: 'Employees in IT Department',
     description:
       'Write an SQL query to retrieve the names of all employees in the IT department. Sort the result in ascending order by name.',
-    tables: ['employees'],
-    example:
-      'Retrieve the names of employees in the IT department, sorted by name in ascending order.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT name
       FROM employees
@@ -38,8 +37,8 @@ export const sqlQuestions = [
     id: '3',
     title: 'Total Salary Expenses',
     description: 'Write an SQL query to calculate the total salary expenses of the company.',
-    tables: ['employees'],
-    example: 'Calculate the total salary expenses of the company.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT SUM(salary) AS total_salary_expense
       FROM employees;
@@ -52,8 +51,8 @@ export const sqlQuestions = [
     id: '4',
     title: 'Youngest Employee',
     description: 'Write an SQL query to find the youngest employee in the company.',
-    tables: ['employees'],
-    example: 'Find the youngest employee in the company.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT name, MIN(hire_date) AS hire_date
       FROM employees;
@@ -66,8 +65,8 @@ export const sqlQuestions = [
     id: '5',
     title: 'Average Salary by Department',
     description: 'Write an SQL query to calculate the average salary in each department.',
-    tables: ['employees'],
-    example: 'Calculate the average salary in each department.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT department, AVG(salary) AS avg_salary
       FROM employees
@@ -81,8 +80,8 @@ export const sqlQuestions = [
     id: '6',
     title: 'Number of Employees in Each Department',
     description: 'Write an SQL query to count the number of employees in each department.',
-    tables: ['employees'],
-    example: 'Count the number of employees in each department.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT department, COUNT(*) AS employee_count
       FROM employees
@@ -96,8 +95,8 @@ export const sqlQuestions = [
     id: '7',
     title: 'Department with the Most Employees',
     description: 'Write an SQL query to find the department with the most employees.',
-    tables: ['employees'],
-    example: 'Find the department with the most employees.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT department
       FROM employees
@@ -116,8 +115,8 @@ export const sqlQuestions = [
     title: 'Employees with Higher Salaries',
     description:
       'Write an SQL query to retrieve employees with salaries greater than the average salary.',
-    tables: ['employees'],
-    example: 'Retrieve employees with salaries greater than the average salary.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT name, salary
       FROM employees
@@ -132,18 +131,18 @@ export const sqlQuestions = [
     title: 'Monthly Salary Growth',
     description:
       'Write an SQL query to calculate the monthly salary growth for each employee (current salary minus initial salary).',
-    tables: ['employees'],
-    example: 'Calculate the monthly salary growth for each employee.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT name, (salary - initial_salary) AS monthly_salary_growth
       FROM (
         SELECT e.name, e.salary, e.hire_date,
-               (SELECT salary FROM employees WHERE employee_id = e.employee_id) AS initial_salary
+               (SELECT salary FROM employees WHERE id = e.id) AS initial_salary
         FROM employees e
       ) AS employee_salary;
     `,
     orderMatters: false,
-    difficulty: 4,
+    difficulty: 3,
     categories: ['Subquery', 'Advanced Calculation']
   },
   {
@@ -151,25 +150,25 @@ export const sqlQuestions = [
     title: 'Managers with Highest Salary Difference',
     description:
       'Write an SQL query to find the managers whose salary difference from their direct reports is the highest.',
-    tables: ['employees'],
-    example: 'Find the managers with the highest salary difference from direct reports.',
+    tables: { employees: {} },
+    example: {},
     sqlQuery: `
       SELECT m.name AS manager_name, (m.salary - AVG(r.salary)) AS salary_difference
       FROM employees m
-      INNER JOIN employees r ON m.employee_id = r.manager_id
+      INNER JOIN employees r ON m.id = r.manager_id
       GROUP BY m.name
       HAVING salary_difference = (
         SELECT MAX(salary_difference) 
         FROM (
           SELECT m.name AS manager_name, (m.salary - AVG(r.salary)) AS salary_difference
           FROM employees m
-          INNER JOIN employees r ON m.employee_id = r.manager_id
+          INNER JOIN employees r ON m.id = r.manager_id
           GROUP BY m.name
         )
       );
     `,
     orderMatters: false,
-    difficulty: 4,
+    difficulty: 3,
     categories: ['Join', 'Subquery', 'Advanced Calculation']
   }
 ];

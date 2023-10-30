@@ -18,6 +18,7 @@ export interface Submission {
 
 export interface Room {
   players: Player[];
+  mode: string;
   isPublic: boolean;
   roomCode: string;
   gameStarted: boolean;

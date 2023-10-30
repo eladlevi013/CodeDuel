@@ -12,7 +12,8 @@ export default new Vuex.Store({
     ),
     roomCode: '',
     question: null,
-    user: null
+    user: null,
+    gameMode: 'sql'
   },
   mutations: {
     setUserScore(state, score) {
@@ -28,6 +29,9 @@ export default new Vuex.Store({
     },
     setUser(state, user) {
       state.user = user;
+    },
+    setGameMode(state, gameMode) {
+      state.gameMode = gameMode;
     }
   },
   actions: {
@@ -63,11 +67,12 @@ export default new Vuex.Store({
     roomCode: state => state.roomCode,
     question: state => state.question,
     user: state => state.user,
-    userScore: state => (state.user ? state.user.score : 0)
+    userScore: state => (state.user ? state.user.score : 0),
+    gameMode: state => state.gameMode
   },
   plugins: [
     createPersistedState({
-      paths: ['roomCode', 'question', 'user']
+      paths: ['roomCode', 'question', 'user', 'gameMode']
     })
   ]
 });

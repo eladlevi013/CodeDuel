@@ -1,5 +1,5 @@
 import { LanguageHelper, getArrayInfo } from './languageHelper';
-import { Question, Variable } from '../../models/Question';
+import { Question, Variable } from '../../../models/Question';
 import { getValueByLanguage } from './languageHelper';
 
 export const javaHelper: LanguageHelper = {

@@ -1,4 +1,5 @@
-import { runTestCases } from './codeExecutor/runTestCases';
+import { runTestCases } from './executors/codeExecutor/runTestCases';
+import { runSqlCheck } from './executors/sqlExecutor/runSqlCheck';
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
@@ -141,8 +142,19 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
   io.on(CONNECTION_SOCKET_EVENT, (socket: Socket) => {
     socket.on(CODE_SUBMISSION_SOCKET_EVENT, async (code, questionId, language) => {
-      const result = await runTestCases(code, questionId, language);
-      const errorMessage = result?.stderr;
+      const roomCode = getRoomCodeFromSocketId(socket.id, rooms);
+      const room = rooms.get(roomCode);
+      let result;
+      let errorMessage;
+
+      if (room?.mode === 'sql') {
+        result = await runSqlCheck(questionId, code);
+        console.log(result);
+        errorMessage = result?.stderr;
+      } else {
+        result = await runTestCases(code, questionId, language);
+        errorMessage = result?.stderr;
+      }
 
       if (!result) {
         console.error(`Result is undefined.`);
@@ -156,14 +168,17 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
 
       // Emit failure to client
-      if (result.stdout && !result.stdout.toLowerCase().includes('true')) {
-        socket.emit(CODE_WRONG_SOCKET_EVENT, `Test case failed.`);
-        return;
+      if (room?.mode === 'sql') {
+        if (result?.stdout == false) {
+          socket.emit(CODE_WRONG_SOCKET_EVENT, `Sql query is wrong.`);
+          return;
+        }
+      } else {
+        if (result.stdout && !result?.stdout.toString().toLowerCase().includes('true')) {
+          socket.emit(CODE_WRONG_SOCKET_EVENT, `Test case failed.`);
+          return;
+        }
       }
-
-      // Emit success to client
-      const roomCode = getRoomCodeFromSocketId(socket.id, rooms);
-      const room = rooms.get(roomCode);
 
       // Error in room management
       if (!roomCode || !room) {
@@ -275,7 +290,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         gameStarted: false,
         countdownStarted: false,
         successfulSubmissions: [],
-        roomCode: roomCode
+        roomCode: roomCode,
+        mode: 'sql'
       });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
