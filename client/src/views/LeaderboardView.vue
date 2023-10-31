@@ -73,7 +73,8 @@ body {
 .table {
   border-collapse: separate;
   border-spacing: 0;
-  width: 900px;
+  width: 60%;
+  max-width: 100%;
   margin: 0 auto;
   margin-bottom: 50px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.18);
@@ -120,11 +121,5 @@ body {
   vertical-align: middle;
   display: inline-block;
   line-height: 1;
-}
-
-@media (max-width: 1100px) {
-  .table {
-    width: 90%;
-  }
 }
 </style>
