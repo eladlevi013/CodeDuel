@@ -9,15 +9,6 @@ export default {
       error: ''
     };
   },
-  mounted() {
-    // this.$store.state.socket.on('codeError', (error) => {
-    //     this.error = error;
-    //     this.$emit('openTerminal');
-    // });
-  },
-  beforeUnmount() {
-    // this.$store.state.socket.off('codeError');
-  },
   methods: {
     setErrorMessage(error) {
       this.error = error;
@@ -35,5 +26,6 @@ export default {
   padding: 10px;
   overflow-y: auto;
   white-space: pre-wrap;
+  font-size: 20px;
 }
 </style>
