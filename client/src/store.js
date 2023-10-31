@@ -2,6 +2,7 @@ import Vuex from 'vuex';
 import io from 'socket.io-client';
 import createPersistedState from 'vuex-persistedstate';
 import axios from 'axios';
+require('dotenv').config();
 
 export default new Vuex.Store({
   state: {
