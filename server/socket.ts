@@ -38,7 +38,12 @@ export const GAME_END_TIE_SOCKET_EVENT = 'endGameTie';
 export const GAME_END_LOSE_SOCKET_EVENT = 'gameEndLose';
 export const GAME_END_WIN_SOCKET_EVENT = 'gameEndWin';
 export const ROOM_MANAGEMENT_ERROR_SOCKET_EVENT = 'roomManagementError';
+export const QUICK_MATCH_SOCKET_EVENT = 'quickMatch';
 export const SECONDS_POST_SUCCESSFUL_CODE_SUBMISSION = 60;
+
+// Game modes constants
+export const SQL_GAME_MODE = 'sql';
+export const CODING_GAME_MODE = 'coding';
 
 // Global variables
 const rooms = new Map<string, Room>();
@@ -118,10 +123,9 @@ export function printRooms(rooms: Map<string, Room>): void {
     console.log('roomCode:', room.roomCode);
     console.log('gameStarted:', room.gameStarted);
     console.log('countdownStarted:', room.countdownStarted);
-
     console.log('Players:');
+
     room.players.forEach((player, index) => {
-      // Convert the player object to a JSON string for easy printing.
       console.log(`Player ${index + 1}:`, JSON.stringify(player, null, 2));
     });
 
@@ -147,7 +151,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       let result;
       let errorMessage;
 
-      if (room?.mode === 'sql') {
+      if (room?.mode === SQL_GAME_MODE) {
         result = await runSqlCheck(questionId, code);
         errorMessage = result?.stderr;
       } else {
@@ -167,7 +171,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
 
       // Emit failure to client
-      if (room?.mode === 'sql') {
+      if (room?.mode === SQL_GAME_MODE) {
         if (result?.stdout == false) {
           socket.emit(CODE_WRONG_SOCKET_EVENT, `Sql query is wrong.`);
           return;
@@ -229,7 +233,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       }
     });
 
-    socket.on('quickMatch', async (uid: string) => {
+    socket.on(QUICK_MATCH_SOCKET_EVENT, async (uid: string) => {
       const roomCode = await quickMatch(uid, rooms);
       joinRoom(socket, io, rooms, roomCode, uid);
     });

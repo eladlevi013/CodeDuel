@@ -6,7 +6,9 @@ import {
   ROOM_NOT_FOUND_SOCKET_EVENT,
   START_GAME_SOCKET_EVENT,
   ROOM_MANAGEMENT_ERROR_SOCKET_EVENT,
-  updatePariticipantScore
+  updatePariticipantScore,
+  SQL_GAME_MODE,
+  CODING_GAME_MODE
 } from '../socket';
 import { questions } from '../db/codingQuestions';
 import { getTypeByLanguage } from '../executors/codeExecutor/languageUtil/languageHelper';
@@ -93,13 +95,13 @@ export const joinRoom = async (
       if (room.players.length == PLAYERS_PER_ROOM) {
         // deep copy of question object
         const question =
-          room.mode === 'sql'
+          room.mode === SQL_GAME_MODE
             ? JSON.parse(
                 JSON.stringify(sqlQuestions[Math.floor(Math.random() * sqlQuestions.length)])
               )
             : JSON.parse(JSON.stringify(questions[Math.floor(Math.random() * questions.length)]));
 
-        if (room.mode === 'coding') {
+        if (room.mode === CODING_GAME_MODE) {
           // updating question data-types
           question.funcSignature.args.forEach(
             (arg: { type: { base: any; java: string; python: string } }) => {
@@ -117,7 +119,7 @@ export const joinRoom = async (
             java: getTypeByLanguage(question.funcSignature.returnType).java,
             python: getTypeByLanguage(question.funcSignature.returnType).python
           };
-        } else if (room.mode === 'sql') {
+        } else if (room.mode === SQL_GAME_MODE) {
           question.example = await getExampleAnswer(question.id);
 
           // updating question tables data
@@ -213,7 +215,7 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
       countdownStarted: false,
       successfulSubmissions: [],
       roomCode: roomCode,
-      mode: Math.floor(Math.random() * 1 + 1) === 1 ? 'coding' : 'sql'
+      mode: Math.floor(Math.random() * 1 + 1) === 1 ? CODING_GAME_MODE : SQL_GAME_MODE
     };
     rooms.set(roomCode, room);
     return roomCode;
