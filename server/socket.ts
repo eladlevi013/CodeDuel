@@ -282,9 +282,8 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
 
     socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic, gameMode) => {
-      console.log(gameMode);
-
       const roomCode = roomCodeGenerator().toString();
+
       rooms.set(roomCode, {
         players: [],
         isPublic: isPublic,

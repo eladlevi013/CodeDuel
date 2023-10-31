@@ -11,7 +11,9 @@
       <option value="python">Python</option>
     </select>
     <!-- Run button -->
-    <button class="run-button" @click="runCode">Run {{ gameMode === 'sql' ? 'Query' : '' }}</button>
+    <button class="run-button" @click="runCode">
+      Run {{ gameMode === 'sql' ? 'Query' : 'Code' }}
+    </button>
   </div>
 
   <!-- Codemirror IDE -->
@@ -49,6 +51,7 @@ export default {
   components: { Codemirror },
   mounted() {
     this.gameMode = this.$store.state.gameMode;
+    this.selectedLanguage = this.gameMode === 'coding' ? 'java' : 'sql';
 
     this.$store.state.socket.on('gameEndWin', () => {
       this.removeSocketListener();

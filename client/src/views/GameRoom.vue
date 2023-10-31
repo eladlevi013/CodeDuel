@@ -1,10 +1,10 @@
 <template>
   <div class="main-div">
     <splitpanes class="default-theme" ref="mainSplitPane">
-      <pane :size="this.gameMode === 'sql' ? '30' : '24'">
+      <pane :size="this.gameMode === 'sql' ? '34' : '24'">
         <splitpanes horizontal>
           <!-- Question section -->
-          <pane :size="this.gameMode === 'sql' ? '60' : '50'">
+          <pane :size="this.gameMode === 'sql' ? '90' : '50'">
             <div class="panel question-section">
               <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
               <div style="display: flex; flex-direction: row; align-items: center">
