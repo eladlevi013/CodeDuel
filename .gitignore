@@ -3,3 +3,4 @@ node_modules
 .package-lock.json
 Main.java
 Main.class
+test.db
