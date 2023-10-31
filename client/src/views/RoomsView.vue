@@ -31,9 +31,9 @@
         :class="{ 'server-btn-sql': server.mode === 'sql' }"
         class="server-btn"
       >
-        {{ server.mode == 'sql' ? 'SQL 🗄️' : 'CODING 💻  ' }} {{ server.roomCode }} ({{
-          server?.players?.length ?? 0
-        }}
+        {{ server.mode == 'sql' ? 'SQL🗄️' : 'CODING💻' }}
+        <br />
+        {{ server.roomCode }} ({{ server?.players?.length ?? 0 }}
         Players)
       </button>
     </div>
