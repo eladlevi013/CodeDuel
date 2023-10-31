@@ -6,12 +6,14 @@ export const sqlQuestions = [
       'Write an SQL query to find the highest salary in each department. Sort the result in ascending order by salary.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
+    sqlQuery: (preview: boolean) => {
+      return `
       SELECT department, MAX(salary) AS max_salary
-      FROM employees
+      FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
       GROUP BY department
       ORDER BY max_salary;
-    `,
+    `;
+    },
     orderMatters: true,
     difficulty: 2,
     categories: ['Aggregation']
@@ -23,12 +25,14 @@ export const sqlQuestions = [
       'Write an SQL query to retrieve the names of all employees in the IT department. Sort the result in ascending order by name.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT name
-      FROM employees
-      WHERE department = 'IT'
-      ORDER BY name;
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT name
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+        WHERE department = 'IT'
+        ORDER BY name;
+      `;
+    },
     orderMatters: true,
     difficulty: 1,
     categories: ['Basic Query']
@@ -39,10 +43,12 @@ export const sqlQuestions = [
     description: 'Write an SQL query to calculate the total salary expenses of the company.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT SUM(salary) AS total_salary_expense
-      FROM employees;
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT SUM(salary) AS total_salary_expense
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''});
+      `;
+    },
     orderMatters: false,
     difficulty: 1,
     categories: ['Aggregation']
@@ -53,10 +59,12 @@ export const sqlQuestions = [
     description: 'Write an SQL query to find the youngest employee in the company.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT name, MIN(hire_date) AS hire_date
-      FROM employees;
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT name, MIN(hire_date) AS hire_date
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''});
+      `;
+    },
     orderMatters: false,
     difficulty: 1,
     categories: ['Aggregation']
@@ -67,11 +75,13 @@ export const sqlQuestions = [
     description: 'Write an SQL query to calculate the average salary in each department.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT department, AVG(salary) AS avg_salary
-      FROM employees
-      GROUP BY department;
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT department, AVG(salary) AS avg_salary
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+        GROUP BY department;
+      `;
+    },
     orderMatters: false,
     difficulty: 2,
     categories: ['Aggregation', 'Group By']
@@ -82,11 +92,13 @@ export const sqlQuestions = [
     description: 'Write an SQL query to count the number of employees in each department.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT department, COUNT(*) AS employee_count
-      FROM employees
-      GROUP BY department;
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT department, COUNT(*) AS employee_count
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+        GROUP BY department;
+      `;
+    },
     orderMatters: false,
     difficulty: 2,
     categories: ['Aggregation', 'Group By']
@@ -97,15 +109,17 @@ export const sqlQuestions = [
     description: 'Write an SQL query to find the department with the most employees.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT department
-      FROM employees
-      GROUP BY department
-      HAVING COUNT(*) = (
-        SELECT MAX(employee_count)
-        FROM (SELECT department, COUNT(*) AS employee_count FROM employees GROUP BY department)
-      );
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT department
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+        GROUP BY department
+        HAVING COUNT(*) = (
+          SELECT MAX(employee_count)
+          FROM (SELECT department, COUNT(*) AS employee_count FROM employees GROUP BY department)
+        );
+      `;
+    },
     orderMatters: false,
     difficulty: 3,
     categories: ['Aggregation', 'Group By', 'Subquery']
@@ -117,11 +131,15 @@ export const sqlQuestions = [
       'Write an SQL query to retrieve employees with salaries greater than the average salary.',
     tables: { employees: {} },
     example: {},
-    sqlQuery: `
-      SELECT name, salary
-      FROM employees
-      WHERE salary > (SELECT AVG(salary) FROM employees);
-    `,
+    sqlQuery: (preview: boolean) => {
+      return `
+        SELECT name, salary
+        FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+        WHERE salary > (SELECT AVG(salary) FROM (SELECT * FROM employees ${
+          preview ? 'LIMIT 5' : ''
+        }));
+      `;
+    },
     orderMatters: false,
     difficulty: 3,
     categories: ['Subquery']

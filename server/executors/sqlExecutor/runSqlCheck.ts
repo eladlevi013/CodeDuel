@@ -42,9 +42,8 @@ const initTableDependencies = async (tables: string[]) => {
 
 export const runSqlCheck = async (questionId: string, sqlQuery: string) => {
   const result = { stdout: true, stderr: null as string | null };
-
   const question = sqlQuestions[parseInt(questionId) - 1];
-  const answerQuery = question.sqlQuery;
+  const answerQuery = question.sqlQuery(false);
   const orderMatters = question.orderMatters;
 
   try {
@@ -93,7 +92,8 @@ export const getExampleAnswer = async (questionId: string) => {
   await initTableDependencies(Object.keys(question.tables));
 
   // Getting Result
-  const result = (await executeQuery(db, question.sqlQuery)).slice(0, 6);
+  const query = question.sqlQuery(true);
+  const result = (await executeQuery(db, query)).slice(0, 6);
 
   // Convert result to table object
   const titles = Object.keys(result[0]);
