@@ -50,14 +50,23 @@ export const runSqlCheck = async (questionId: string, sqlQuery: string) => {
     // Initialize table dependencies
     await initTableDependencies(Object.keys(question.tables));
 
-    // Execute user's SQL query
-    await executeQuery(db, sqlQuery);
-
     // Fetch user's query result
-    const userAnswer = await executeQuery(db, sqlQuery);
+    let userAnswer: Object[] = [];
+    try {
+      const userRows = await executeQuery(db, sqlQuery);
+      userAnswer = userRows;
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
 
     // Fetch correct answer
-    const answer = await executeQuery(db, answerQuery);
+    let answer: Object[] = [];
+    try {
+      const answerRows = await executeQuery(db, answerQuery);
+      answer = answerRows;
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
 
     const answerEquals = compareAnswers(answer as Object[], userAnswer as Object[], orderMatters);
     result.stdout = answerEquals;
