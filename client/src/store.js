@@ -13,7 +13,7 @@ export default new Vuex.Store({
     roomCode: '',
     question: null,
     user: null,
-    gameMode: 'sql'
+    gameMode: ''
   },
   mutations: {
     setUserScore(state, score) {

@@ -127,7 +127,7 @@ export const joinRoom = async (
         }
 
         room.gameStarted = true;
-        io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question);
+        io.to(roomCode).emit(START_GAME_SOCKET_EVENT, question, room.mode);
 
         // Loop through all players in the room and update their scores
         for (let player of room.players) {
@@ -213,7 +213,7 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
       countdownStarted: false,
       successfulSubmissions: [],
       roomCode: roomCode,
-      mode: 'sql'
+      mode: Math.floor(Math.random() * 1 + 1) === 1 ? 'coding' : 'sql'
     };
     rooms.set(roomCode, room);
     return roomCode;

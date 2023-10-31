@@ -30,10 +30,36 @@ export const sharedRoomMethods = {
       this.socket.emit('joinRoom', roomCode, uid ? uid : null);
     },
     createRoom() {
-      if (this.joinedRoomCode) {
-        this.socket.emit('leaveRoom', this.joinedRoomCode);
-      }
-      this.socket.emit('createRoom', !this.isPrivate);
+      // creating sweetalert for room creation
+      this.$swal
+        .fire({
+          title: 'Room Creation',
+          text: `Customize your room options below. You can choose to play in Coding Mode or SQL Mode.`,
+          icon: 'question',
+          confirmButtonText: 'Coding Mode',
+          confirmButtonColor: '#39261f',
+          showCancelButton: true,
+          showDenyButton: true,
+          denyButtonText: 'SQL Mode',
+          denyButtonColor: '#5e3f34'
+        })
+        .then(result => {
+          let gameMode = 'coding';
+
+          if (result.isConfirmed) {
+            gameMode = 'coding';
+          } else if (result.isDenied) {
+            gameMode = 'sql';
+          } else {
+            // If neither confirm nor deny was clicked, do nothing (cancel).
+            return; // This exits the function early without doing anything.
+          }
+
+          if (this.joinedRoomCode) {
+            this.socket.emit('leaveRoom', this.joinedRoomCode);
+          }
+          this.socket.emit('createRoom', !this.isPrivate, gameMode);
+        });
     },
     leaveRoom(roomCode) {
       this.socket.emit('leaveRoom', roomCode);
@@ -47,9 +73,10 @@ export const sharedRoomMethods = {
       }
     },
     setSocketListeners() {
-      this.socket.on('startGame', question => {
+      this.socket.on('startGame', (question, gameMode) => {
         this.gameStarted = true;
         this.$store.commit('setQuestion', question);
+        this.$store.commit('setGameMode', gameMode);
         Message.closeAll();
         Message.info(`Joined room ${this.joinedRoomCode}`, {
           duration: MESSAGE_DURATION

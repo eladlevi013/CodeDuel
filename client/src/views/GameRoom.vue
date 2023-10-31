@@ -1,10 +1,10 @@
 <template>
   <div class="main-div">
     <splitpanes class="default-theme" ref="mainSplitPane">
-      <pane size="30">
+      <pane :size="this.gameMode === 'sql' ? '30' : '24'">
         <splitpanes horizontal>
           <!-- Question section -->
-          <pane size="60">
+          <pane :size="this.gameMode === 'sql' ? '60' : '50'">
             <div class="panel question-section">
               <h2 class="question-title">Question {{ question?.id }}: {{ question?.title }}</h2>
               <div style="display: flex; flex-direction: row; align-items: center">
@@ -51,9 +51,9 @@
               </div>
 
               <!-- Table on SQL mode -->
-              <br />
-              <h3 class="question-title">Result:</h3>
-              <table :v-if="this.gameMode === 'sql'" class="table">
+              <br v-if="this.gameMode === 'sql'" />
+              <h3 class="question-title" v-if="this.gameMode === 'sql'">Result:</h3>
+              <table v-if="this.gameMode === 'sql'" class="table">
                 <thead>
                   <tr>
                     <th v-for="title in question?.example?.titles" :key="title">
@@ -69,11 +69,11 @@
                   </tr>
                 </tbody>
               </table>
-              <br />
-              <br />
-              <!-- <div :v-show="this.gameMode === 'coding'">
+              <br v-if="this.gameMode == 'sql'" />
+              <br v-if="this.gameMode == 'sql'" />
+              <div v-if="this.gameMode == 'coding'">
                 <pre>{{ question?.example }}</pre>
-              </div> -->
+              </div>
             </div>
           </pane>
 
@@ -93,7 +93,6 @@
                 ref="codeEditorRef"
                 @closeTerminal="closeTerminal"
                 :question="this.question"
-                :gameMode="this.gameMode"
               />
             </div>
           </pane>

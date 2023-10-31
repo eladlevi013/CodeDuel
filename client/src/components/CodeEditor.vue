@@ -45,9 +45,11 @@ import Message from 'vue-m-message';
 import 'vue-m-message/dist/style.css';
 
 export default {
-  props: ['question', 'gameMode'],
+  props: ['question'],
   components: { Codemirror },
   mounted() {
+    this.gameMode = this.$store.state.gameMode;
+
     this.$store.state.socket.on('gameEndWin', () => {
       this.removeSocketListener();
       this.showTimer = false;
@@ -205,7 +207,8 @@ export default {
         } else {
           this.selectedLanguage = 'sql';
         }
-      }
+      },
+      immediate: false
     },
     selectedLanguage: {
       handler() {

@@ -28,9 +28,13 @@
         v-for="server in availableRooms"
         :key="server.roomCode"
         @click="joinRoom(server.roomCode)"
+        :class="{ 'server-btn-sql': server.mode === 'sql' }"
         class="server-btn"
       >
-        {{ server.roomCode }} ({{ server?.players?.length ?? 0 }} Players)
+        {{ server.mode == 'sql' ? 'SQL 🗄️' : 'CODING 💻  ' }} {{ server.roomCode }} ({{
+          server?.players?.length ?? 0
+        }}
+        Players)
       </button>
     </div>
   </div>
@@ -133,8 +137,8 @@ export default {
   width: 100%;
 }
 
-.server-btn:hover {
-  background-color: #39261f;
+.server-btn-sql {
+  background-color: #5d3f34;
 }
 
 .checkbox-container {

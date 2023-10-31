@@ -149,7 +149,6 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       if (room?.mode === 'sql') {
         result = await runSqlCheck(questionId, code);
-        console.log(result);
         errorMessage = result?.stderr;
       } else {
         result = await runTestCases(code, questionId, language);
@@ -282,7 +281,9 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
     });
 
-    socket.on(CREATE_ROOM_SOCKET_EVENT, isPublic => {
+    socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic, gameMode) => {
+      console.log(gameMode);
+
       const roomCode = roomCodeGenerator().toString();
       rooms.set(roomCode, {
         players: [],
@@ -291,7 +292,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         countdownStarted: false,
         successfulSubmissions: [],
         roomCode: roomCode,
-        mode: 'sql'
+        mode: gameMode
       });
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));
