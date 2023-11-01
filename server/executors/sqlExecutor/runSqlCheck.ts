@@ -13,6 +13,11 @@ const tablesCreationQuery: Record<string, string> = {
 // Wrap the database operations in a Promise
 const executeQuery = (db: sqlite3.Database, query: string): Promise<any[]> => {
   return new Promise((resolve, reject) => {
+    if (!query || typeof query !== 'string') {
+      reject(new Error('Invalid or empty query'));
+      return;
+    }
+
     db.all(query, (err, rows) => {
       if (err) {
         reject(err);
@@ -52,21 +57,25 @@ export const runSqlCheck = async (questionId: string, sqlQuery: string) => {
 
     // Fetch user's query result
     let userAnswer: Object[] = [];
-    try {
-      const userRows = await executeQuery(db, sqlQuery);
-      userAnswer = userRows;
-    } catch (err: any) {
-      throw new Error(err.message);
-    }
+    await executeQuery(db, sqlQuery)
+      .then(rows => {
+        userAnswer = rows;
+      })
+      .catch(err => {
+        result.stderr = err.message;
+        return result;
+      });
 
     // Fetch correct answer
     let answer: Object[] = [];
-    try {
-      const answerRows = await executeQuery(db, answerQuery);
-      answer = answerRows;
-    } catch (err: any) {
-      throw new Error(err.message);
-    }
+    await executeQuery(db, answerQuery)
+      .then(rows => {
+        answer = rows;
+      })
+      .catch(err => {
+        result.stderr = err.message;
+        return result;
+      });
 
     const answerEquals = compareAnswers(answer as Object[], userAnswer as Object[], orderMatters);
     result.stdout = answerEquals;
@@ -129,7 +138,6 @@ const compareAnswers = (answer: Object[], user: Object[], orderMatters: boolean)
     }
 
     for (let i = 0; i < answer.length; i++) {
-      // Compare objects based on their properties
       if (!objectsAreEqual(answer[i], user[i])) {
         return false;
       }
@@ -145,7 +153,6 @@ const compareAnswers = (answer: Object[], user: Object[], orderMatters: boolean)
     }
 
     for (const element of answerSet) {
-      // Compare objects based on their properties
       if (!setHasEqualObject(userSet, element)) {
         return false;
       }
@@ -156,8 +163,6 @@ const compareAnswers = (answer: Object[], user: Object[], orderMatters: boolean)
 };
 
 function objectsAreEqual(obj1: Object, obj2: Object) {
-  // Implement a comparison method for your specific object structure
-  // For example, you could compare properties one by one
   return JSON.stringify(obj1) === JSON.stringify(obj2);
 }
 
