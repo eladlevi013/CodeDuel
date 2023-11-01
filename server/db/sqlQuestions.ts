@@ -116,7 +116,9 @@ export const sqlQuestions = [
         GROUP BY department
         HAVING COUNT(*) = (
           SELECT MAX(employee_count)
-          FROM (SELECT department, COUNT(*) AS employee_count FROM employees GROUP BY department)
+          FROM (SELECT department, COUNT(*) AS employee_count 
+          FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''}) 
+          GROUP BY department)
         );
       `;
     },
