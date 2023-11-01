@@ -5,11 +5,24 @@
       <i v-if="!isDarkMode" @click="toggleTheme" class="fas fa-sun fa-2x"></i>
       <i v-else @click="toggleTheme" class="fas fa-moon fa-2x"></i>
     </div>
-    <!-- Programming language selector -->
-    <select v-model="selectedLanguage" v-if="gameMode === 'coding'" class="language-selector">
-      <option value="java">Java</option>
-      <option value="python">Python</option>
-    </select>
+
+    <div>
+      <!-- Programming language selector -->
+      <select v-model="selectedLanguage" v-if="gameMode === 'coding'" class="language-selector">
+        <option value="java">Java</option>
+        <option value="python">Python</option>
+      </select>
+
+      <!-- Font size -->
+      <select v-model="fontSize" class="language-selector">
+        <option value="1.5em">Smallest</option>
+        <option value="2em">Small</option>
+        <option value="2.5em">Regular</option>
+        <option value="5em">Large</option>
+        <option value="6em">Largest</option>
+      </select>
+    </div>
+
     <!-- Run button -->
     <button class="run-button" @click="runCode">
       Run {{ gameMode === 'sql' ? 'Query' : 'Code' }}
@@ -21,7 +34,7 @@
     <codemirror
       v-model="code"
       :placeholder="getPlaceholder()"
-      :style="{ height: 'calc(100% - 0px)', fontSize: '2em' }"
+      :style="{ height: 'calc(100% - 0px)', fontSize: fontSize }"
       :autofocus="true"
       :indent-with-tab="true"
       :tab-size="2"
@@ -141,7 +154,8 @@ export default {
       extensions: [python(), birdsOfParadise],
       showTimer: false,
       timer: null,
-      secondsLeft: 60
+      secondsLeft: 60,
+      fontSize: '2.5em'
     };
   },
   beforeUnmount() {
@@ -267,6 +281,7 @@ export default {
   color: #3e2723;
   margin: 10px 0;
   padding: 5px;
+  margin-right: 7px;
 }
 
 .run-button {
