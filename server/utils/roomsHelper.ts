@@ -215,7 +215,7 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
       countdownStarted: false,
       successfulSubmissions: [],
       roomCode: roomCode,
-      mode: Math.floor(Math.random() * 1 + 1) === 1 ? CODING_GAME_MODE : SQL_GAME_MODE
+      mode: Math.floor(Math.random() * 2) == 0 ? CODING_GAME_MODE : SQL_GAME_MODE
     };
     rooms.set(roomCode, room);
     return roomCode;
