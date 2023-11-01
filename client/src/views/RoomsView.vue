@@ -22,10 +22,17 @@
 
   <!-- rooms -->
   <h1 class="roomsTitle" v-if="this.availableRooms.length > 0">Rooms🗄️</h1>
+  <div class="quick-menu-container quick-menu-container-filter">
+    <button class="buttonDesign filter-button" @click="filterRooms('ALL')">All Rooms</button>
+    <button class="buttonDesign filter-button" @click="filterRooms('sql')">SQL Rooms</button>
+    <button class="buttonDesign filter-button" @click="filterRooms('coding')">Coding Rooms</button>
+  </div>
+  <br />
+
   <div class="rooms-container" v-if="this.availableRooms.length > 0">
-    <div v-if="availableRooms.length > 0" class="rooms-btn-container">
+    <div class="rooms-btn-container">
       <button
-        v-for="server in availableRooms"
+        v-for="server in filteredRooms"
         :key="server.roomCode"
         @click="joinRoom(server.roomCode)"
         :class="{ 'server-btn-sql': server.mode === 'sql' }"
@@ -33,8 +40,7 @@
       >
         {{ server.mode == 'sql' ? 'SQL🗄️' : 'CODING💻' }}
         <br />
-        {{ server.roomCode }} ({{ server?.players?.length ?? 0 }}
-        Players)
+        {{ server.roomCode }} ({{ server?.players?.length ?? 0 }} Players)
       </button>
     </div>
   </div>
@@ -45,11 +51,20 @@ import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
 
 export default {
   mixins: [sharedRoomMethods],
+  computed: {
+    filteredRooms() {
+      if (this.currentFilter === 'ALL') {
+        return this.availableRooms;
+      }
+      return this.availableRooms.filter(server => server.mode === this.currentFilter);
+    }
+  },
   data() {
     return {
       availableRooms: [],
       isPrivate: false,
-      roomCode: ''
+      roomCode: '',
+      currentFilter: 'ALL'
     };
   },
   mounted() {
@@ -79,6 +94,11 @@ export default {
       this.joinRoom(roomCode);
     });
   },
+  methods: {
+    filterRooms(filter) {
+      this.currentFilter = filter;
+    }
+  },
   beforeUnmount() {
     this.$store.state.socket.off('createdRoom');
   }
@@ -86,6 +106,17 @@ export default {
 </script>
 
 <style>
+.filter-button {
+  background-color: #e8e0c5;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 5px 33px;
+  height: 40px;
+}
+
 .no-rooms-text {
   margin-bottom: 50px;
   color: #777;
@@ -116,6 +147,11 @@ export default {
   padding: 0.8rem 1.9rem;
   border-radius: 15px;
   box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+}
+
+.quick-menu-container-filter {
+  width: 500px;
+  height: 40px;
 }
 
 .rooms-btn-container {
@@ -176,6 +212,10 @@ export default {
     max-width: 400px;
     margin: auto;
     margin-top: 30px;
+  }
+
+  .quick-menu-container-filter {
+    height: 110px;
   }
 
   .rooms-btn-container {
