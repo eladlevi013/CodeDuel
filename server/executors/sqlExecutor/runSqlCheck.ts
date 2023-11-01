@@ -3,7 +3,7 @@ import sqlite3 from 'sqlite3';
 import createEmployeesTable from '../../sqlTables/employees';
 
 // global variables
-const db = new sqlite3.Database(`test.db`);
+const db = new sqlite3.Database(`test.sqlite`);
 
 // tables creation queries dictionary
 const tablesCreationQuery: Record<string, string> = {
@@ -86,6 +86,11 @@ export const getTablePreview = async (tableName: string) => {
   // Getting Result
   const result = await executeQuery(db, `SELECT * FROM ${tableName} LIMIT 5;`);
 
+  // when table is empty
+  if (result.length === 0) {
+    return { titles: [], values: [] };
+  }
+
   // Convert result to table object
   const titles = Object.keys(result[0]);
   const values = result.map(row => Object.values(row));
@@ -103,6 +108,11 @@ export const getExampleAnswer = async (questionId: string) => {
   // Getting Result
   const query = question.sqlQuery(true);
   const result = (await executeQuery(db, query)).slice(0, 6);
+
+  // when table is empty
+  if (result.length === 0) {
+    return { titles: [], values: [] };
+  }
 
   // Convert result to table object
   const titles = Object.keys(result[0]);
