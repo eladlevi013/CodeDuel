@@ -22,7 +22,10 @@
 
   <!-- rooms -->
   <h1 class="roomsTitle" v-if="this.availableRooms.length > 0">Rooms🗄️</h1>
-  <div class="quick-menu-container quick-menu-container-filter">
+  <div
+    class="quick-menu-container quick-menu-container-filter"
+    v-if="this.availableRooms.length > 0"
+  >
     <button class="buttonDesign filter-button" @click="filterRooms('ALL')">All Rooms</button>
     <button class="buttonDesign filter-button" @click="filterRooms('sql')">SQL Rooms</button>
     <button class="buttonDesign filter-button" @click="filterRooms('coding')">Coding Rooms</button>
