@@ -121,6 +121,7 @@ export default {
     });
 
     this.$store.state.socket.on('startGameTimer', async () => {
+      if (this.showTimer) return;
       this.showTimer = true;
       this.startTimer();
       console.log('Your opponent finished the question! ⏰');
@@ -166,6 +167,7 @@ export default {
   },
   beforeUnmount() {
     if (this.timer) clearInterval(this.timer);
+    this.removeSocketListener();
   },
   methods: {
     closeMessages() {

@@ -191,10 +191,21 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       // on successful submission, add submission to room
       const player = room.players.find(player => player.sid === socket.id) as Player;
-      room.successfulSubmissions.push({ player: player, time: 'none', memory: 0 });
+
+      let submittedPlayerFound = false;
+      room.successfulSubmissions.forEach(submission => {
+        if (submission.player.sid === player.sid) {
+          submittedPlayerFound = true;
+        }
+      });
+
+      if (!submittedPlayerFound) {
+        room.successfulSubmissions.push({ player: player, time: 'none', memory: 0 });
+      }
 
       // on first successful submission, start timer
       if (room.successfulSubmissions.length === 1) {
+        console.log('yey!');
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         room.countdownStarted = true;
