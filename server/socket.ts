@@ -59,6 +59,7 @@ export const updateWinnerPlayerScore = async (player: Player) => {
   }
 
   let scoreToAdd = player.score == 0 ? 1 : 2;
+  console.log(`Adding ${scoreToAdd} to ${player.username} score 🪙`);
 
   try {
     const account = await accountSchema.findById(player.uid);
@@ -89,6 +90,8 @@ const updatePlayersScoreOnTie = async (players: Player[]) => {
         }
 
         account.score += 1;
+        console.log(`Adding coins to go backt to original score ${player.username} score 👌`);
+
         await account.save();
       } catch (error) {
         console.error('Error updating player score:', error);
@@ -104,10 +107,12 @@ export const updatePariticipantScore = async (player: Player) => {
   if (loggedInPlayer && loggedInPlayer.uid !== null) {
     try {
       const account = await accountSchema.findById(loggedInPlayer.uid);
+
       if (account) {
         if (account.score > 0) {
           account.score -= 1;
           await account.save();
+          console.log(`Taking away 1 coin for participant ${loggedInPlayer.username} score 🏁`);
         }
       }
     } catch (err) {

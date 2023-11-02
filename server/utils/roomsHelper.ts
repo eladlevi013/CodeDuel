@@ -54,6 +54,8 @@ export const joinRoom = async (
   roomCode: string,
   uid: string | null
 ) => {
+  console.log(`player ${uid} joins room ${roomCode} 👋`);
+
   if (rooms.has(roomCode)) {
     const room = rooms.get(roomCode);
 

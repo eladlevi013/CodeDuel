@@ -85,6 +85,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: 'Logged in successfully',
       account: {
+        _id: account._id,
         username: account.username,
         score: account.score
       }
@@ -246,6 +247,7 @@ export const register = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: 'Account created',
       account: {
+        _id: account._id,
         username: account.username,
         score: account.score
       }
