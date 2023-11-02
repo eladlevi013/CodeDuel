@@ -44,6 +44,8 @@ export default {
     };
   },
   mounted() {
+    console.log(navigator.cookieEnabled);
+
     if (navigator.cookieEnabled) {
       this.$store.dispatch('fetchUserScore');
     } else {
