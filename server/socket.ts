@@ -205,7 +205,6 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       // on first successful submission, start timer
       if (room.successfulSubmissions.length === 1) {
-        console.log('yey!');
         socket.to(roomCode).emit(START_GAME_TIMER_SOCKET_EVENT);
         socket.emit(CODE_SUCCESS_SOCKET_EVENT);
         room.countdownStarted = true;
