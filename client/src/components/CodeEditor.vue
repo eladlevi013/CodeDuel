@@ -47,17 +47,13 @@
 
 <script>
 import { getSignitureByLanguage } from '../utils/codeEditorHelper';
-// codemirror language support
 import { Codemirror } from 'vue-codemirror';
 import { python } from '@codemirror/lang-python';
 import { java } from '@codemirror/lang-java';
 import { sql } from '@codemirror/lang-sql';
-// codemirror themes
 import { solarizedLight } from '@uiw/codemirror-theme-solarized';
 import { birdsOfParadise } from 'thememirror';
-// message alert library
-import Message from 'vue-m-message';
-import 'vue-m-message/dist/style.css';
+import { push } from '../main';
 
 export default {
   props: ['question'],
@@ -69,7 +65,8 @@ export default {
     this.$store.state.socket.on('gameEndWin', () => {
       this.removeSocketListener();
       this.showTimer = false;
-      Message.closeAll();
+      push.clearAll();
+      console.log('You won! 🎉');
 
       this.$swal({
         title: 'Congratulations!',
@@ -87,7 +84,8 @@ export default {
     this.$store.state.socket.on('gameEndLose', winnerPlayerName => {
       this.removeSocketListener();
       this.showTimer = false;
-      Message.closeAll();
+      push.clearAll();
+      console.log('You lost! 😢');
 
       this.$swal({
         title: 'Game Over!',
@@ -105,8 +103,9 @@ export default {
     this.$store.state.socket.on('endGameTie', () => {
       this.removeSocketListener();
       this.showTimer = false;
-      Message.closeAll();
+      push.clearAll();
       this.$store.state.socket.off('otherPlayerLeft');
+      console.log('It is a tie! 🤝');
 
       this.$swal({
         title: 'Game Over!',
@@ -121,31 +120,36 @@ export default {
       });
     });
 
-    this.$store.state.socket.on('startGameTimer', () => {
+    this.$store.state.socket.on('startGameTimer', async () => {
       this.showTimer = true;
       this.startTimer();
-      Message.closeAll();
-      Message.warning(
-        () => `your opponent finished the question, you have 60 seconds to solve the problem...`,
-        { duration: 5000 }
+      console.log('Your opponent finished the question! ⏰');
+
+      push.warning(
+        'your opponent finished the question, you have 60 seconds to solve the problem...'
       );
     });
 
     this.$store.state.socket.on('codeSuccess', () => {
-      Message.closeAll();
-      Message.success(
-        () => `Problem solved, your opponent has 60 seconds\n to finish their solution...`,
-        { duration: 5000 }
+      console.log('Correct Answer! ✅');
+
+      this.loadingMessage.resolve(
+        'Problem solved, your opponent has 60 seconds\n to finish their solution...'
       );
       this.$emit('closeTerminal');
     });
 
     this.$store.state.socket.on('codeWrong', () => {
-      Message.closeAll();
-      Message.warning(() => `Wrong Answer!`, { duration: 2000 });
+      console.log('Wrong Answer! ❌');
+
+      if (this.loadingMessage?.reject) {
+        this.loadingMessage?.reject({ message: 'Wrong Answer!', duration: 1500 });
+      }
+
       this.$emit('closeTerminal');
     });
   },
+  emits: ['closeTerminal'],
   data() {
     return {
       isDarkMode: false,
@@ -155,7 +159,9 @@ export default {
       showTimer: false,
       timer: null,
       secondsLeft: 60,
-      fontSize: '2.5em'
+      fontSize: '2.5em',
+      loadingMessage: '',
+      gameMode: ''
     };
   },
   beforeUnmount() {
@@ -163,10 +169,14 @@ export default {
   },
   methods: {
     closeMessages() {
-      Message.closeAll();
+      push.clearAll();
     },
     runCode() {
-      Message.loading('Testing your code...', { duration: -1 });
+      if (this.loadingMessage?.clear) {
+        this.loadingMessage.clear();
+      }
+      this.loadingMessage = push.promise('Testing your code...');
+
       this.$store.state.socket.emit(
         'codeSubmission',
         this.code,

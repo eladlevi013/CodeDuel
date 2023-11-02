@@ -11,9 +11,17 @@
         type="text"
         placeholder="Enter your username"
         v-model="username"
+        autocomplete="on"
       />
-      <input class="class-input" type="email" placeholder="Enter your email" v-model="email" />
       <input
+        class="class-input"
+        type="email"
+        placeholder="Enter your email"
+        v-model="email"
+        autocomplete="on"
+      />
+      <input
+        autocomplete="on"
         type="password"
         :placeholder="isLogin ? 'Enter your password' : 'Enter your password'"
         class="class-input"
@@ -47,8 +55,7 @@
 
 <script>
 import axios from 'axios';
-import Message from 'vue-m-message';
-import 'vue-m-message/dist/style.css';
+import { push } from '../main';
 
 export default {
   data() {
@@ -57,7 +64,8 @@ export default {
       username: '',
       password: '',
       email: '',
-      isLoading: false
+      isLoading: false,
+      loadingMessage: ''
     };
   },
   created() {
@@ -72,7 +80,8 @@ export default {
     },
     async login() {
       this.isLoading = true;
-      Message({ message: 'Logging in...', type: 'loading' });
+      this.loadingMessage = push.promise('Logging in...');
+
       try {
         const response = await axios.post(
           `${process.env.VUE_APP_SERVER_URL}/auth/login`,
@@ -86,16 +95,14 @@ export default {
         this.$store.commit('setUser', response.data.account);
 
         if (response.data && response.status === 200) {
-          Message.closeAll();
-          Message.success('Logged in successfully');
+          this.loadingMessage.resolve('Logged in successfully');
           this.$router.push('/');
         }
       } catch (error) {
-        Message.closeAll();
         if (error.response && error.response.data) {
-          Message.error(`Login Error: ${error.response.data.message}`);
+          this.loadingMessage.reject(`Login Error: ${error.response.data.message}`);
         } else {
-          Message.error('An error occurred during login');
+          this.loadingMessage.reject('An error occurred during login');
         }
       } finally {
         this.isLoading = false;
@@ -103,7 +110,8 @@ export default {
     },
     async register() {
       this.isLoading = true;
-      Message({ message: 'Registering...', type: 'loading' }); // Loading Message
+      this.loadingMessage = push.promise('Registering...');
+
       try {
         const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/register`, {
           username: this.username,
@@ -111,23 +119,20 @@ export default {
           email: this.email
         });
 
-        this.$store.commit('setSessionId', response.data.sessionId);
         this.$store.commit('setUser', response.data.account);
 
         if (response.data && response.status === 200) {
-          Message.closeAll(); // Close loading message
-          Message.success('Account created successfully');
+          this.loadingMessage.resolve('Account created successfully');
           this.$router.push('/');
         }
       } catch (error) {
-        Message.closeAll(); // Close loading message
         if (error.response && error.response.data) {
-          Message.error(`Registration Error: ${error.response.data.message}`);
+          this.loadingMessage.reject(`Registration Error: ${error.response.data.message}`);
         } else {
-          Message.error('An error occurred during registration');
+          this.loadingMessage.reject('An error occurred during registration');
         }
       } finally {
-        this.isLoading = false; // End Loading
+        this.isLoading = false;
       }
     },
     checkRoute() {

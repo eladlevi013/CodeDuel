@@ -113,6 +113,7 @@ import CodeEditor from '../components/CodeEditor.vue';
 import ErrorConsole from '../components/ErrorConsole.vue';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
+import { push } from '../main';
 
 export default {
   components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },

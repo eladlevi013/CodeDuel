@@ -2,8 +2,6 @@ const JAVA_LANG = 'java';
 const PYTHON_LANG = 'python';
 
 export function getSignitureByLanguage(funcSigniture, language) {
-  console.log('getSignitureByLanguage', funcSigniture, language);
-
   switch (language) {
     case JAVA_LANG:
       return getJavaSigniture(funcSigniture);

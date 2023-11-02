@@ -51,6 +51,7 @@
 
 <script>
 import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
+import { push } from '../main';
 
 export default {
   mixins: [sharedRoomMethods],
@@ -71,7 +72,6 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore');
     this.socket.emit('sendRooms');
 
     // from link
@@ -103,6 +103,7 @@ export default {
     }
   },
   beforeUnmount() {
+    push.destroyAll();
     this.$store.state.socket.off('createdRoom');
   }
 };

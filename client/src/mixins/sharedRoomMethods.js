@@ -1,7 +1,8 @@
-import Message from 'vue-m-message';
-import 'vue-m-message/dist/style.css';
+import { push } from '../main';
 
+// Constants
 const MESSAGE_DURATION = 1500;
+const SHORT_MESSAGE_DURATION = 1000;
 
 export const sharedRoomMethods = {
   computed: {
@@ -12,7 +13,8 @@ export const sharedRoomMethods = {
   data() {
     return {
       joinedRoomCode: '',
-      gameStarted: false
+      gameStarted: false,
+      loadingMessage: ''
     };
   },
   methods: {
@@ -20,8 +22,6 @@ export const sharedRoomMethods = {
       this.socket.emit('quickMatch', this.$store.state.user?._id || null);
     },
     joinRoom(roomCode) {
-      Message.closeAll();
-
       if (this.joinedRoomCode.trim()) {
         this.leaveRoom(this.joinedRoomCode);
       }
@@ -30,7 +30,6 @@ export const sharedRoomMethods = {
       this.socket.emit('joinRoom', roomCode, uid ? uid : null);
     },
     createRoom() {
-      // creating sweetalert for room creation
       this.$swal
         .fire({
           title: 'Room Creation',
@@ -51,13 +50,13 @@ export const sharedRoomMethods = {
           } else if (result.isDenied) {
             gameMode = 'sql';
           } else {
-            // If neither confirm nor deny was clicked, do nothing (cancel).
-            return; // This exits the function early without doing anything.
+            return;
           }
 
           if (this.joinedRoomCode) {
             this.socket.emit('leaveRoom', this.joinedRoomCode);
           }
+
           this.socket.emit('createRoom', !this.isPrivate, gameMode);
         });
     },
@@ -65,7 +64,7 @@ export const sharedRoomMethods = {
       this.socket.emit('leaveRoom', roomCode);
     },
     closeAllMessages() {
-      Message.closeAll();
+      // push.clearAll();
     },
     connectSocket() {
       if (!this.socket.connected) {
@@ -77,20 +76,17 @@ export const sharedRoomMethods = {
         this.gameStarted = true;
         this.$store.commit('setQuestion', question);
         this.$store.commit('setGameMode', gameMode);
-        Message.closeAll();
-        Message.info(`Joined room ${this.joinedRoomCode}`, {
-          duration: MESSAGE_DURATION
-        });
         this.$router.push(`/rooms/game/${this.joinedRoomCode}`);
       });
 
       this.socket.on('joinedRoom', roomCode => {
-        Message.closeAll();
         this.$store.state.roomCode = roomCode;
         this.joinedRoomCode = roomCode;
-        Message.loading(
-          () => `Waiting for another player, with room code: ${this.joinedRoomCode}`,
-          { duration: -1 }
+
+        // Handling loading message
+        if (this.loadingMessage?.clear) this.loadingMessage?.clear();
+        this.loadingMessage = push.promise(
+          `Waiting for another player, with room code: ${this.joinedRoomCode}`
         );
       });
 
@@ -99,19 +95,24 @@ export const sharedRoomMethods = {
       });
 
       this.socket.on('roomNotFound', () => {
-        Message.error(`Room ${this.roomCode} not found`, {
-          duration: MESSAGE_DURATION
+        push.error({
+          message: `Room ${this.roomCode} not found`,
+          duration: SHORT_MESSAGE_DURATION
         });
       });
 
       this.socket.on('roomFull', () => {
-        Message.warning(`Room ${this.roomCode} is full`, {
+        push.warning({
+          message: `Room ${this.roomCode} is full`,
           duration: MESSAGE_DURATION
         });
       });
 
       this.socket.on('roomManagementError', error => {
-        Message.error(error, { duration: MESSAGE_DURATION });
+        push.error({
+          message: error,
+          duration: MESSAGE_DURATION
+        });
       });
     }
   },

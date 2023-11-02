@@ -33,6 +33,7 @@
 
 <script>
 import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
+import { push } from '../main';
 
 export default {
   mixins: [sharedRoomMethods],
@@ -44,6 +45,9 @@ export default {
   },
   mounted() {
     this.$store.dispatch('fetchUserScore');
+  },
+  beforeUnmount() {
+    push.destroyAll();
   }
 };
 </script>

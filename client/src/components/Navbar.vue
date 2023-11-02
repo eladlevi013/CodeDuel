@@ -40,7 +40,6 @@ export default {
   methods: {
     logout() {
       this.$store.commit('setUser', null);
-      this.$store.commit('setSessionId', null);
       this.$router.push('/');
       this.$store.dispatch('logout');
     },
