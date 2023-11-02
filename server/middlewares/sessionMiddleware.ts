@@ -27,7 +27,7 @@ const sessionConfig: session.SessionOptions = {
     secure: process.env.PRODUCTION === 'true' ? true : false,
     httpOnly: true,
     maxAge: 2592000000,
-    sameSite: process.env.PRODUCTION === 'true' ? 'none' : 'lax'
+    sameSite: 'none'
   }
 };
 
