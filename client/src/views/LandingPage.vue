@@ -44,7 +44,11 @@ export default {
     };
   },
   mounted() {
-    this.$store.dispatch('fetchUserScore');
+    if (navigator.cookieEnabled) {
+      this.$store.dispatch('fetchUserScore');
+    } else {
+      push.warning('Please enable cookies to use this app');
+    }
   },
   beforeUnmount() {
     push.destroyAll();
