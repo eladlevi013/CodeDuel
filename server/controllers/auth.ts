@@ -84,7 +84,10 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: 'Logged in successfully',
-      account: account
+      account: {
+        username: account.username,
+        score: account.score
+      }
     });
   } catch (error) {
     return res.status(500).json({ message: 'An error occurred' });
@@ -242,7 +245,10 @@ export const register = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: 'Account created',
-      account: account
+      account: {
+        username: account.username,
+        score: account.score
+      }
     });
   } catch (error) {
     console.log(error);
