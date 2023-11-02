@@ -145,5 +145,121 @@ export const sqlQuestions = [
     orderMatters: false,
     difficulty: 3,
     categories: ['Subquery']
+  },
+  {
+    id: '9',
+    title: 'List Projects and Their Leads',
+    description:
+      'Write an SQL query to list the projects along with the names of the project leads (employees). Sort the result by project name in ascending order.',
+    tables: { projects: {}, employees: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT p.name AS project_name, e.name AS project_lead_name
+      FROM (SELECT * FROM projects ${preview ? 'LIMIT 5' : ''}) p
+      JOIN (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''}) e ON p.project_lead = e.id
+      ORDER BY project_name;
+    `;
+    },
+    orderMatters: true,
+    difficulty: 1,
+    categories: ['Joining Tables']
+  },
+  {
+    id: '10',
+    title: 'Count Projects by Department',
+    description:
+      'Write an SQL query to count the number of projects in each department. Sort the result by department name in ascending order.',
+    tables: { projects: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT department, COUNT(*) AS project_count
+      FROM (SELECT * FROM projects ${preview ? 'LIMIT 5' : ''})
+      GROUP BY department
+      ORDER BY department;
+    `;
+    },
+    orderMatters: false,
+    difficulty: 1,
+    categories: ['Aggregation', 'Joining Tables']
+  },
+  {
+    id: '11',
+    title: 'Project with Highest Expenses',
+    description:
+      'Write an SQL query to find the project with the highest total salary expenses (sum of employee salaries) within the project. Display the project name and total expenses. Sort the result by total expenses in descending order.',
+    tables: { projects: {}, employees: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT p.name AS project_name, SUM(e.salary) AS total_expenses
+      FROM (SELECT * FROM projects ${preview ? 'LIMIT 5' : ''}) p
+      JOIN (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''}) e ON p.project_lead = e.id
+      GROUP BY project_name
+      ORDER BY total_expenses DESC;
+    `;
+    },
+    orderMatters: false,
+    difficulty: 2,
+    categories: ['Aggregation', 'Joining Tables']
+  },
+  {
+    id: '12',
+    title: 'List Employees and Their Project Assignments',
+    description:
+      'Write an SQL query to list the names of employees and the projects they are assigned to. Include employees even if they are not assigned to any project. Sort the result by employee name in ascending order.',
+    tables: { projects: {}, employees: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT e.name AS employee_name, p.name AS project_name
+      FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''}) e
+      LEFT JOIN (SELECT * FROM projects ${preview ? 'LIMIT 5' : ''}) p ON e.id = p.project_lead
+      ORDER BY employee_name;
+    `;
+    },
+    orderMatters: true,
+    difficulty: 2,
+    categories: ['Joining Tables']
+  },
+  {
+    id: '13',
+    title: 'Average Salary by Department',
+    description:
+      'Write an SQL query to calculate the average salary of employees in each department. Sort the result by department name in ascending order.',
+    tables: { employees: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT department, AVG(salary) AS average_salary
+      FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''})
+      GROUP BY department
+      ORDER BY department;
+    `;
+    },
+    orderMatters: false,
+    difficulty: 2,
+    categories: ['Aggregation', 'Joining Tables']
+  },
+  {
+    id: '14',
+    title: 'List Employees in IT Department with Project Assignments',
+    description:
+      'Write an SQL query to list the names of employees in the IT department along with the projects they are assigned to. Sort the result by employee name in ascending order.',
+    tables: { projects: {}, employees: {} },
+    example: {},
+    sqlQuery: (preview: boolean) => {
+      return `
+      SELECT e.name AS employee_name, p.name AS project_name
+      FROM (SELECT * FROM employees ${preview ? 'LIMIT 5' : ''}) e
+      LEFT JOIN (SELECT * FROM projects ${preview ? 'LIMIT 5' : ''}) p ON e.id = p.project_lead
+      WHERE e.department = 'IT'
+      ORDER BY employee_name;
+    `;
+    },
+    orderMatters: false,
+    difficulty: 2,
+    categories: ['Joining Tables']
   }
 ];

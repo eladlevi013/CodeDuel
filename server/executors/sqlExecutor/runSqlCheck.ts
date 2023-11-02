@@ -1,13 +1,15 @@
 import { sqlQuestions } from '../../db/sqlQuestions';
 import sqlite3 from 'sqlite3';
 import createEmployeesTable from '../../sqlTables/employees';
+import createProjectsTable from '../../sqlTables/projects';
 
 // global variables
 const db = new sqlite3.Database(`test.sqlite`);
 
 // tables creation queries dictionary
 const tablesCreationQuery: Record<string, string> = {
-  employees: createEmployeesTable
+  employees: createEmployeesTable,
+  projects: createProjectsTable
 };
 
 // Wrap the database operations in a Promise
