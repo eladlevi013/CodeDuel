@@ -41,7 +41,9 @@
         :class="{ 'server-btn-sql': server.mode === 'sql' }"
         class="server-btn"
       >
-        {{ server.mode == 'sql' ? 'SQL🗄️' : 'CODING💻' }}
+        <span style="font-size: 17px; font-weight: bold">
+          {{ server.mode == 'sql' ? 'SQL🗄️' : 'CODING💻' }}
+        </span>
         <br />
         {{ server.roomCode }} ({{ server?.players?.length ?? 0 }} Players)
       </button>
@@ -167,7 +169,7 @@ export default {
 }
 
 .server-btn {
-  padding: 20px 30px;
+  padding: 15px 30px;
   background-color: #39261f;
   color: #ffffff;
   border: none;
