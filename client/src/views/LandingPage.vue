@@ -15,7 +15,7 @@
       <input
         type="text"
         placeholder="Room Code"
-        maxlength="6"
+        maxlength="8"
         v-model="roomCode"
         class="room-code-input"
       />

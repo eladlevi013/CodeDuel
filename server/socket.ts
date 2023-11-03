@@ -8,7 +8,9 @@ import {
   roomCodeGenerator,
   getRoomCodeFromSocketId,
   quickMatch,
-  joinRoom
+  joinRoom,
+  addingBattleToDB,
+  createRoom
 } from './utils/roomsHelper';
 import {
   updateWinnerPlayerScore,
@@ -106,13 +108,13 @@ export const setupSocketIO = (httpServer: HttpServer) => {
 
       let submittedPlayerFound = false;
       room.successfulSubmissions.forEach(submission => {
-        if (submission.player.sid === player.sid) {
+        if (submission.sid === player.sid) {
           submittedPlayerFound = true;
         }
       });
 
       if (!submittedPlayerFound) {
-        room.successfulSubmissions.push({ player: player, time: 'none', memory: 0 });
+        room.successfulSubmissions.push(player);
       }
 
       // On first successful submission, start timer
@@ -124,7 +126,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
         // start countdown to end game
         setTimeout(async () => {
           if (room && room.countdownStarted && room.players.length == 2) {
-            const winnerPlayer = rooms.get(roomCode)?.successfulSubmissions[0].player as BasePlayer;
+            const winnerPlayer = rooms.get(roomCode)?.successfulSubmissions[0] as BasePlayer;
 
             if (winnerPlayer) {
               // sending all players except winnerPlayer.id
@@ -140,6 +142,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
               // send only to winnerPlayer.id
               updateWinnerPlayerScore(winnerPlayer);
               io.to(winnerPlayer.sid).emit(GAME_END_WIN_SOCKET_EVENT);
+              addingBattleToDB(room, winnerPlayer);
             }
 
             rooms.delete(roomCode);
@@ -150,6 +153,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
       // if all players solved problem, end game
       if (room.successfulSubmissions.length === room.players.length) {
         io.in(roomCode).emit(GAME_END_TIE_SOCKET_EVENT);
+        addingBattleToDB(room, null);
         updatePlayersScoreOnTie(room.players);
         room.countdownStarted = false;
 
@@ -169,6 +173,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     socket.on(DISCONNECT_SOCKET_EVENT, () => {
       for (const [roomCode, room] of rooms.entries()) {
         const playerIndex = room.players.findIndex(player => player.sid === socket.id);
+        const roomBackup = JSON.parse(JSON.stringify(room));
 
         if (playerIndex > -1) {
           room.players.splice(playerIndex, 1);
@@ -176,6 +181,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
           if (room.gameStarted && room.players.length === 1) {
             socket.to(roomCode).emit(OTHER_PLAYER_LEFT_SOCKET_EVENT);
             const winner = room.players[0] as LoggedInPlayer;
+            addingBattleToDB(roomBackup, winner);
             updateWinnerPlayerScore(winner);
             rooms.delete(roomCode);
           }
@@ -210,17 +216,7 @@ export const setupSocketIO = (httpServer: HttpServer) => {
     });
 
     socket.on(CREATE_ROOM_SOCKET_EVENT, (isPublic, gameMode) => {
-      const roomCode = roomCodeGenerator().toString();
-
-      rooms.set(roomCode, {
-        players: [],
-        isPublic: isPublic,
-        gameStarted: false,
-        countdownStarted: false,
-        successfulSubmissions: [],
-        roomCode: roomCode,
-        mode: gameMode
-      });
+      const roomCode = createRoom(rooms, gameMode, isPublic);
 
       socket.emit(CREATED_ROOM_SOCKET_EVENT, roomCode);
       io.emit(GET_ROOMS_SOCKET_EVENT, publicRooms(rooms));

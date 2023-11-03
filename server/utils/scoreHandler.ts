@@ -12,7 +12,7 @@ export const updateWinnerPlayerScore = async (player: Player) => {
   }
 
   let scoreToAdd = player.score == 0 ? 1 : 2;
-  console.log(`Adding ${scoreToAdd} coins to ${player.username}🪙`);
+  console.log(`Adding ${scoreToAdd} coins to ${player.username} 🪙`);
 
   // updating player score
   try {
@@ -46,7 +46,7 @@ export const updatePlayersScoreOnTie = async (players: Player[]) => {
         }
 
         account.score += 1;
-        console.log(`Return coins on tie for ${player.username}👌`);
+        console.log(`Return coins on tie for ${player.username} 👌`);
 
         await account.save();
       } catch (error) {
@@ -68,7 +68,7 @@ export const updatePariticipantScore = async (player: Player) => {
         if (account.score > 0) {
           account.score -= 1;
           await account.save();
-          console.log(`Taking 1 coin - ${loggedInPlayer.username} started a battle🏁`);
+          console.log(`Taking 1 coin - ${loggedInPlayer.username} started a battle 🏁`);
         }
       }
     } catch (err) {

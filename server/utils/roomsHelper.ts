@@ -1,5 +1,5 @@
 import Account from '../models/Account';
-import { LoggedInPlayer, Room } from '../models/Room';
+import { LoggedInPlayer, Player, Room } from '../models/Room';
 import { ROOM_FULL_SOCKET_EVENET, PLAYERS_PER_ROOM, JOINED_ROOM_SOCKET_EVENT } from '../socket';
 import {
   GET_ROOMS_SOCKET_EVENT,
@@ -14,6 +14,8 @@ import { getTypeByLanguage } from '../executors/codeExecutor/languageUtil/langua
 import { sqlQuestions } from '../db/sql/sqlQuestions';
 import { getExampleAnswer, getTablePreview } from '../executors/sqlExecutor/runSqlCheck';
 import { updatePariticipantScore } from './scoreHandler';
+import Battle from '../models/Battle';
+import mongoose from 'mongoose';
 
 export const publicRooms = (rooms: Map<string, Room>) => {
   const roomsArray: Room[] = [];
@@ -90,7 +92,7 @@ export const joinRoom = async (
       }
 
       console.log(
-        `${username == null ? 'Anonymous' : `player ${username}`} joins room ${roomCode}👋`
+        `${username == null ? 'Anonymous' : `player ${username}`} joins room ${roomCode} 👋`
       );
 
       // Join the room
@@ -101,10 +103,8 @@ export const joinRoom = async (
         // deep copy of question object
         const question =
           room.mode === SQL_GAME_MODE
-            ? JSON.parse(
-                JSON.stringify(sqlQuestions[Math.floor(Math.random() * sqlQuestions.length)])
-              )
-            : JSON.parse(JSON.stringify(questions[Math.floor(Math.random() * questions.length)]));
+            ? JSON.parse(JSON.stringify(sqlQuestions[room.questionId]))
+            : JSON.parse(JSON.stringify(questions[room.questionId]));
 
         if (room.mode === CODING_GAME_MODE) {
           // updating question data-types
@@ -212,19 +212,40 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
     const room = emptyRooms[0];
     return room.roomCode;
   } else {
-    const roomCode = roomCodeGenerator();
-    const room = {
-      players: [],
-      isPublic: true,
-      gameStarted: false,
-      countdownStarted: false,
-      successfulSubmissions: [],
-      roomCode: roomCode,
-      mode: Math.floor(Math.random() * 2) == 0 ? CODING_GAME_MODE : SQL_GAME_MODE
-    };
-    rooms.set(roomCode, room);
-    return roomCode;
+    return createRoom(rooms, null, null);
   }
+};
+
+export const createRoom = (
+  rooms: Map<string, Room>,
+  gameMode: string | null,
+  isPublic: boolean | null
+) => {
+  const roomCode = roomCodeGenerator();
+
+  if (gameMode === null) {
+    gameMode = Math.floor(Math.random() * 2) == 0 ? CODING_GAME_MODE : SQL_GAME_MODE;
+  }
+
+  const room = {
+    players: [],
+    isPublic: isPublic == null ? true : isPublic,
+    gameStarted: false,
+    countdownStarted: false,
+    successfulSubmissions: [],
+    roomCode: roomCode,
+    mode: gameMode,
+    questionId:
+      gameMode === SQL_GAME_MODE
+        ? Math.floor(Math.random() * sqlQuestions.length)
+        : Math.floor(Math.random() * questions.length)
+  };
+  rooms.set(roomCode, room);
+  console.log(
+    `Creating room ${room.roomCode}, with mode ${room.mode} and isPublic ${room.isPublic} 🎉`
+  );
+
+  return roomCode;
 };
 
 export function printRooms(rooms: Map<string, Room>): void {
@@ -243,11 +264,36 @@ export function printRooms(rooms: Map<string, Room>): void {
     console.log('Successful Submissions:');
     room.successfulSubmissions.forEach((submission, index) => {
       console.log(`Submission ${index + 1}:`);
-      console.log('Player:', JSON.stringify(submission.player, null, 2));
-      console.log('Time:', submission.time);
-      console.log('Memory:', submission.memory);
+      console.log('Player:', JSON.stringify(submission, null, 2));
     });
 
     console.log('-----------------------');
   });
+}
+
+export function addingBattleToDB(room: Room, winner: Player | null) {
+  // converting uid to mongoose.Types.ObjectId
+  room.players.forEach(player => {
+    if ('uid' in player) {
+      player.uid = new mongoose.Types.ObjectId(player.uid.toString());
+    }
+  });
+
+  // converting winner uid to mongoose.Types.ObjectId
+  if (winner && 'uid' in winner) {
+    winner.uid = new mongoose.Types.ObjectId(winner.uid.toString());
+  }
+
+  const battle = new Battle({
+    _id: new mongoose.Types.ObjectId(),
+    date: new Date(),
+    roomCode: room.roomCode,
+    battleMode: room.mode,
+    questionId: room.questionId,
+    players: room.players,
+    submissions: room.successfulSubmissions,
+    winner: winner
+  });
+
+  battle.save();
 }
