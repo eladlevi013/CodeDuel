@@ -1,13 +1,14 @@
 import { executeCode } from './codeExecutor';
 import { LanguageHelper } from './languageUtil/languageHelper';
 import { Variable } from '../../models/Question';
-import { questions } from '../../db/codingQuestions';
+import { questions } from '../../db/coding/codingQuestions';
 import { pythonHelper } from './languageUtil/pythonHelper';
 import { javaHelper } from './languageUtil/javaHelper';
 
 const PYTHON_LANGUAGE_ID = 'python';
 const JAVA_LANGUAGE_ID = 'java';
 
+// Map of language helpers
 const LANGUAGE_HELPERS: Record<string, LanguageHelper> = {
   [PYTHON_LANGUAGE_ID]: pythonHelper,
   [JAVA_LANGUAGE_ID]: javaHelper

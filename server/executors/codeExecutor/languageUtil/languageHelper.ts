@@ -10,7 +10,7 @@ export interface LanguageHelper {
   getValue(variable: Variable): string;
 }
 
-// getting array inner-type and nesting count
+// Getting array inner-type and nesting count
 export function getArrayInfo(str: string): { nestedArray: number; arrayType: string } {
   let nestingCount = 0;
 

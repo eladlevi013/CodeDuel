@@ -6,14 +6,14 @@ import {
   ROOM_NOT_FOUND_SOCKET_EVENT,
   START_GAME_SOCKET_EVENT,
   ROOM_MANAGEMENT_ERROR_SOCKET_EVENT,
-  updatePariticipantScore,
   SQL_GAME_MODE,
   CODING_GAME_MODE
 } from '../socket';
-import { questions } from '../db/codingQuestions';
+import { questions } from '../db/coding/codingQuestions';
 import { getTypeByLanguage } from '../executors/codeExecutor/languageUtil/languageHelper';
-import { sqlQuestions } from '../db/sqlQuestions';
+import { sqlQuestions } from '../db/sql/sqlQuestions';
 import { getExampleAnswer, getTablePreview } from '../executors/sqlExecutor/runSqlCheck';
+import { updatePariticipantScore } from './scoreHandler';
 
 export const publicRooms = (rooms: Map<string, Room>) => {
   const roomsArray: Room[] = [];
@@ -29,7 +29,7 @@ export const roomCodeGenerator = (): string => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     result += characters.charAt(randomIndex);
   }
@@ -54,8 +54,6 @@ export const joinRoom = async (
   roomCode: string,
   uid: string | null
 ) => {
-  console.log(`player ${uid} joins room ${roomCode} 👋`);
-
   if (rooms.has(roomCode)) {
     const room = rooms.get(roomCode);
 
@@ -79,16 +77,21 @@ export const joinRoom = async (
       (room && room.players[0] && room.players[0].sid !== socket.id) ||
       (room && room.players.length === 0)
     ) {
+      let username = null;
+
       // adding player to room object
       if (uid == null) {
         room.players.push({ sid: socket.id });
       } else {
         const account = await Account.findById(uid);
-        const username = account?.username;
+        username = account?.username;
         const score = account?.score;
-
         room.players.push({ sid: socket.id, uid: uid, username: username, score: score });
       }
+
+      console.log(
+        `${username == null ? 'Anonymous' : `player ${username}`} joins room ${roomCode}👋`
+      );
 
       // Join the room
       socket.join(roomCode);
@@ -223,3 +226,28 @@ export const createOrJoinEmptyRoom = async (rooms: Map<string, Room>) => {
     return roomCode;
   }
 };
+
+export function printRooms(rooms: Map<string, Room>): void {
+  rooms.forEach((room, roomKey) => {
+    console.log('Room Key:', roomKey);
+    console.log('isPublic:', room.isPublic);
+    console.log('roomCode:', room.roomCode);
+    console.log('gameStarted:', room.gameStarted);
+    console.log('countdownStarted:', room.countdownStarted);
+    console.log('Players:');
+
+    room.players.forEach((player, index) => {
+      console.log(`Player ${index + 1}:`, JSON.stringify(player, null, 2));
+    });
+
+    console.log('Successful Submissions:');
+    room.successfulSubmissions.forEach((submission, index) => {
+      console.log(`Submission ${index + 1}:`);
+      console.log('Player:', JSON.stringify(submission.player, null, 2));
+      console.log('Time:', submission.time);
+      console.log('Memory:', submission.memory);
+    });
+
+    console.log('-----------------------');
+  });
+}

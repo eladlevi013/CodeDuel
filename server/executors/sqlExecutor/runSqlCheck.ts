@@ -1,20 +1,19 @@
-import { sqlQuestions } from '../../db/sqlQuestions';
+import { sqlQuestions } from '../../db/sql/sqlQuestions';
 import sqlite3 from 'sqlite3';
-import createEmployeesTable from '../../sqlTables/employees';
-import createProjectsTable from '../../sqlTables/projects';
+import createEmployeesTable from '../../db/sql/tables/employees';
+import createProjectsTable from '../../db/sql/tables/projects';
 
-// global variables
+// Globals
 const db = new sqlite3.Database(`test.sqlite`);
-
-// tables creation queries dictionary
+// Tables creation queries dictionary
 const tablesCreationQuery: Record<string, string> = {
   employees: createEmployeesTable,
   projects: createProjectsTable
 };
 
-// Wrap the database operations in a Promise
 const executeQuery = (db: sqlite3.Database, query: string): Promise<any[]> => {
   return new Promise((resolve, reject) => {
+    // Validate query
     if (!query || typeof query !== 'string') {
       reject(new Error('Invalid or empty query'));
       return;
@@ -34,7 +33,6 @@ const initTableDependencies = async (tables: string[]) => {
   for (const table of tables) {
     const tableCreationQuery = tablesCreationQuery[table];
 
-    // Wrap table creation in a Promise
     await new Promise<void>((resolve, reject) => {
       db.exec(tableCreationQuery, err => {
         if (err) {
