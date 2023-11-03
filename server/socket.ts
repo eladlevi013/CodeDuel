@@ -5,7 +5,6 @@ import { Server as HttpServer } from 'http';
 import { BasePlayer, LoggedInPlayer, Player, Room } from './models/Room';
 import {
   publicRooms,
-  roomCodeGenerator,
   getRoomCodeFromSocketId,
   quickMatch,
   joinRoom,

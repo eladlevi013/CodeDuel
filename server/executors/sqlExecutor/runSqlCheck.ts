@@ -1,7 +1,7 @@
-import { sqlQuestions } from '../../db/sql/sqlQuestions';
+import { sqlQuestions } from '../../questions/sql/sqlQuestions';
 import sqlite3 from 'sqlite3';
-import createEmployeesTable from '../../db/sql/tables/employees';
-import createProjectsTable from '../../db/sql/tables/projects';
+import createEmployeesTable from '../../questions/coding/tables/employees';
+import createProjectsTable from '../../questions/coding/tables/projects';
 
 // Globals
 const db = new sqlite3.Database(`test.sqlite`);

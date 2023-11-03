@@ -12,7 +12,7 @@ export const updateWinnerPlayerScore = async (player: Player) => {
   }
 
   let scoreToAdd = player.score == 0 ? 1 : 2;
-  console.log(`Adding ${scoreToAdd} coins to ${player.username} 🪙`);
+  console.log(`Adding ${scoreToAdd} coins to ${player.username} 💵`);
 
   // updating player score
   try {

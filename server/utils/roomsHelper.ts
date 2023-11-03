@@ -9,9 +9,9 @@ import {
   SQL_GAME_MODE,
   CODING_GAME_MODE
 } from '../socket';
-import { questions } from '../db/coding/codingQuestions';
+import { questions } from '../questions/coding/codingQuestions';
 import { getTypeByLanguage } from '../executors/codeExecutor/languageUtil/languageHelper';
-import { sqlQuestions } from '../db/sql/sqlQuestions';
+import { sqlQuestions } from '../questions/sql/sqlQuestions';
 import { getExampleAnswer, getTablePreview } from '../executors/sqlExecutor/runSqlCheck';
 import { updatePariticipantScore } from './scoreHandler';
 import Battle from '../models/Battle';
@@ -242,7 +242,7 @@ export const createRoom = (
   };
   rooms.set(roomCode, room);
   console.log(
-    `Creating room ${room.roomCode}, with mode ${room.mode} and isPublic ${room.isPublic} 🎉`
+    `Creating room: ${room.roomCode}, with mode: ${room.mode} and isPublic: ${room.isPublic} 🎉`
   );
 
   return roomCode;
@@ -296,4 +296,6 @@ export function addingBattleToDB(room: Room, winner: Player | null) {
   });
 
   battle.save();
+
+  console.log(`Battle ${room.roomCode} saved to DB! 📝`);
 }

@@ -43,7 +43,7 @@ export default new Vuex.Store({
         const data = await response.data;
         const score = data.score;
         commit('setUserScore', score);
-        console.log(`User score: ${score}💵`);
+        console.log(`User score: ${score} 💵`);
       } catch (error) {
         console.error('Error fetching the user score:', error);
       }
