@@ -1,6 +1,6 @@
 <template>
-  <h1 class="roomsTitle">Quick Menu</h1>
-  <div class="quick-menu-container">
+  <h1 class="rooms-title">Quick Menu</h1>
+  <section class="quick-menu-container">
     <input
       type="text"
       placeholder="Room Code"
@@ -8,27 +8,27 @@
       v-model="roomCode"
       class="room-code-input"
     />
-    <button class="buttonDesign" @click="joinRoom(this.roomCode)">Join</button>
-    <button @click="createRoom" class="buttonDesign">Create Room</button>
-  </div>
+    <button class="btn-main" @click="joinRoom(this.roomCode)">Join</button>
+    <button @click="createRoom" class="btn-main">Create Room</button>
+  </section>
 
   <!-- checkbox -->
-  <div class="checkbox-container">
+  <section class="checkbox-container">
     <label class="private-room-label">
       <input type="checkbox" v-model="isPrivate" />
       <span>Make Room Private</span>
     </label>
-  </div>
+  </section>
 
   <!-- rooms -->
-  <h1 class="roomsTitle" v-if="this.availableRooms.length > 0">Rooms🗄️</h1>
+  <h1 class="rooms-title" v-if="this.availableRooms.length > 0">Rooms🗄️</h1>
   <div
     class="quick-menu-container quick-menu-container-filter"
     v-if="this.availableRooms.length > 0"
   >
-    <button class="buttonDesign filter-button" @click="filterRooms('ALL')">All Rooms</button>
-    <button class="buttonDesign filter-button" @click="filterRooms('sql')">SQL Rooms</button>
-    <button class="buttonDesign filter-button" @click="filterRooms('coding')">Coding Rooms</button>
+    <button class="btn-main filter-button" @click="filterRooms('ALL')">All Rooms</button>
+    <button class="btn-main filter-button" @click="filterRooms('sql')">SQL Rooms</button>
+    <button class="btn-main filter-button" @click="filterRooms('coding')">Coding Rooms</button>
   </div>
   <br />
 
@@ -53,7 +53,8 @@
 
 <script>
 import { sharedRoomMethods } from '../mixins/sharedRoomMethods';
-import { push } from '../main';
+import { destroyAllToasts } from '../utils/toastController';
+import { openRoomCreatedModal } from '../utils/modalController';
 
 export default {
   mixins: [sharedRoomMethods],
@@ -82,19 +83,11 @@ export default {
     }
 
     this.$store.state.socket.on('createdRoom', roomCode => {
-      this.$swal
-        .fire({
-          title: 'Room Created',
-          text: `Share this code with your friend: ${roomCode}`,
-          icon: 'success',
-          confirmButtonText: 'Copy Room Link',
-          confirmButtonColor: '#005ce6'
-        })
-        .then(result => {
-          if (result.isConfirmed) {
-            navigator.clipboard.writeText(`${process.env.VUE_APP_BASE_URL}/rooms/${roomCode}`);
-          }
-        });
+      openRoomCreatedModal(roomCode).then(result => {
+        if (result.isConfirmed) {
+          navigator.clipboard.writeText(`${process.env.VUE_APP_BASE_URL}/rooms/${roomCode}`);
+        }
+      });
 
       this.joinRoom(roomCode);
     });
@@ -105,13 +98,15 @@ export default {
     }
   },
   beforeUnmount() {
-    push.destroyAll();
+    destroyAllToasts();
     this.$store.state.socket.off('createdRoom');
   }
 };
 </script>
 
-<style>
+<style scoped>
+@import '../styles/main.css';
+
 .filter-button {
   background-color: #e8e0c5;
   border: none;
@@ -129,7 +124,7 @@ export default {
   text-align: center;
 }
 
-.roomsTitle {
+.rooms-title {
   text-align: center;
   align-items: center;
   font-size: 40px;
@@ -204,7 +199,7 @@ export default {
 }
 
 @media only screen and (max-width: 840px) {
-  .roomsTitle {
+  .rooms-title {
     font-size: 32px;
     margin-top: 50px;
     margin-bottom: 15px;
@@ -238,7 +233,7 @@ export default {
 }
 
 @media only screen and (max-width: 480px) {
-  .roomsTitle {
+  .rooms-title {
     font-size: 25px;
     margin-top: 40px;
     margin-bottom: 10px;

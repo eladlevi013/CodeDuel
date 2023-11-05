@@ -87,7 +87,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* Chat Styles */
 .chat-container {
   overflow-y: auto;
@@ -100,21 +100,20 @@ export default {
 
 .chat-message {
   clear: both;
-  /* margin: 3px 0; */
   padding: 5px 0;
 }
 
 .sender-name {
   font-weight: bold;
   margin-bottom: 2px;
-  text-align: left; /* default alignment for "You" */
+  text-align: left;
   font-size: 0.8em;
   color: #888;
   margin-top: 10px;
 }
 
 .other > .sender-name {
-  text-align: right; /* alignment for "Opponent" */
+  text-align: right;
 }
 
 .chat-message-bubble {
@@ -141,7 +140,7 @@ export default {
 
 .timestamp-self,
 .timestamp-other {
-  display: block; /* Making timestamps block-level */
+  display: block;
   font-size: 0.8em;
   color: #888;
   margin-top: 3px;

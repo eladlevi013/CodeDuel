@@ -1,7 +1,7 @@
 <template>
-  <h1 class="title">Leaderboard🏆</h1>
+  <h1 class="leaderboard-title">Leaderboard🏆</h1>
   <div class="table-container" v-if="leaderboard.length > 0">
-    <table class="table">
+    <table class="leaderboard-table">
       <thead>
         <tr>
           <th>Rank</th>
@@ -13,9 +13,9 @@
         <tr v-for="(user, index) in leaderboard" :key="user.username">
           <td>
             <!-- Using a span to adjust the size of the crown -->
-            <span v-if="index === 0" class="crown">👑</span>
-            <span v-else-if="index === 1" class="crown">🥈</span>
-            <span v-else-if="index === 2" class="crown">🥉</span>
+            <span v-if="index === 0" class="award">👑</span>
+            <span v-else-if="index === 1" class="award">🥈</span>
+            <span v-else-if="index === 2" class="award">🥉</span>
             <span v-else>{{ index + 1 }}</span>
           </td>
           <td>{{ user.username }}</td>
@@ -51,10 +51,6 @@ export default {
 </script>
 
 <style scoped>
-body {
-  font-family: 'Poppins', cursive;
-}
-
 .table-container {
   display: flex;
   justify-content: center;
@@ -62,15 +58,17 @@ body {
   height: 100%;
 }
 
-.title {
+.leaderboard-title {
   font-size: 50px;
   font-weight: bold;
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  margin-top: 100px;
+  font-family: 'Skranji';
 }
 
-.table {
+.leaderboard-table {
   border-collapse: separate;
   border-spacing: 0;
   width: 900px;
@@ -81,27 +79,23 @@ body {
   overflow: hidden;
 }
 
-.table th,
-.table td {
+.leaderboard-table th,
+.leaderboard-table td {
   padding: 15px 20px;
   border: none;
   text-align: center;
   font-size: 20px;
 }
 
-.table tbody tr:nth-child(odd) {
+.leaderboard-table tbody tr:nth-child(odd) {
   background-color: #ede6cf;
 }
 
-.table tbody tr:nth-child(even) {
+.leaderboard-table tbody tr:nth-child(even) {
   background-color: #f2ebd6;
 }
 
-.table tr:hover {
-  background-color: rgba(57, 38, 31, 0.1);
-}
-
-.table th {
+.leaderboard-table th {
   background-color: #4a3423;
   color: #ffffff;
   font-weight: 600;
@@ -115,7 +109,7 @@ body {
   font-size: 20px;
 }
 
-.crown {
+.award {
   font-size: 35px;
   vertical-align: middle;
   display: inline-block;
@@ -123,7 +117,7 @@ body {
 }
 
 @media (max-width: 1100px) {
-  .table {
+  .leaderboard-table {
     width: 90%;
   }
 }

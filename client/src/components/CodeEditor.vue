@@ -30,7 +30,7 @@
   </div>
 
   <!-- Codemirror IDE -->
-  <div class="content">
+  <div class="codeeditor-container">
     <codemirror
       v-model="code"
       :placeholder="getPlaceholder()"
@@ -53,7 +53,8 @@ import { java } from '@codemirror/lang-java';
 import { sql } from '@codemirror/lang-sql';
 import { solarizedLight } from '@uiw/codemirror-theme-solarized';
 import { birdsOfParadise } from 'thememirror';
-import { push } from '../main';
+import { clearAllToasts, promiseToast, warningToast } from '../utils/toastController';
+import { openGameEndModal } from '../utils/modalController';
 
 export default {
   props: ['question'],
@@ -65,59 +66,47 @@ export default {
     this.$store.state.socket.on('gameEndWin', () => {
       this.removeSocketListener();
       this.showTimer = false;
-      push.clearAll();
+      clearAllToasts();
       console.log('You won! 🎉');
-
-      this.$swal({
-        title: 'Congratulations!',
-        text: 'You won!',
-        icon: 'success',
-        timer: 10000,
-        buttons: false,
-        closeOnClickOutside: false,
-        closeOnEsc: false
-      }).then(() => {
-        this.$router.push('/');
-      });
+      openGameEndModal(
+        {
+          title: 'Congratulations!',
+          text: 'You won!',
+          icon: 'success'
+        },
+        this.$router
+      );
     });
 
     this.$store.state.socket.on('gameEndLose', winnerPlayerName => {
       this.removeSocketListener();
       this.showTimer = false;
-      push.clearAll();
+      clearAllToasts();
       console.log('You lost! 😢');
-
-      this.$swal({
-        title: 'Game Over!',
-        text: `You lost!, ${winnerPlayerName} won!`,
-        icon: 'info',
-        timer: 10000,
-        buttons: false,
-        closeOnClickOutside: false,
-        closeOnEsc: false
-      }).then(() => {
-        this.$router.push('/');
-      });
+      openGameEndModal(
+        {
+          title: 'Game Over!',
+          text: `You lost!, ${winnerPlayerName} won!`,
+          icon: 'info'
+        },
+        this.$router
+      );
     });
 
     this.$store.state.socket.on('endGameTie', () => {
       this.removeSocketListener();
       this.showTimer = false;
-      push.clearAll();
+      clearAllToasts();
       this.$store.state.socket.off('otherPlayerLeft');
       console.log('It is a tie! 🤝');
-
-      this.$swal({
-        title: 'Game Over!',
-        text: "It's a tie!",
-        icon: 'info',
-        timer: 10000,
-        buttons: false,
-        closeOnClickOutside: false,
-        closeOnEsc: false
-      }).then(() => {
-        this.$router.push('/');
-      });
+      openGameEndModal(
+        {
+          title: 'Game Over!',
+          text: "It's a tie!",
+          icon: 'info'
+        },
+        this.$router
+      );
     });
 
     this.$store.state.socket.on('startGameTimer', async () => {
@@ -125,10 +114,9 @@ export default {
       this.showTimer = true;
       this.startTimer();
       console.log('Your opponent finished the question! ⏰');
-
-      push.warning(
-        'your opponent finished the question, you have 60 seconds to solve the problem...'
-      );
+      warningToast({
+        message: 'your opponent finished the question, you have 60 seconds to solve the problem...'
+      });
     });
 
     this.$store.state.socket.on('codeSuccess', () => {
@@ -171,13 +159,13 @@ export default {
   },
   methods: {
     closeMessages() {
-      push.clearAll();
+      clearAllToasts();
     },
     runCode() {
       if (this.loadingMessage?.clear) {
         this.loadingMessage.clear();
       }
-      this.loadingMessage = push.promise('Testing your code...');
+      this.loadingMessage = promiseToast('Testing your code...');
 
       this.$store.state.socket.emit(
         'codeSubmission',
@@ -271,7 +259,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .cm-editor.cm-focused {
   outline: none;
 }
@@ -323,5 +311,11 @@ export default {
     0 1px black,
     1px 0 black,
     0 -1px black;
+}
+
+.codeeditor-container {
+  height: 100%;
+  position: relative;
+  width: 100%;
 }
 </style>

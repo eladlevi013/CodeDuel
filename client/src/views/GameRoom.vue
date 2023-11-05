@@ -113,7 +113,7 @@ import CodeEditor from '../components/CodeEditor.vue';
 import ErrorConsole from '../components/ErrorConsole.vue';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css';
-import { push } from '../main';
+import { openOtherPlayerLeftModal, closeModal } from '../utils/modalController';
 
 export default {
   components: { Splitpanes, Pane, Chat, CodeEditor, ErrorConsole },
@@ -163,7 +163,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('fetchUserScore');
-    this.$swal.close();
+    closeModal();
     this.question = this.$store.state.question;
     this.roomCode = this.$store.state.roomCode;
     this.gameMode = this.$store.state.gameMode;
@@ -178,15 +178,7 @@ export default {
     });
 
     this.$store.state.socket.on('otherPlayerLeft', () => {
-      this.$swal({
-        title: 'Other player left the room',
-        text: 'Redirecting to home page...',
-        icon: 'warning',
-        timer: 5000,
-        buttons: false,
-        closeOnClickOutside: false,
-        closeOnEsc: false
-      }).then(() => {
+      openOtherPlayerLeftModal().then(() => {
         if (this.$route.path !== '/') {
           this.$router.push('/');
         }
@@ -201,7 +193,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+@import '../styles/main.css';
+
 pre {
   margin-bottom: 40px;
 }

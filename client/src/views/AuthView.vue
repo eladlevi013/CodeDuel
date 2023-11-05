@@ -7,14 +7,14 @@
     <form class="auth-form" @submit.prevent>
       <input
         v-if="!isLogin"
-        class="class-input"
+        class="auth-input"
         type="text"
         placeholder="Enter your username"
         v-model="username"
         autocomplete="on"
       />
       <input
-        class="class-input"
+        class="auth-input"
         type="email"
         placeholder="Enter your email"
         v-model="email"
@@ -24,7 +24,7 @@
         autocomplete="on"
         type="password"
         :placeholder="isLogin ? 'Enter your password' : 'Enter your password'"
-        class="class-input"
+        class="auth-input"
         v-model="password"
       />
       <div class="button-container">
@@ -55,7 +55,7 @@
 
 <script>
 import axios from 'axios';
-import { push } from '../main';
+import { promiseToast } from '../utils/toastController';
 
 export default {
   data() {
@@ -80,7 +80,7 @@ export default {
     },
     async login() {
       this.isLoading = true;
-      this.loadingMessage = push.promise('Logging in...');
+      this.loadingMessage = promiseToast('Logging in...');
 
       try {
         const response = await axios.post(
@@ -110,7 +110,7 @@ export default {
     },
     async register() {
       this.isLoading = true;
-      this.loadingMessage = push.promise('Registering...');
+      this.loadingMessage = promiseToast('Registering...');
 
       try {
         const response = await axios.post(`${process.env.VUE_APP_SERVER_URL}/auth/register`, {
@@ -143,19 +143,6 @@ export default {
 </script>
 
 <style scoped>
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(
-    0deg,
-    rgba(245, 245, 245, 1) 0%,
-    rgba(242, 234, 211, 1) 50%,
-    rgba(226, 208, 156, 1) 100%
-  );
-}
-
 .auth-container {
   text-align: center;
   padding: 5rem;
@@ -193,12 +180,12 @@ body {
   width: 100%;
   transition:
     box-shadow 0.3s ease-in-out,
-    border 0.3s ease-in-out; /* Added transition */
+    border 0.3s ease-in-out;
 }
 
 .auth-form input:focus {
   outline: none;
-  border-color: #482307; /* Only change the color on focus */
+  border-color: #482307;
   box-shadow: 0 0 10px #ac9950;
 }
 ::placeholder {
@@ -211,7 +198,6 @@ input:focus::placeholder {
 
 .auth-button {
   cursor: pointer;
-  border: none;
   border-radius: 0.5rem;
   font-size: 1.2rem;
   padding: 0.8rem 6.5rem;
@@ -224,9 +210,6 @@ input:focus::placeholder {
     transform 0.3s ease-in-out,
     background-color 0.3s ease-in-out,
     box-shadow 0.3s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .auth-button:active {
@@ -251,12 +234,12 @@ input:focus::placeholder {
   color: #26160d;
   text-decoration: underline;
   cursor: pointer;
-  transition: color 0.3s ease-in-out; /* Added transition */
+  transition: color 0.3s ease-in-out;
 }
 
 .switch-auth a:hover {
   color: #ac9950;
-  text-decoration: none; /* Removed the underline on hover */
+  text-decoration: none;
 }
 
 .button-container {
@@ -267,7 +250,7 @@ input:focus::placeholder {
   width: 100%;
 }
 
-.class-input {
+.auth-input {
   padding: 0.8rem 3rem !important;
   margin-top: -7px !important;
   border-radius: 7px !important;

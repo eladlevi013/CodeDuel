@@ -50,7 +50,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .auth-container {
   justify-content: flex-end;
   margin-right: 15px;
